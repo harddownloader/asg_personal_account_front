@@ -1,8 +1,24 @@
-import { ReactElement } from "react"
-import Head from 'next/head'
-import { Layout } from '@/components/Layout'
+import { ReactElement, useEffect } from "react"
+import { AccountLayout } from '@/components/Layout'
+import user from "@/stores/userStore"
+import { useRouter } from "next/router"
+
 
 function Home() {
+  const router = useRouter()
+  useEffect(() => {
+    checkUser()
+  })
+
+  const checkUser = async () => {
+    const isUserAuth = await user.checkUserAuth()
+    if (!isUserAuth) {
+      await router.push("/login")
+    }
+
+    return
+  }
+
   return (
     <>
       <p>Home</p>
@@ -11,7 +27,7 @@ function Home() {
 }
 
 Home.getLayout = function getLayout(page: ReactElement) {
-  return <Layout>{page}</Layout>
+  return <AccountLayout>{page}</AccountLayout>
 }
 
 export default Home
