@@ -39,8 +39,8 @@ function createFirebaseApp(config: FirebaseOptions) {
   }
 }
 
-export const firebaseApp = createFirebaseApp(firebaseConfig)
-export const firebaseAuth = getAuth(firebaseApp)
-export const firebaseFirestore = getFirestore(firebaseApp)
-export const firebaseAnalytics = isSupported().then(yes => yes ? getAnalytics(firebaseApp) : null)
+export const firebaseClient = createFirebaseApp(firebaseConfig)
+export const firebaseAuth = getAuth(firebaseClient)
+export const firebaseFirestore = getFirestore(firebaseClient)
+export const firebaseAnalytics = isSupported().then(yes => yes ? getAnalytics(firebaseClient) : null)
 
