@@ -201,10 +201,6 @@ class CargosStore {
     isArchive: boolean,
     currentUserCode: string
   }) => {
-    console.log({
-      isArchive,
-      currentUserCode,
-    })
     this.cargos.isCurrentItemsListArchive = isArchive
     this.cargos.currentItemsList = this.cargos.items.filter((cargo) => {
       return Boolean(
