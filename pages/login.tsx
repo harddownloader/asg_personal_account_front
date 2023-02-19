@@ -1,21 +1,53 @@
 import React, { ReactElement } from "react"
+import { GetServerSidePropsContext, InferGetServerSidePropsType } from "next"
 import Link from "next/link"
 import { useRouter } from "next/router"
+import nookies from "nookies"
 import { useForm } from "react-hook-form"
+
+// mui
 import Container from "@mui/material/Container"
 import TextField from '@mui/material/TextField'
+
+// project components
 import { AuthForm } from '@/components/Form'
 import { AuthLayout } from "@/components/Layout/AuthLayout/AuthLayout"
 import { Footer } from "@/components/Footer"
-import { ShowUsers } from "@/pages/registration"
-import user from "@/stores/userStore"
+
+// utils
+import { firebaseAdmin } from "@/lib/firebase/firebaseAdmin"
+
+// store
+import UserStore from "@/stores/userStore"
 
 export interface LoginFormData {
   email: string;
   password: string;
 }
 
-export function LoginPage() {
+export const getServerSideProps = async (ctx: GetServerSidePropsContext) => {
+  try {
+    const cookies = nookies.get(ctx)
+    // console.log(JSON.stringify(cookies, null, 2))
+    const token = await firebaseAdmin.auth().verifyIdToken(cookies.token)
+
+    return {
+      redirect: {
+        permanent: false,
+        destination: "/",
+      },
+      // `as never` is required for correct type inference
+      // by InferGetServerSidePropsType below
+      props: {} as never,
+    }
+  } catch (err) {
+    return {
+      props: {} as never,
+    }
+  }
+}
+
+export function LoginPage(props: InferGetServerSidePropsType<typeof getServerSideProps>) {
   const router = useRouter()
   const {
     register: registerForm,
@@ -25,11 +57,10 @@ export function LoginPage() {
   } = useForm<LoginFormData>({});
 
   const handleLogin = handleSubmitForm(async (formData: LoginFormData):Promise<void> => {
-    const { data } = await user.login({
+    const { data } = await UserStore.login({
       email: formData.email,
       password: formData.password,
     })
-    console.log('handleLogin', data)
 
     if (data?.tokenCreate?.errors[0]) {
       // Unable to sign in.
@@ -80,7 +111,7 @@ export function LoginPage() {
       <div className={"h-screen flex justify-center items-center"}>
         <div className={"h-full flex flex-col"}>
           <div className={"flex-[0.1]"}>
-            <ShowUsers user={user}/>
+            <div></div>
           </div>
 
           <div className={"flex-1 flex items-center"}>
