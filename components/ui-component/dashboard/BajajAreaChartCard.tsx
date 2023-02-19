@@ -1,7 +1,7 @@
 import { useEffect } from 'react'
 import dynamic from "next/dynamic"
 
-// material-ui
+// mui
 import { useTheme } from '@mui/material/styles'
 import { Card, Grid, Typography } from '@mui/material'
 
@@ -9,7 +9,7 @@ import { Card, Grid, Typography } from '@mui/material'
 const ApexCharts = dynamic(() => import("apexcharts") as any, { ssr: false })
 const Chart = dynamic(() => import("react-apexcharts"), { ssr: false })
 
-// project imports
+// project components
 import chartData from './chart-data/bajaj-area-chart'
 
 // ===========================|| DASHBOARD DEFAULT - BAJAJ AREA CHART CARD ||=========================== //
@@ -28,8 +28,8 @@ const BajajAreaChartCard = () => {
           tooltip: {
             theme: 'light'
           }
-        };
-        ApexCharts.exec(`support-chart`, 'updateOptions', newSupportChart);
+        }
+        ApexCharts.exec(`support-chart`, 'updateOptions', newSupportChart)
       }
 
     }, [navType, orangeDark, ApexCharts])
