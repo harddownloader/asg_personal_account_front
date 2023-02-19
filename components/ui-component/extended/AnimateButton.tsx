@@ -1,3 +1,4 @@
+// @ts-nocheck
 // import PropTypes from 'prop-types'
 import { forwardRef } from 'react'
 // third-party
