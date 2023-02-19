@@ -5,7 +5,7 @@ export const Preloader = () => {
 
   return (
     <>
-      <RefreshIcon className={"animate-spin h-5 w-5"}/>
+      <RefreshIcon className={"animate-spin h-5 w-5 text‑white"}/>
     </>
   )
 }
