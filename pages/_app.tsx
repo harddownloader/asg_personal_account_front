@@ -3,7 +3,7 @@ import React, { ReactElement, ReactNode } from "react"
 import { NextPage } from "next"
 import type { AppProps } from 'next/app'
 import { ThemeProvider } from '@mui/material/styles'
-import themes from '@/lib/themes'
+import { theme, customization } from '@/lib/themes'
 import { AuthProvider } from '@/lib/auth'
 
 type NextPageWithLayout = NextPage & {
@@ -17,13 +17,8 @@ type AppPropsWithLayout = AppProps & {
 export default function App({ Component, pageProps }: AppPropsWithLayout) {
   const getLayout = Component.getLayout ?? ((page: ReactElement) => page)
 
-  const customization = {
-    fontFamily: `'Roboto', sans-serif`,
-    borderRadius: '0'
-  }
-
   return (
-    <ThemeProvider theme={themes(customization)}>
+    <ThemeProvider theme={theme(customization)}>
       <AuthProvider>
         {getLayout(<Component {...pageProps} />)}
       </AuthProvider>
