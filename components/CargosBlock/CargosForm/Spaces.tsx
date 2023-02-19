@@ -62,11 +62,11 @@ export const Spaces = ({
     setSpaces([...spacesTmp])
   }
 
-  const addPhoto = (spaceIndex) => {
+  const addPhoto = (spaceIndex: number) => {
 
   }
 
-  const removePhoto = (spaceIndex, photoIndex) => {
+  const removePhoto = (spaceIndex: number, photoIndex: number) => {
 
   }
 
