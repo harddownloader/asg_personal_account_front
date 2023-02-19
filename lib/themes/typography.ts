@@ -1,9 +1,11 @@
+import { fixMeInTheFuture } from "@/lib/types"
+
 /**
  * Typography used in theme
  * @param {JsonObject} theme theme customization object
  */
 
-export default function themeTypography(theme) {
+export default function themeTypography(theme: fixMeInTheFuture) {
     return {
         fontFamily: theme?.customization?.fontFamily,
         h6: {

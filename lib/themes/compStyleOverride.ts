@@ -1,4 +1,6 @@
-export default function componentStyleOverrides(theme) {
+import { fixMeInTheFuture } from "@/lib/types"
+
+export default function componentStyleOverrides(theme: fixMeInTheFuture) {
     const bgColor = theme.colors?.grey50
     return {
         MuiButton: {
