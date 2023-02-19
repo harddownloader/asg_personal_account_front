@@ -1,9 +1,20 @@
-import React, { Fragment, ReactNode } from "react"
+import React, {Fragment, ReactNode, useMemo} from "react"
+import { observer } from "mobx-react-lite"
+
+// mui
 import CssBaseline from "@mui/material/CssBaseline"
 import Box from "@mui/material/Box"
 import Button from "@mui/material/Button"
 import Container from "@mui/material/Container"
+
+// project components
+import { SubmitButton } from "../../ui-component/SubmitButton/SubmitButton"
+
+// utils
 import { fixMeInTheFuture } from "@/lib/types"
+
+// store
+import UserStore from '@/stores/userStore'
 
 export type AuthFormProps = {
   submitBtnText: string,
@@ -12,12 +23,14 @@ export type AuthFormProps = {
   UnderTheButton?: ReactNode,
 }
 
-export const AuthForm = ({
+export const AuthForm = observer(({
                            submitBtnText,
                            handleSubmit,
                            fields,
                            UnderTheButton,
                          }: AuthFormProps) => {
+  const isLoading = useMemo(() => UserStore.user.isLoading, [UserStore.user.isLoading])
+
   return (
     <>
       <Container
@@ -44,13 +57,10 @@ export const AuthForm = ({
                 {field}
               </Fragment>
             ))}
-            <Button
-              type="submit"
-              fullWidth
-              className={"bg-brand border-solid border border-white text-white font-bold rounded h-14 mt-4 hover:text-brand hover:bg-white hover:border-brand"}
-            >
-              {submitBtnText}
-            </Button>
+            <SubmitButton
+              text={submitBtnText}
+              isLoading={isLoading}
+            />
             {UnderTheButton && UnderTheButton}
           </Box>
         </Box>
@@ -58,6 +68,6 @@ export const AuthForm = ({
       </Container>
     </>
   )
-}
+})
 
 export default AuthForm
