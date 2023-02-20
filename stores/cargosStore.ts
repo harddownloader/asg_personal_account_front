@@ -71,7 +71,7 @@ export const CARGO_FIELD_NAMES: cargoFieldNamesType = {
     value: 'cargoPhoto',
   },
   COST_OF_DELIVERY: {
-    label: 'Стоимость доставки',
+    label: 'Стоимость доставки($)',
     value: 'costOfDelivery',
   },
   CARGO_NAME: {
@@ -83,7 +83,7 @@ export const CARGO_FIELD_NAMES: cargoFieldNamesType = {
     value: 'insurance',
   },
   PIECES_IN_PLACE: {
-    label: 'Шт в месте',
+    label: 'Шт в месте(шт.)',
     value: 'piecesInPlace',
   },
   COST: {
@@ -99,7 +99,7 @@ export const CARGO_FIELD_NAMES: cargoFieldNamesType = {
     value: 'volume',
   },
   WEIGHT: {
-    label: 'Вес',
+    label: 'Вес(кг.)',
     value: 'weight',
   },
 }
