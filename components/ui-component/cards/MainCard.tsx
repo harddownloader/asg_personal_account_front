@@ -1,6 +1,6 @@
 // @ts-nocheck
 // import PropTypes from 'prop-types'
-import { forwardRef } from 'react'
+import { forwardRef, useMemo } from 'react'
 
 // mui
 import { useTheme } from '@mui/material/styles'
@@ -26,6 +26,7 @@ const headerSX = {
 //     sx: PropTypes.object,
 //     title: PropTypes.oneOfType([PropTypes.node, PropTypes.string, PropTypes.object])
 // isHeightFull: boolean
+// isScrollable: boolean
 // }
 
 const MainCard = forwardRef(
@@ -42,12 +43,22 @@ const MainCard = forwardRef(
             shadow,
             sx = {},
             title,
-          isHeightFull,
+            isHeightFull,
+            isScrollable,
             ...others
         }: fixMeInTheFuture,
         ref
     ) => {
         const theme = useTheme()
+
+        const scrollableStyles = useMemo(() => {
+          return isScrollable ? {
+            minHeight: '77vh',
+            maxHeight: '77vh',
+            overflow: 'auto',
+            overflowX: 'hidden',
+          } : {}
+        }, [isScrollable])
 
         return (
             <Card
@@ -55,6 +66,7 @@ const MainCard = forwardRef(
                 {...others}
                 sx={{
                   height: isHeightFull ? '100%' : 'auto',
+                  ...scrollableStyles,
                   border: border ? '1px solid' : 'none',
                   borderColor: theme.palette.primary[200] + 25,
                   ':hover': {
@@ -86,5 +98,7 @@ const MainCard = forwardRef(
         )
     }
 )
+
+MainCard.displayName = 'MainCard'
 
 export default MainCard
