@@ -9,7 +9,7 @@ import Button from "@mui/material/Button"
 import Container from "@mui/material/Container"
 
 // project components
-import { SubmitButton } from "../../ui-component/SubmitButton/SubmitButton"
+import { SubmitButton } from "@/components/ui-component/SubmitButton/SubmitButton"
 
 // utils
 import { fixMeInTheFuture } from "@/lib/types"
