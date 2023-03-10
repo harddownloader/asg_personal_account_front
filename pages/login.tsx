@@ -12,7 +12,7 @@ import TextField from '@mui/material/TextField'
 // project components
 import { AuthForm } from '@/components/Form'
 import { AuthLayout } from "@/components/Layout/AuthLayout/AuthLayout"
-import { Footer } from "@/components/Footer"
+import { FooterMemoized } from "@/components/Footer"
 
 // utils
 import { firebaseAdmin } from "@/lib/firebase/firebaseAdmin"
@@ -146,7 +146,7 @@ export function LoginPage(props: InferGetServerSidePropsType<typeof getServerSid
             </div>
           </div>
 
-          <Footer />
+          <FooterMemoized />
         </div>
       </div>
     </>

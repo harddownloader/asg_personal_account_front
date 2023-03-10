@@ -1,1 +1,1 @@
-export { Copyright } from './Copyright'
+export { CopyrightMemoized } from './Copyright'

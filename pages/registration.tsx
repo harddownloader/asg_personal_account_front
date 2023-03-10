@@ -8,7 +8,7 @@ import Container from "@mui/material/Container"
 import TextField from "@mui/material/TextField"
 import { AuthLayout } from "@/components/Layout"
 import { AuthForm } from "@/components/Form/AuthForm/AuthForm"
-import { Footer } from "@/components/Footer"
+import { FooterMemoized } from "@/components/Footer"
 import { firebaseAdmin } from "@/lib/firebase/firebaseAdmin"
 import UserStore, { RegisterUserData, RegisterResponse } from "@/stores/userStore"
 
@@ -218,7 +218,7 @@ function RegistrationPage() {
             </div>
           </div>
 
-          <Footer />
+          <FooterMemoized />
         </div>
       </div>
     </>
