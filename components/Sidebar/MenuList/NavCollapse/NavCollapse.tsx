@@ -78,7 +78,10 @@ export const NavCollapse = ({ menu, level }: fixMeInTheFuture) => {
           }
           secondary={
             menu.caption && (
-              <Typography variant="caption" sx={{ ...theme.typography.subMenuCaption }} display="block" gutterBottom>
+              <Typography variant="caption" sx={
+                // @ts-ignore
+                { ...theme.typography.subMenuCaption }
+              } display="block" gutterBottom>
                 {menu.caption}
               </Typography>
             )
