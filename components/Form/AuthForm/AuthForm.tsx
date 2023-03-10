@@ -1,5 +1,6 @@
-import React, {Fragment, ReactNode, useMemo} from "react"
+import React, { Fragment, ReactNode, useMemo } from "react"
 import { observer } from "mobx-react-lite"
+import Image from 'next/image'
 
 // mui
 import CssBaseline from "@mui/material/CssBaseline"
@@ -42,9 +43,12 @@ export const AuthForm = observer(({
         <Box
           className={'bg-brand flex flex-col items-center p-8'}
         >
-          <img
+          <Image
             src="/img/logo/logo.png"
             alt="logo"
+            width="145"
+            height="40"
+            sizes="100vw"
             className={"h-10 mt-10 mb-10"}
           />
           <Box
