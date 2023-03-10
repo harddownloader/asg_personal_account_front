@@ -64,4 +64,6 @@ const SubCard = forwardRef(({ children, content=true, contentClass, darkTitle, s
 //     content: true
 // }
 
+SubCard.displayName = 'SubCard'
+
 export default SubCard

@@ -5,7 +5,18 @@ import { forwardRef } from 'react'
 // mui
 import { Collapse, Fade, Box, Grow, Slide, Zoom } from '@mui/material'
 
-// ==============================|| TRANSITIONS ||============================== //
+// Transitions.propTypes = {
+//     children: PropTypes.node,
+//     type: PropTypes.oneOf(['grow', 'fade', 'collapse', 'slide', 'zoom']),
+//     position: PropTypes.oneOf(['top-left', 'top-right', 'top', 'bottom-left', 'bottom-right', 'bottom']),
+//     direction: PropTypes.oneOf(['up', 'down', 'left', 'right'])
+// }
+//
+// Transitions.defaultProps = {
+//     type: 'grow',
+//     position: 'top-left',
+//     direction: 'up'
+// }
 
 const Transitions = forwardRef(({
                                   children,
@@ -98,17 +109,6 @@ const Transitions = forwardRef(({
     )
 })
 
-// Transitions.propTypes = {
-//     children: PropTypes.node,
-//     type: PropTypes.oneOf(['grow', 'fade', 'collapse', 'slide', 'zoom']),
-//     position: PropTypes.oneOf(['top-left', 'top-right', 'top', 'bottom-left', 'bottom-right', 'bottom']),
-//     direction: PropTypes.oneOf(['up', 'down', 'left', 'right'])
-// }
-//
-// Transitions.defaultProps = {
-//     type: 'grow',
-//     position: 'top-left',
-//     direction: 'up'
-// }
+Transitions.displayName = 'Transitions'
 
 export default Transitions

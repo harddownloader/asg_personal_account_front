@@ -96,4 +96,6 @@ const AnimateButton = forwardRef(({ children, type, direction, offset, scale }: 
 //     }
 // }
 
+AnimateButton.displayName = 'AnimateButton'
+
 export default AnimateButton
