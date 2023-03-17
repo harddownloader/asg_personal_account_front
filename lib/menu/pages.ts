@@ -16,7 +16,7 @@ const pages = {
     type: 'group',
     children: [
       {
-          id: 'my_profile',
+          id: 'profile',
           title: 'Мои профиль',
           type: 'item',
           icon: icons.IconUserCircle,
@@ -24,7 +24,7 @@ const pages = {
           target: false,
       },
       {
-        id: 'my_cargos',
+        id: 'cargos',
         title: 'Мои грузы',
         type: 'item',
         icon: icons.IconBoxSeam,
