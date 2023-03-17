@@ -1,0 +1,1 @@
+export { StyledBadge } from './StyledBadge'
