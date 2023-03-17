@@ -44,8 +44,6 @@ export const ImageUpload = observer(({
                                        addPhotoHandler,
                                        currentUploadingFiles
 }: ImageInputProps) => {
-  // console.log('ImageUpload', { currentUploadingFiles })
-
   const setMetadata = (file: File) => {
     const metadata = {
       width: null,
@@ -68,7 +66,6 @@ export const ImageUpload = observer(({
   }
 
   const onDrop = async (acceptedFiles: Array<File>) => {
-    // Promise.allSettled(...)
     acceptedFiles.map((file, fileIndex) => {
       console.log({file, fileIndex})
       const metadata = setMetadata(file)
@@ -79,18 +76,6 @@ export const ImageUpload = observer(({
       addPhotoHandler && addPhotoHandler(fileInfoArgs)
       return
     })
-
-  //  before
-  //   acceptedFiles.map(async (file, fileIndex) => {
-  //     console.log({file, fileIndex})
-  //     const metadata = setMetadata(file)
-  //
-  //     const fileInfoArgs = {
-  //       file, metadata, fileIndex
-  //     }
-  //     addPhotoHandler && await addPhotoHandler(fileInfoArgs)
-  //     return
-  //   })
   }
 
   const { getRootProps, getInputProps } = useDropzone({
