@@ -10,35 +10,35 @@ import { CargosBlock } from "@/components/CargosBlock/CargosBlock"
 // utils
 import { getAllClients, getUserFromDB } from "@/lib/ssr/requests/getUsers"
 import { firebaseAdmin } from "@/lib/firebase/firebaseAdmin"
-import { firebaseClient } from "@/lib/firebase"
-import { getNotifications } from "@/lib/ssr/requests/getNotifications"
+import { getNotifications } from "@/lib/ssr/requests/notifications/getNotifications"
 import { getAllCargos, getCargosByClient } from "@/lib/ssr/requests/getCargos"
 import { fixMeInTheFuture } from "@/lib/types"
+import { notificationAudioPlay } from "@/lib/audio"
 
 // store
-import CargosStore, { CargoInterfaceFull } from "@/stores/cargosStore"
-import UserStore, { UserIdType, UserOfDB } from "@/stores/userStore"
+import CargosStore, { CargoInterfaceFull, CARGOS_DB_COLLECTION_NAME } from "@/stores/cargosStore"
+import UserStore, { USER_ROLE_MANAGER, UserOfDB, USERS_DB_COLLECTION_NAME } from "@/stores/userStore"
 import ClientsStore from "@/stores/clientsStore"
-import NotificationsStore, { contentType, Notification } from "@/stores/notificationsStore"
+import NotificationsStore, { Notification, NOTIFICATION_DB_COLLECTION_NAME } from "@/stores/notificationsStore"
 
 export const getServerSideProps = async (ctx: GetServerSidePropsContext) => {
   try {
     // if the user is authenticated
     const cookies = nookies.get(ctx)
-    console.log(JSON.stringify(cookies, null, 2))
+    // console.log(JSON.stringify(cookies, null, 2))
     const currentFirebaseUser = await firebaseAdmin.auth().verifyIdToken(cookies.token)
 
     const db = firebaseAdmin.firestore()
-    const usersRef = await db.collection('users')
+    const usersRef = await db.collection(USERS_DB_COLLECTION_NAME)
 
     const currentUserInDB: UserOfDB = await getUserFromDB({
       currentUserId: currentFirebaseUser.uid,
       usersRef
     })
 
-    const isUserManager = currentUserInDB.role === 1
+    const isUserManager = currentUserInDB.role === USER_ROLE_MANAGER
 
-    const notificationsRef = await db.collection('notifications')
+    const notificationsRef = await db.collection(NOTIFICATION_DB_COLLECTION_NAME)
     const notifications: Array<Notification> = await getNotifications({
       currentUserId: currentFirebaseUser.uid,
       notificationsRef
@@ -48,9 +48,9 @@ export const getServerSideProps = async (ctx: GetServerSidePropsContext) => {
       ? await getAllClients({usersRef})
       : null
 
-    const cargosRef = await db.collection('cargos')
+    const cargosRef = await db.collection(CARGOS_DB_COLLECTION_NAME)
     const allCargos = isUserManager
-        ? await getAllCargos({cargosRef})
+        ? await getAllCargos({ cargosRef })
         : currentUserInDB?.userCodeId ? await getCargosByClient({
           cargosRef,
           userCodeId: currentUserInDB.userCodeId,
@@ -112,7 +112,7 @@ function Home ({
       userCodeId: currentUser.userCodeId,
     }
 
-    if (!UserStore.user.id) UserStore.saveUserToStore({...currentUserData})
+    if (!UserStore.user.currentUser.id) UserStore.saveUserToStore({...currentUserData})
 
     if (clients === null) ClientsStore.setCurrentItem({...currentUserData})
     else if (clients?.length) ClientsStore.setList(clients)
@@ -120,45 +120,48 @@ function Home ({
     if (notifications?.length) NotificationsStore.setList(notifications)
   })
 
-  // useEffect(() => {
-  //   socket = io('/api/socket')
-  //
-  //   socket.on('connect', () => {
-  //     console.log('connected')
-  //   })
-  //
-  //   if (currentUser.role === 1) socket.on('newUser', (msg: string) => {
-  //     const newUserNotification = {
-  //       userId: currentUser.id,
-  //       content: msg,
-  //       isViewed: false,
-  //     }
-  //     console.log({ newUserNotification })
-  //     NotificationsStore.add(newUserNotification)
-  //   })
-  //
-  //   return () => {
-  //     socket.disconnect()
-  //     socket.off()
-  //   }
-  // }, [])
+  useEffect(() => {
+    socketInitializer()
+
+    return () => {
+      console.log('unmount')
+    }
+  }, [])
 
   const socketInitializer = async () => {
     console.log('socketInitializer')
-    // await fetch()
-    socket = io('/api/socket')
+
+    await fetch('/api/socket')
+    socket = io()
 
     socket.on('connect', () => {
-      console.log('connected')
+      console.log('connected, socket.id', socket.id)
+      socket.emit('connect user', {
+        socketId: socket.id,
+        userId: currentUser.id
+      })
     })
 
-    if (currentUser.role === 1) socket.on('newUser', (msg: string) => {
-      const newUserNotification = {
-        userId: currentUser.id,
-        content: msg,
-        isViewed: false,
+    socket.on("disconnect", () => {
+      console.log('disconnect socket.id', socket.id) // undefined
+    })
+
+    if (currentUser.role === USER_ROLE_MANAGER) socket.on('newUser', (notifications: Array<Notification>) => {
+      console.log({ notifications })
+      notificationAudioPlay()
+
+      const currentNotification = notifications.find((notification) => notification.userId === currentUser.id)
+      if (!currentNotification) {
+        console.warn('ws notification for current user not found')
+        return
       }
-      console.log({ newUserNotification })
+      const newUserNotification = {
+        id: currentNotification.id,
+        userId: currentNotification.userId,
+        content: currentNotification.content,
+        isViewed: currentNotification.isViewed,
+      }
+      console.log('newUserNotification', { ...newUserNotification })
       NotificationsStore.add(newUserNotification)
     })
   }

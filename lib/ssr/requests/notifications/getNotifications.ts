@@ -1,5 +1,5 @@
 import { fixMeInTheFuture } from "@/lib/types"
-import {Notification} from "@/stores/notificationsStore"
+import { Notification } from "@/stores/notificationsStore"
 
 export const getNotifications = async ({
                                          currentUserId,

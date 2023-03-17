@@ -1,5 +1,6 @@
 import { fixMeInTheFuture } from "@/lib/types"
-import { UserOfDB } from "@/stores/userStore"
+import { USER_ROLE_MANAGER, UserOfDB, USER_ROLE_CLIENT, USERS_DB_COLLECTION_NAME } from "@/stores/userStore"
+import { firebaseAdmin } from "@/lib/firebase/firebaseAdmin"
 
 export const getUserFromDB = async ({
                                         currentUserId,
@@ -25,15 +26,39 @@ export const getUserFromDB = async ({
     })
 }
 
-export type getAllClients = {
+export type allClientsArgs = {
   usersRef: fixMeInTheFuture
 }
 
 export const getAllClients = async ({
                                       usersRef
-                                    }: getAllClients): Promise<Array<UserOfDB>> => {
+                                    }: allClientsArgs): Promise<Array<UserOfDB>> => {
   return await usersRef
-    .where("role", "==", 0)
+    .where("role", "==", USER_ROLE_CLIENT)
+    .get()
+    .then((clients: fixMeInTheFuture) => {
+      return clients.docs.map((client: fixMeInTheFuture) => {
+        const clientDecode = {...client.data()}
+
+        return {
+          id: client.id,
+          name: clientDecode.name,
+          email: clientDecode.email,
+          phone: clientDecode.phone,
+          city: clientDecode.city,
+          role: clientDecode.role,
+          userCodeId: clientDecode.userCodeId,
+        }
+      })
+    })
+}
+
+export const getAllManagers = async (): Promise<Array<UserOfDB>> => {
+  const db = firebaseAdmin.firestore()
+  const usersRef = await db.collection(USERS_DB_COLLECTION_NAME)
+
+  return await usersRef
+    .where("role", "==", USER_ROLE_MANAGER)
     .get()
     .then((clients: fixMeInTheFuture) => {
       return clients.docs.map((client: fixMeInTheFuture) => {

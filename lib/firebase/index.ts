@@ -2,5 +2,6 @@ export {
   firebaseClient,
   firebaseAuth,
   firebaseFirestore,
-  firebaseAnalytics
+  firebaseStorage,
+  firebaseAnalytics,
 } from './firebaseClient'

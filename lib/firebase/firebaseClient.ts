@@ -6,6 +6,7 @@ import {
 import { getAuth } from "firebase/auth"
 import { getFirestore } from "@firebase/firestore"
 import { getAnalytics, isSupported } from "firebase/analytics"
+import { getStorage } from "firebase/storage"
 import {
   FIREBASE_API_KEY,
   FIREBASE_AUTH_DOMAIN,
@@ -42,5 +43,6 @@ function createFirebaseApp(config: FirebaseOptions) {
 export const firebaseClient = createFirebaseApp(firebaseConfig)
 export const firebaseAuth = getAuth(firebaseClient)
 export const firebaseFirestore = getFirestore(firebaseClient)
+export const firebaseStorage = getStorage(firebaseClient)
 export const firebaseAnalytics = isSupported().then(yes => yes ? getAnalytics(firebaseClient) : null)
 

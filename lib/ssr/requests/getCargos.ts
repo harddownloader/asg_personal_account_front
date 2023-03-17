@@ -17,17 +17,15 @@ export const getAllCargos = async ({
           id: cargo.id,
           cargoId: cargoDecode.cargoId,
           clientCode: cargoDecode.clientCode,
-          numberOfSeats: cargoDecode.numberOfSeats,
           status: cargoDecode.status,
-          cargoPhoto: cargoDecode.cargoPhoto,
           costOfDelivery: cargoDecode.costOfDelivery,
           cargoName: cargoDecode.cargoName,
           insurance: cargoDecode.insurance,
-          piecesInPlace: cargoDecode.piecesInPlace,
           cost: cargoDecode.cost,
           shippingDate: cargoDecode.shippingDate,
           volume: cargoDecode.volume,
-          weight: cargoDecode.weight
+          weight: cargoDecode.weight,
+          spaces: cargoDecode.spaces,
         })
       })
 
@@ -58,13 +56,10 @@ export const getCargosByClient = async ({
           id: cargo.id,
           cargoId: cargoDecode.cargoId,
           clientCode: cargoDecode.clientCode,
-          numberOfSeats: cargoDecode.numberOfSeats,
           status: cargoDecode.status,
-          cargoPhoto: cargoDecode.cargoPhoto,
           costOfDelivery: cargoDecode.costOfDelivery,
           cargoName: cargoDecode.cargoName,
           insurance: cargoDecode.insurance,
-          piecesInPlace: cargoDecode.piecesInPlace,
           cost: cargoDecode.cost,
           shippingDate: cargoDecode.shippingDate,
           volume: cargoDecode.volume,
