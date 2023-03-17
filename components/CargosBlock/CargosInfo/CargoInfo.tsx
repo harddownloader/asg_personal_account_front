@@ -1,29 +1,36 @@
-import React, { ReactElement, useEffect, useState } from 'react'
+import React, {
+  ReactElement,
+  useEffect,
+  useState,
+  useRef,
+  ForwardedRef,
+  useMemo
+} from 'react'
 import { useForm } from "react-hook-form"
-import {observer} from "mobx-react-lite"
+import { observer } from "mobx-react-lite"
 
 // mui
-import { CardContent, Grid, Typography } from '@mui/material'
-import Box from "@mui/material/Box"
-import Button from "@mui/material/Button"
-import AddIcon from "@mui/icons-material/Add"
+import { CardContent } from '@mui/material'
 import MainCard from "@/components/ui-component/cards/MainCard"
-import TextField from "@mui/material/TextField"
 
 // project components
 import SkeletonPopularCard from "@/components/ui-component/cards/Skeleton/PopularCard"
 import { CargosForm } from '@/components/CargosBlock/CargosForm'
+import { ScrollableBlock } from "@/components/ui-component/ScrollableBlock"
 
 // utils
 import { GRID_SPACING } from '@/lib/const'
 import { fixMeInTheFuture } from '@/lib/types'
+import { prepareSpaces } from '@/components/CargosBlock/helpers/prepareBody'
+
 
 // store
 import CargosStore, {
   CargoInterfaceForForm,
   CargoInterfaceFull,
-  CargoSavingResponse,
+  CargoSavingResponse, spaceItemType, UploadImageType,
 } from "@/stores/cargosStore"
+import ClientsStore from "@/stores/clientsStore"
 
 export interface CargosInfoProps {
   title: string,
@@ -36,28 +43,133 @@ export const CargosInfo = observer(({
 }: CargosInfoProps) => {
   const [isLoading, setLoading] = useState(true)
 
+  // load current cargo
+  const currentCargoStr = JSON.stringify(CargosStore.cargos?.currentItem)
+  const currentCargo = useMemo(
+    () => {
+      const currentItem = JSON.parse(currentCargoStr)
+      return currentItem ? {...currentItem} : null
+    },
+    [currentCargoStr]
+  )
+
+  // load current client
+  const currentClientStr = JSON.stringify(ClientsStore.clients?.currentItem)
+  const currentClient = useMemo(
+    () => {
+      const currentItem = JSON.parse(currentClientStr)
+      return currentItem ? {...currentItem} : null
+    },
+    [currentClientStr]
+  )
+
   useEffect(() => {
     setLoading(false)
+
+    const currentSpacesTmp = getCurrentTmpSpaces(JSON.parse(notLoadedSpacesSrt))
+    initTmpSpaces(currentSpacesTmp)
   }, [])
 
-  const currentCargo = CargosStore.cargos?.currentItem
+  useEffect(() => {
+    if (currentCargo?.id) {
+      resetCargoForm()
+    }
+  }, [currentCargo?.id])
+
+  const convertSpacesOfDbToStorageFormat = ({
+                                              spaces,
+                                              clientId,
+                                              cargoId,
+                                            }: {
+                                              spaces: Array<spaceItemType>
+                                              clientId: string
+                                              cargoId: string
+  }): Array<spaceItemType> => {
+    const newTmpSpaceItems: Array<spaceItemType> = spaces.map((space: spaceItemType) => {
+      const generateItemArgs: {
+        clientId: string
+        cargoId?: string
+        id: string
+        photos: Array<UploadImageType>
+        weight: number
+        piecesInPlace: number
+      } = {
+        id: space.id,
+        clientId: clientId,
+        cargoId: cargoId,
+        photos: space.photos,
+        weight: space.weight,
+        piecesInPlace: space.piecesInPlace,
+      }
+      const spaceItem = CargosStore.generateSpaceItem(generateItemArgs)
+
+      return {...spaceItem}
+    })
+
+    return newTmpSpaceItems
+  }
+
+  const initTmpSpaces = (currentSpacesTmp: Array<spaceItemType>) => {
+    if (!currentSpacesTmp.length && currentCargo?.spaces?.length) {
+      // init tmp spaces for current cargo
+      const newTmpSpaceItems: Array<spaceItemType> = convertSpacesOfDbToStorageFormat({
+        spaces: currentCargo.spaces,
+        clientId: currentClient.id,
+        cargoId: currentCargo.id
+      })
+      CargosStore.initNotLoadedSpaces(newTmpSpaceItems)
+
+      return newTmpSpaceItems
+    } else {
+      CargosStore.clearNotLoadedSpaces()
+      return null
+    }
+  }
+
+  const getCurrentTmpSpaces = (notLoadedSpaces: Array<spaceItemType>) => {
+    if (!currentClient?.id) {
+      console.warn('Not found currentClient.id')
+      return []
+    }
+    if (!currentCargo?.id) {
+      console.warn('Not found currentCargo.id')
+      return []
+    }
+    const filterCallback = (space: spaceItemType): boolean => {
+      return (
+        space.clientId === currentClient.id &&
+        space.cargoId === currentCargo.id
+      )
+    }
+
+    const currentSpacesTmp = notLoadedSpaces.filter(filterCallback)
+
+    // const newCurrentTmpSpaceItems: Array<spaceItemType> = convertSpacesOfDbToStorageFormat({
+    //   spaces: currentSpacesTmp,
+    //   clientId: currentClient.id,
+    //   cargoId: currentCargo.id
+    // })
+
+    return currentSpacesTmp
+  }
+
+  // load spaces tmp storage
+  const notLoadedSpacesSrt = JSON.stringify(CargosStore.cargos.notLoadedSpaces)
+
   const formDefaultValues = currentCargo?.id
     ? {
         // id: currentCargo.id,
         cargoId: currentCargo.cargoId,
         clientCode: currentCargo.clientCode,
-        numberOfSeats: currentCargo.numberOfSeats,
         status: currentCargo.status,
-        cargoPhoto: currentCargo.cargoPhoto,
         costOfDelivery: currentCargo.costOfDelivery,
         cargoName: currentCargo.cargoName,
         insurance: currentCargo.insurance,
-        piecesInPlace: currentCargo.piecesInPlace,
         cost: currentCargo.cost,
         shippingDate: currentCargo.shippingDate,
         volume: currentCargo.volume,
         weight: currentCargo.weight,
-        //  spaces: []
+        spaces: currentCargo?.spaces,
       }
     : {}
 
@@ -68,48 +180,60 @@ export const CargosInfo = observer(({
     setError: setErrorForm,
     reset,
     control,
+    getValues,
   } = useForm<CargoInterfaceFull>({
     defaultValues: formDefaultValues
   })
 
-  useEffect(() => {
-    if (currentCargo?.id) {
-      reset(formDefaultValues)
-    }
-  }, [currentCargo?.id])
+  const resetCargoForm = () => {
+    // for use form
+    reset(formDefaultValues)
+
+    const currentSpacesTmp = getCurrentTmpSpaces(JSON.parse(notLoadedSpacesSrt))
+    initTmpSpaces(currentSpacesTmp)
+  }
 
   const handleSaveCargo = handleSubmitForm(async ({
                                                     cargoId,
                                                     clientCode,
-                                                    numberOfSeats,
                                                     status,
-                                                    cargoPhoto,
                                                     costOfDelivery,
                                                     cargoName,
                                                     insurance,
-                                                    piecesInPlace,
                                                     cost,
                                                     shippingDate,
                                                     volume,
                                                     weight,
+                                                    // spaces, // fields
+    // ...props
                                                   }: CargoInterfaceForForm): Promise<void> => {
-    if (!currentCargo?.id) return
+    if (!currentCargo?.id) {
+      console.warn('currentCargo.id not found')
+      return
+    }
+
+    const currentTmpSpaces = getCurrentTmpSpaces(JSON.parse(notLoadedSpacesSrt))
+
+    console.log({
+      formated: prepareSpaces(currentTmpSpaces),
+      // spaces,
+      currentTmpSpaces
+    })
+    // return
 
     const { data }: CargoSavingResponse = await CargosStore.update({
       id: currentCargo.id,
       cargoId,
       clientCode,
-      numberOfSeats,
       status,
-      cargoPhoto,
       costOfDelivery,
       cargoName,
       insurance,
-      piecesInPlace,
       cost,
       shippingDate,
       volume,
       weight,
+      spaces: prepareSpaces(currentTmpSpaces)
     })
 
     if (data?.cargoSaving?.errors.length) {
@@ -119,20 +243,14 @@ export const CargosInfo = observer(({
           setErrorForm("cargoId", { message: e.message! })
         } else if (e.field === "clientCode") {
           setErrorForm("clientCode", { message: e.message! })
-        } else if (e.field === "numberOfSeats") {
-          setErrorForm("numberOfSeats", { message: e.message! })
         } else if (e.field === 'status') {
           setErrorForm("status", { message: e.message! })
-        } else if (e.field === 'cargoPhoto') {
-          setErrorForm("cargoPhoto", { message: e.message! })
         } else if (e.field === 'costOfDelivery') {
           setErrorForm("costOfDelivery", { message: e.message! })
         } else if (e.field === 'cargoName') {
           setErrorForm("cargoName", { message: e.message! })
         } else if (e.field === 'insurance') {
           setErrorForm("insurance", { message: e.message! })
-        } else if (e.field === 'piecesInPlace') {
-          setErrorForm("piecesInPlace", { message: e.message! })
         } else if (e.field === 'cost') {
           setErrorForm("cost", { message: e.message! })
         } else if (e.field === 'shippingDate') {
@@ -149,33 +267,36 @@ export const CargosInfo = observer(({
       return
     }
 
+    CargosStore.initNotLoadedSpaces(currentTmpSpaces)
+
     return
   })
 
 
   return (
     <>
-      {isLoading ? (
-          <SkeletonPopularCard />
-        ) : (
-        <MainCard content={false} isHeightFull>
-          <CardContent>
-              <CargosForm
-                isFull={isFull}
-                isContentVisible={Boolean(CargosStore.cargos.currentItem)}
-                title={title}
-                handleSubmit={handleSaveCargo}
-                formControl={{
-                  registerForm,
-                  errorsForm,
-                  setErrorForm,
-                  control,
-                  formDefaultValues,
-                }}
-              />
-          </CardContent>
-        </MainCard>
-        )}
+      <ScrollableBlock
+        isLoading={isLoading}
+        isScrollable
+      >
+          <CargosForm
+            isFull={isFull}
+            isContentVisible={Boolean(CargosStore.cargos.currentItem)}
+            title={title}
+            handleSubmit={handleSaveCargo}
+            formControl={{
+              registerForm,
+              errorsForm,
+              setErrorForm,
+              control,
+              formDefaultValues,
+              reset,
+              getValues,
+            }}
+            currentTmpSpaces={getCurrentTmpSpaces(JSON.parse(notLoadedSpacesSrt))}
+            isItEditForm={true}
+          />
+      </ScrollableBlock>
     </>
   )
 })

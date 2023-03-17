@@ -21,7 +21,7 @@ import { fixMeInTheFuture } from '@/lib/types'
 // store
 import CargosStore from '@/stores/cargosStore'
 import ClientsStore from "@/stores/clientsStore"
-import UserStore, { UserIdType, UserOfDB } from "@/stores/userStore"
+import UserStore, { USER_ROLE_MANAGER } from "@/stores/userStore"
 
 export interface CargosBlockProps {
 
@@ -29,17 +29,13 @@ export interface CargosBlockProps {
 
 export const CargosBlock = observer(({}: CargosBlockProps) => {
   const [isLoading, setLoading] = useState(true)
+
   useEffect(() => {
     setLoading(false)
 
   }, [])
-  const isManager = Boolean(UserStore.user.currentUser?.role === 1)
-  // useEffect(() => {
-  //   console.log({'ClientsStore.clients.items': [...ClientsStore.clients.items]})
-  // }, [ClientsStore.clients.items.length])
-  //
-  // const clients = [...ClientsStore.clients.items]
-  // console.log('CargosBlock', {clients})
+
+  const isManager = Boolean(UserStore.user.currentUser?.role === USER_ROLE_MANAGER)
 
   return (
     <>

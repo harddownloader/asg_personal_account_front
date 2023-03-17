@@ -1,4 +1,4 @@
-import React, {Fragment, ReactElement, useEffect} from 'react'
+import React, { Fragment, ReactElement, useEffect } from 'react'
 import { useForm } from "react-hook-form"
 
 // mui
@@ -13,23 +13,24 @@ import { DialogHOC } from '@/components/Dialog/Modal/DialogHOC'
 
 // store
 import CargosStore, {
-  AddCargoInterface,
   CargoInterfaceForForm,
   CargoInterfaceFull,
-  CargoAddResponse,
+  CargoAddResponse, spaceItemType,
 } from "@/stores/cargosStore"
-import {UserCodeIdType, UserOfDB} from "@/stores/userStore"
+import { UserCodeIdType, UserIdType } from "@/stores/userStore"
 
 export interface AddCargoDialogProps {
-  isVisible: boolean,
-  handleCancel: () => void,
-  clientCode: UserCodeIdType,
+  isVisible: boolean
+  handleCancel: () => void
+  clientCode: UserCodeIdType
+  clientId: UserIdType | null
 }
 
 export const AddCargoDialog = ({
                                  isVisible,
                                  handleCancel,
                                  clientCode,
+                                 clientId,
 }: AddCargoDialogProps) => {
   const {
     register: registerForm,
@@ -38,6 +39,7 @@ export const AddCargoDialog = ({
     setError: setErrorForm,
     reset,
     control,
+    getValues,
   } = useForm<CargoInterfaceFull>({})
 
   useEffect(() => {
@@ -47,13 +49,10 @@ export const AddCargoDialog = ({
   const handleAddCargo = handleSubmitForm(async ({
                                                     cargoId,
                                                     clientCode,
-                                                    numberOfSeats,
                                                     status,
-                                                    cargoPhoto,
                                                     costOfDelivery,
                                                     cargoName,
                                                     insurance,
-                                                    piecesInPlace,
                                                     cost,
                                                     shippingDate,
                                                     volume,
@@ -62,17 +61,15 @@ export const AddCargoDialog = ({
     const { data }: CargoAddResponse = await CargosStore.add({
       cargoId,
       clientCode,
-      numberOfSeats,
       status,
-      cargoPhoto,
       costOfDelivery,
       cargoName,
       insurance,
-      piecesInPlace,
       cost,
       shippingDate,
       volume,
       weight,
+      spaces: [],
     })
 
     if (data?.addingCargo?.errors.length) {
@@ -82,20 +79,14 @@ export const AddCargoDialog = ({
           setErrorForm("cargoId", { message: e.message! })
         } else if (e.field === "clientCode") {
           setErrorForm("clientCode", { message: e.message! })
-        } else if (e.field === "numberOfSeats") {
-          setErrorForm("numberOfSeats", { message: e.message! })
         } else if (e.field === 'status') {
           setErrorForm("status", { message: e.message! })
-        } else if (e.field === 'cargoPhoto') {
-          setErrorForm("cargoPhoto", { message: e.message! })
         } else if (e.field === 'costOfDelivery') {
           setErrorForm("costOfDelivery", { message: e.message! })
         } else if (e.field === 'cargoName') {
           setErrorForm("cargoName", { message: e.message! })
         } else if (e.field === 'insurance') {
           setErrorForm("insurance", { message: e.message! })
-        } else if (e.field === 'piecesInPlace') {
-          setErrorForm("piecesInPlace", { message: e.message! })
         } else if (e.field === 'cost') {
           setErrorForm("cost", { message: e.message! })
         } else if (e.field === 'shippingDate') {
@@ -113,16 +104,73 @@ export const AddCargoDialog = ({
     }
 
     handleCancel && handleCancel()
+    CargosStore.clearNotLoadedSpaces()
 
     return
   })
+
+  const notLoadedSpacesSrt = JSON.stringify(CargosStore.cargos.notLoadedSpaces)
+
+  const getCurrentNewTmpSpaces = (notLoadedSpaces: Array<spaceItemType>) => {
+    if (!clientId) {
+      console.warn('getCurrentNewTmpSpaces: Not found clientId', { clientId })
+      return []
+    }
+
+    // const filterCallback = (space: spaceItemType): boolean => {
+    //   console.log('space?.cargoId', space?.cargoId)
+    //   return (
+    //     space.clientId === clientId &&
+    //     space?.cargoId === undefined
+    //   )
+    // }
+
+    const currentSpacesTmp = notLoadedSpaces.filter((space: spaceItemType): boolean => {
+      return (
+        space.clientId === clientId &&
+        space?.cargoId === undefined
+      )
+    })
+
+    // const newCurrentTmpSpaceItems: Array<spaceItemType> = convertSpacesOfDbToStorageFormat({
+    //   spaces: currentSpacesTmp,
+    //   clientId: currentClient.id,
+    //   cargoId: currentCargo.id
+    // })
+
+    console.log('getCurrentNewTmpSpaces', {
+      currentSpacesTmp,
+      notLoadedSpaces
+    })
+    return currentSpacesTmp
+  }
+
+  const closeHandler = () => {
+    clearSpacesForAddCargo()
+    handleCancel()
+  }
+
+  const clearSpacesForAddCargo = () => {
+    if (clientId === null) {
+      console.warn('getCurrentNewTmpSpaces: Not found clientId', { clientId })
+      return
+    }
+    const tmpSpaces = JSON.parse(notLoadedSpacesSrt)
+    const onlyExistsSpaces = tmpSpaces.filter((space: spaceItemType): boolean => {
+      return (
+        space.clientId === clientId &&
+        space?.cargoId !== undefined
+      )
+    })
+    CargosStore.initNotLoadedSpaces(onlyExistsSpaces)
+  }
 
   return (
     <DialogHOC
       isVisible={isVisible}
       isMobileVersion={false}
       title={'Добавить груз'}
-      handleClose={handleCancel}
+      handleClose={closeHandler}
       confirm={null}
       childrenFooter={
         <></>
@@ -138,8 +186,14 @@ export const AddCargoDialog = ({
           errorsForm,
           setErrorForm,
           control,
-          formDefaultValues: {}
+          formDefaultValues: {
+            status: 0
+          },
+          reset,
+          getValues,
         }}
+        currentTmpSpaces={getCurrentNewTmpSpaces(JSON.parse(notLoadedSpacesSrt))}
+        isItEditForm={false}
       />
     </DialogHOC>
   )

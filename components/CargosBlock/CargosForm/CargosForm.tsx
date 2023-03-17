@@ -1,8 +1,7 @@
-import React, { ReactElement, useMemo } from "react"
+import React, { ReactElement, RefObject, useEffect, useMemo, useRef } from "react"
 import { useForm, Controller } from "react-hook-form"
 
 // mui
-import Button from "@mui/material/Button"
 import Box from "@mui/material/Box"
 import TextField from "@mui/material/TextField"
 import { FormControl, Grid, MenuItem, Typography } from "@mui/material"
@@ -11,7 +10,7 @@ import Select, { SelectChangeEvent } from '@mui/material/Select'
 
 // project components
 import { SubmitButton } from "@/components/ui-component/SubmitButton/SubmitButton"
-import { Spaces } from "@/components/CargosBlock/CargosForm/Spaces"
+import { Spaces } from "@/components/CargosBlock/CargosForm/Spaces/Spaces"
 
 // utils
 import { GRID_SPACING } from "@/lib/const"
@@ -22,7 +21,7 @@ import CargosStore, {
   CargoInterfaceFull,
   CargoSavingResponse,
   CargoInterfaceForForm,
-  CARGO_FIELD_NAMES, statusOptions,
+  CARGO_FIELD_NAMES, statusOptions, spaceItemType,
 } from "@/stores/cargosStore"
 
 export interface CargoInfoFormControl {
@@ -31,6 +30,8 @@ export interface CargoInfoFormControl {
   setErrorForm: fixMeInTheFuture,
   control: fixMeInTheFuture,
   formDefaultValues: fixMeInTheFuture,
+  reset: fixMeInTheFuture,
+  getValues: fixMeInTheFuture,
 }
 
 export interface CargoInfoFormProps {
@@ -39,6 +40,8 @@ export interface CargoInfoFormProps {
   formControl: CargoInfoFormControl,
   isFull: boolean,
   isContentVisible: boolean,
+  isItEditForm: boolean,
+  currentTmpSpaces: Array<spaceItemType>
 }
 
 export const CargosForm = ({
@@ -49,14 +52,21 @@ export const CargosForm = ({
                                   errorsForm,
                                   control,
                                   formDefaultValues,
+                                  reset,
+                                  getValues,
                                 },
                                 isFull,
                                 isContentVisible,
+                                isItEditForm,
+                                currentTmpSpaces,
                               }: CargoInfoFormProps) => {
   const lgColValue = isFull ? 4 : 6
   const isCurrentUserManager = !isFull
   const isDisabled = isFull
-  const isLoading = useMemo(() => CargosStore.cargos.isLoading, [CargosStore.cargos.isLoading])
+  const isLoading = useMemo(
+    () => CargosStore.cargos.isLoading,
+    [CargosStore.cargos.isLoading]
+  )
 
   const ClientCodeField: ReactElement = (
     <>
@@ -100,28 +110,6 @@ export const CargosForm = ({
     </>
   )
 
-  const NumberOfSeatsField: ReactElement = (
-    <>
-      <TextField
-        margin="normal"
-        required
-        fullWidth
-        id={CARGO_FIELD_NAMES.NUMBER_OF_SEATS.value}
-        placeholder={CARGO_FIELD_NAMES.NUMBER_OF_SEATS.label}
-        label={CARGO_FIELD_NAMES.NUMBER_OF_SEATS.label}
-        className={"bg-white rounded"}
-        disabled={isDisabled}
-        {...registerForm("numberOfSeats", {
-          required: true,
-        })}
-      />
-      {!!errorsForm.numberOfSeats && (
-        <p className="text-sm text-red-500 pt-2">{errorsForm.numberOfSeats?.message}</p>
-      )}
-    </>
-  )
-
-
   const StatusField: ReactElement = (
     <>
       <FormControl
@@ -140,11 +128,11 @@ export const CargosForm = ({
           name={"status"}
           control={control}
           defaultValue={formDefaultValues?.status}
-
           render={({ field }) => (
             <Select
               label={CARGO_FIELD_NAMES.STATUS.label}
               fullWidth
+              disabled={isDisabled}
               {...field}
             >
               {statusOptions.map((person) => (
@@ -158,27 +146,6 @@ export const CargosForm = ({
       </FormControl>
       {!!errorsForm.status && (
         <p className="text-sm text-red-500 pt-2">{errorsForm.status?.message}</p>
-      )}
-    </>
-  )
-
-  const CargoPhotoField: ReactElement = (
-    <>
-      <TextField
-        margin="normal"
-        required
-        fullWidth
-        id={CARGO_FIELD_NAMES.CARGO_PHOTO.value}
-        placeholder={CARGO_FIELD_NAMES.CARGO_PHOTO.label}
-        label={CARGO_FIELD_NAMES.CARGO_PHOTO.label}
-        className={"bg-white rounded"}
-        disabled={isDisabled}
-        {...registerForm("cargoPhoto", {
-          required: true,
-        })}
-      />
-      {!!errorsForm.cargoPhoto && (
-        <p className="text-sm text-red-500 pt-2">{errorsForm.cargoPhoto?.message}</p>
       )}
     </>
   )
@@ -242,27 +209,6 @@ export const CargosForm = ({
       />
       {!!errorsForm.insurance && (
         <p className="text-sm text-red-500 pt-2">{errorsForm.insurance?.message}</p>
-      )}
-    </>
-  )
-
-  const PiecesInPlaceField: ReactElement = (
-    <>
-      <TextField
-        margin="normal"
-        required
-        fullWidth
-        id={CARGO_FIELD_NAMES.PIECES_IN_PLACE.value}
-        placeholder={CARGO_FIELD_NAMES.PIECES_IN_PLACE.label}
-        label={CARGO_FIELD_NAMES.PIECES_IN_PLACE.label}
-        className={"bg-white rounded"}
-        disabled={isDisabled}
-        {...registerForm("piecesInPlace", {
-          required: true,
-        })}
-      />
-      {!!errorsForm.piecesInPlace && (
-        <p className="text-sm text-red-500 pt-2">{errorsForm.piecesInPlace?.message}</p>
       )}
     </>
   )
@@ -368,16 +314,13 @@ export const CargosForm = ({
           </Grid>}
           {isContentVisible &&
             <>
-              <Grid item xs={12}>
+              <Grid item xs={12} className={"mb-6"}>
                 <Grid container spacing={GRID_SPACING}>
                   <Grid item lg={lgColValue} md={6} sm={6} xs={12}>
                     {CargoIdField}
                   </Grid>
                   <Grid item lg={lgColValue} md={6} sm={6} xs={12}>
                     {ClientCodeField}
-                  </Grid>
-                  <Grid item lg={lgColValue} md={6} sm={6} xs={12}>
-                    {NumberOfSeatsField}
                   </Grid>
                   <Grid item lg={lgColValue} md={6} sm={6} xs={12}>
                     {WeightField}
@@ -393,17 +336,11 @@ export const CargosForm = ({
                     {CargoNameField}
                   </Grid>
                   <Grid item lg={lgColValue} md={6} sm={6} xs={12}>
-                    {CargoPhotoField}
-                  </Grid>
-                  <Grid item lg={lgColValue} md={6} sm={6} xs={12}>
                     {CostOfDeliveryField}
                   </Grid>
 
                   <Grid item lg={lgColValue} md={6} sm={6} xs={12}>
                     {InsuranceField}
-                  </Grid>
-                  <Grid item lg={lgColValue} md={6} sm={6} xs={12}>
-                    {PiecesInPlaceField}
                   </Grid>
                   <Grid item lg={lgColValue} md={6} sm={6} xs={12}>
                     {CostPlaceField}
@@ -418,9 +355,14 @@ export const CargosForm = ({
                   registerForm,
                   control,
                   errorsForm,
+                  formDefaultValues,
+                  reset,
+                  getValues,
                 }}
-                spacesOfCargo={[]}
-                isDisabled
+                currentTmpSpaces={currentTmpSpaces}
+                isDisabled={isDisabled}
+                isItEditForm={isItEditForm}
+                isCurrentUserManager={isCurrentUserManager}
               />
             </>
           }

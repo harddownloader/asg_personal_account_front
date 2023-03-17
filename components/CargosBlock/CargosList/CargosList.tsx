@@ -12,10 +12,9 @@ import { Avatar, Button, CardActions, CardContent, Divider, Grid, Menu, MenuItem
 import { useTheme } from "@mui/material/styles"
 
 // project components
-import SkeletonPopularCard from "@/components/ui-component/cards/Skeleton/PopularCard"
-import MainCard from "@/components/ui-component/cards/MainCard"
 import { CargosListItem } from '@/components/CargosBlock/CargosList/CargosListItem'
-import { AddCargoDialog } from "@/components/CargosBlock/CargosList/AddCargoDialog"
+import { AddCargoDialog } from "@/components/CargosBlock/CargosList/AddCargoDialog/AddCargoDialog"
+import { ScrollableBlock } from "@/components/ui-component/ScrollableBlock"
 
 // utils
 import { GRID_SPACING } from "@/lib/const"
@@ -36,41 +35,37 @@ export interface CargosListProps {
 }
 
 export const CargosList = observer(({
-                                     isLoading,
-                                     title="Список грузов",
-                                     items,
+                                      isLoading,
+                                      title="Список грузов",
+                                      items,
                                       isCurrentUserManager,
                                       isCurrentClientHasClientCode,
                            }: CargosListProps) => {
   const theme = useTheme()
 
-  // const [cargos, setCargos] = useState<Array<CargoInterfaceFull>>([...items])
   const cargos: Array<CargoInterfaceFull> = useMemo(
     () => ([...CargosStore.cargos.currentItemsList]),
     [JSON.stringify([CargosStore.cargos.currentItemsList])]
   )
-  // console.log({...cargos})
-  // const [isArchive, setIsArchive] = useState<boolean>(false)
   const isArchive = useMemo(
     () => (CargosStore.cargos.isCurrentItemsListArchive),
     [JSON.stringify([CargosStore.cargos.isCurrentItemsListArchive])]
   )
   const [isOpenAddModal, setIsOpenAddModal] = useState<boolean>(false)
 
-  // useEffect(() => {
-  //   // setCargos(items)
-  //   // if (ClientsStore.clients.currentItem?.userCodeId) CargosStore.setCurrentItemsListByStatus({
-  //   //   isArchive,
-  //   //   currentUserCode: ClientsStore.clients.currentItem.userCodeId
-  //   // })
-  // }, [JSON.stringify(items)])
+  useEffect(() => {
+   if (!isCurrentUserManager && isCurrentClientHasClientCode) archiveItemsToggle(false)
+  }, [isCurrentClientHasClientCode])
 
   const archiveItemsToggle = (status: boolean): void => {
-    // setIsArchive(status)
-    if (ClientsStore.clients.currentItem?.userCodeId) CargosStore.setCurrentItemsListByStatus({
-      isArchive: status,
-      currentUserCode: ClientsStore.clients.currentItem.userCodeId
-    })
+    if (ClientsStore.clients.currentItem?.userCodeId) {
+      // set cargos list if you client
+      CargosStore.setCurrentItemsListByStatus({
+        isArchive: status,
+        currentUserCode: ClientsStore.clients.currentItem.userCodeId
+      })
+    //  set current cargo store
+    }
   }
 
   const handleClick = () => {
@@ -98,84 +93,13 @@ export const CargosList = observer(({
     CargosStore.setCurrentItem({...cargo})
   }
 
+  console.log('CargosList', {cargos})
   return (
     <>
-      {isLoading ? (
-        <SkeletonPopularCard />
-      ) : (
-        <>
-          <MainCard content={false} isHeightFull>
-            <CardContent>
-              <Grid container spacing={GRID_SPACING}>
-                <Grid item xs={12}>
-                  <Grid container alignContent="center" justifyContent="space-between">
-                    <Grid item>
-                      <Typography variant="h4">{title}</Typography>
-                    </Grid>
-                    {isCurrentUserManager && isCurrentClientHasClientCode && <Grid item>
-                      <>
-                        <AddIcon
-                          fontSize="small"
-                          sx={{
-                            // @ts-ignore
-                            color: theme.palette.primary[200],
-                            cursor: 'pointer'
-                          }}
-                          aria-controls="menu-popular-card"
-                          aria-haspopup="true"
-                          onClick={handleClick}
-                        />
-                      </>
-                    </Grid>}
-                  </Grid>
-                </Grid>
-                <Grid item xs={6}>
-                  <Button
-                    type="submit"
-                    fullWidth
-                    onClick={() => archiveItemsToggle(false)}
-                    className={currentCargosBtnClassNames}
-                  >
-                    Текущие
-                  </Button>
-                </Grid>
-                <Grid item xs={6}>
-                  <Button
-                    type="submit"
-                    fullWidth
-                    onClick={() => archiveItemsToggle(true)}
-                    className={archiveCargosBtnClassNames}
-                  >
-                    Архивные
-                  </Button>
-                </Grid>
-
-                <Grid item xs={12}>
-                  {
-                    !Array.isArray(cargos) || cargos?.length === 0
-                      ? <>
-                          <p>Нет грузов</p>
-                        </>
-                      : <>
-                          {cargos.map((cargo, index) => {
-                            const isLastEl = Boolean(cargos.length - 1 === index)
-
-                            return (
-                              <Fragment key={cargo.id}>
-                                <CargosListItem
-                                  item={cargo}
-                                  selectCurrentCargoHandler={selectCurrentCargoHandler}
-                                />
-                                {!isLastEl && <Divider sx={{ my: 1.5 }} />}
-                              </Fragment>
-                            )
-                          })}
-                        </>
-                  }
-                </Grid>
-              </Grid>
-            </CardContent>
-          </MainCard>
+      <ScrollableBlock
+        isLoading={isLoading}
+        isScrollable
+        underContent={
           <AddCargoDialog
             isVisible={isOpenAddModal}
             handleCancel={handleCloseModal}
@@ -183,9 +107,82 @@ export const CargosList = observer(({
               ? ClientsStore.clients.currentItem.userCodeId
               : null
             }
+            clientId={ClientsStore.clients.currentItem?.id
+              ? ClientsStore.clients.currentItem.id
+              : null
+            }
           />
-        </>
-      )}
+        }
+        >
+        <Grid container spacing={GRID_SPACING}>
+          <Grid item xs={12}>
+            <Grid container alignContent="center" justifyContent="space-between">
+              <Grid item>
+                <Typography variant="h4">{title}</Typography>
+              </Grid>
+              {isCurrentUserManager && isCurrentClientHasClientCode && <Grid item>
+                <>
+                  <AddIcon
+                    fontSize="small"
+                    sx={{
+                      // @ts-ignore
+                      color: theme.palette.primary[200],
+                      cursor: 'pointer'
+                    }}
+                    aria-controls="menu-popular-card"
+                    aria-haspopup="true"
+                    onClick={handleClick}
+                  />
+                </>
+              </Grid>}
+            </Grid>
+          </Grid>
+          <Grid item xs={6}>
+            <Button
+              type="submit"
+              fullWidth
+              onClick={() => archiveItemsToggle(false)}
+              className={currentCargosBtnClassNames}
+            >
+              Текущие
+            </Button>
+          </Grid>
+          <Grid item xs={6}>
+            <Button
+              type="submit"
+              fullWidth
+              onClick={() => archiveItemsToggle(true)}
+              className={archiveCargosBtnClassNames}
+            >
+              Архивные
+            </Button>
+          </Grid>
+
+          <Grid item xs={12}>
+            {
+              !Array.isArray(cargos) || cargos?.length === 0
+                ? <>
+                  <p>Нет грузов</p>
+                </>
+                : <>
+                  {cargos.map((cargo, index) => {
+                    const isLastEl = Boolean(cargos.length - 1 === index)
+
+                    return (
+                      <Fragment key={cargo.id}>
+                        <CargosListItem
+                          item={cargo}
+                          selectCurrentCargoHandler={selectCurrentCargoHandler}
+                        />
+                        {!isLastEl && <Divider sx={{ my: 1.5 }} />}
+                      </Fragment>
+                    )
+                  })}
+                </>
+            }
+          </Grid>
+        </Grid>
+      </ScrollableBlock>
     </>
   )
 })

@@ -74,7 +74,7 @@ export const CargosListItem = observer(({
           <Grid item>
             <Collapse in={isShown || isCurrentCargosSelected}>
               <Typography variant="subtitle1" color="inherit">
-                Кол-во мест: { item.numberOfSeats }
+                Кол-во мест: { item?.spaces?.length }
               </Typography>
             </Collapse>
           </Grid>

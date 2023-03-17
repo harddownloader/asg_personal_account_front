@@ -10,6 +10,7 @@ import MainCard from '@/components/ui-component/cards/MainCard'
 import SkeletonPopularCard from '@/components/ui-component/cards/Skeleton/PopularCard'
 import { ClientsListItem } from './ClientsListItem'
 import EditClientModal from './EditClientModal'
+import { ScrollableBlock } from "@/components/ui-component/ScrollableBlock"
 
 // utils
 import { GRID_SPACING } from '@/lib/const'
@@ -17,7 +18,7 @@ import { GRID_SPACING } from '@/lib/const'
 // store
 import { UserOfDB } from '@/stores/userStore'
 import ClientsStore from "@/stores/clientsStore"
-import CargosStore, {CargoInterfaceFull} from "@/stores/cargosStore";
+import CargosStore, { CargoInterfaceFull } from "@/stores/cargosStore"
 
 
 export interface ClientsListProps {
@@ -81,55 +82,52 @@ export const ClientsList = observer(({
 
   return (
     <>
-      {isLoading ? (
-        <SkeletonPopularCard />
-      ) : (
-        <>
-          <MainCard content={false} isHeightFull>
-            <CardContent>
-              <Grid container spacing={GRID_SPACING}>
-                <Grid item xs={12}>
-                  <Grid container alignContent="center" justifyContent="space-between">
-                    <Grid item>
-                      <Typography variant="h4">{title}</Typography>
-                    </Grid>
-                    <Grid item></Grid>
-                  </Grid>
-                </Grid>
-                <Grid item xs={12}>
-                  {
-                    !Array.isArray(clients) || clients?.length === 0
-                      ? <>
-                          <p>Нет клиентов</p>
-                        </>
-                      : <>
-                          {clients.map((client, index) => {
-                            const isLastEl = Boolean((clients.length - 1) === index)
-
-                            return (
-                              <Fragment key={client.id}>
-                                <ClientsListItem
-                                  item={client}
-                                  openEditModalHandler={openEditModalHandler}
-                                  selectCurrentClientHandler={selectCurrentClientHandler}
-                                />
-                                {!isLastEl && <Divider sx={{ my: 1.5 }} />}
-                              </Fragment>
-                            )
-                          })}
-                        </>
-                  }
-                </Grid>
-              </Grid>
-            </CardContent>
-          </MainCard>
+      <ScrollableBlock
+        isLoading={isLoading}
+        isScrollable
+        underContent={
           <EditClientModal
             client={selectedClient}
             isVisible={isOpenEditModal}
             handleCancel={handleCloseModal}
           />
-        </>
-      )}
+        }
+      >
+        <Grid container spacing={GRID_SPACING}>
+          <Grid item xs={12}>
+            <Grid container alignContent="center" justifyContent="space-between">
+              <Grid item>
+                <Typography variant="h4">{title}</Typography>
+              </Grid>
+              <Grid item></Grid>
+            </Grid>
+          </Grid>
+          <Grid item xs={12}>
+            {
+              !Array.isArray(clients) || clients?.length === 0
+                ? <>
+                  <p>Нет клиентов</p>
+                </>
+                : <>
+                  {clients.map((client, index) => {
+                    const isLastEl = Boolean((clients.length - 1) === index)
+
+                    return (
+                      <Fragment key={client.id}>
+                        <ClientsListItem
+                          item={client}
+                          openEditModalHandler={openEditModalHandler}
+                          selectCurrentClientHandler={selectCurrentClientHandler}
+                        />
+                        {!isLastEl && <Divider sx={{ my: 1.5 }} />}
+                      </Fragment>
+                    )
+                  })}
+                </>
+            }
+          </Grid>
+        </Grid>
+      </ScrollableBlock>
     </>
   )
 })
