@@ -5,6 +5,7 @@ import type { AppProps } from 'next/app'
 import { ThemeProvider } from '@mui/material/styles'
 import { theme, customization } from '@/lib/themes'
 import { AuthProvider } from '@/lib/auth'
+import { AudioProvider } from "@/lib/audio"
 
 type NextPageWithLayout = NextPage & {
   getLayout?: (page: ReactElement) => ReactNode
@@ -20,7 +21,9 @@ export default function App({ Component, pageProps }: AppPropsWithLayout) {
   return (
     <ThemeProvider theme={theme(customization)}>
       <AuthProvider>
-        {getLayout(<Component {...pageProps} />)}
+        <AudioProvider>
+          {getLayout(<Component {...pageProps} />)}
+        </AudioProvider>
       </AuthProvider>
     </ThemeProvider>
   )
