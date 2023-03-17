@@ -63,7 +63,8 @@ export const getCargosByClient = async ({
           cost: cargoDecode.cost,
           shippingDate: cargoDecode.shippingDate,
           volume: cargoDecode.volume,
-          weight: cargoDecode.weight
+          weight: cargoDecode.weight,
+          spaces: cargoDecode.spaces,
         }
       })
     })
