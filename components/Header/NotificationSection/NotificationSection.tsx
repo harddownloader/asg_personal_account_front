@@ -1,6 +1,5 @@
 // @ts-nocheck
-import { useState, useRef, useEffect } from 'react'
-import Link from "@mui/material/Link"
+import {useState, useRef, useEffect, useMemo} from 'react'
 
 // mui
 import { useTheme } from '@mui/material/styles'
@@ -29,9 +28,14 @@ import {
 import MainCard from '@/components/ui-component/cards/MainCard'
 import Transitions from '@/components/ui-component/extended/Transitions'
 import NotificationList from './NotificationList'
+import { StyledBadge } from '@/components/ui-component/StyledBadge'
 
 // assets
 import { IconBell } from '@tabler/icons-react'
+
+// store
+import NotificationsStore from "@/stores/notificationsStore"
+import {observer} from "mobx-react-lite";
 
 // notification status options
 const status = [
@@ -55,7 +59,7 @@ const status = [
 
 // ==============================|| NOTIFICATION ||============================== //
 
-export const NotificationSection = () => {
+export const NotificationSection = observer(() => {
   const theme = useTheme()
   const matchesXs = useMediaQuery(theme.breakpoints.down('md'))
 
@@ -89,6 +93,14 @@ export const NotificationSection = () => {
     if (event?.target.value) setValue(event?.target.value)
   }
 
+  // notification list
+  const notificationsItemsStr = JSON.stringify(NotificationsStore.notifications.items)
+  const notifications = useMemo(
+    () => JSON.parse(notificationsItemsStr),
+    [notificationsItemsStr]
+  )
+  const AreThereAnyUnreadNotifications = notifications.some((notification) => notification.isViewed === false)
+
   return (
     <>
       <Box
@@ -101,40 +113,38 @@ export const NotificationSection = () => {
         }}
       >
         <ButtonBase>
-          <Avatar
-            variant="rounded"
-            // sx={{
-            //     ...theme.typography.commonAvatar,
-            //     ...theme.typography.mediumAvatar,
-            //     transition: 'all .2s ease-in-out',
-            //     background: theme.palette.secondary.light,
-            //     color: theme.palette.secondary.dark,
-            //     '&[aria-controls="menu-list-grow"],&:hover': {
-            //         background: theme.palette.secondary.dark,
-            //         color: theme.palette.secondary.light
-            //     }
-            // }}
-            sx={{
-              ...theme.typography.commonAvatar,
-              ...theme.typography.mediumAvatar,
-              borderRadius: '4px',
-              transition: 'all .2s ease-in-out',
-              background: theme.palette.common.white,
-              color: theme.palette.primary.main,
-              '&[aria-controls="menu-list-grow"],&:hover': {
-                background: theme.palette.primary.main, // theme.palette.secondary.dark,
-                color: theme.palette.common.white, // theme.palette.secondary.light
-                border: `1px ${theme.palette.common.white} solid`,
-              }
-            }}
-            ref={anchorRef}
-            aria-controls={open ? 'menu-list-grow' : undefined}
-            aria-haspopup="true"
-            onClick={handleToggle}
-            color="inherit"
+
+          <StyledBadge
+            overlap="circular"
+            anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+            variant="dot"
+            invisible={!AreThereAnyUnreadNotifications}
           >
-            <IconBell stroke={1.5} size="1.3rem" />
-          </Avatar>
+            <Avatar
+              variant="rounded"
+              sx={{
+                ...theme.typography.commonAvatar,
+                ...theme.typography.mediumAvatar,
+                borderRadius: '4px',
+                transition: 'all .2s ease-in-out',
+                background: theme.palette.common.white,
+                color: theme.palette.primary.main,
+                '&[aria-controls="menu-list-grow"],&:hover': {
+                  background: theme.palette.primary.main,
+                  color: theme.palette.common.white,
+                  border: `1px ${theme.palette.common.white} solid`,
+                }
+              }}
+              ref={anchorRef}
+              aria-controls={open ? 'menu-list-grow' : undefined}
+              aria-haspopup="true"
+              onClick={handleToggle}
+              color="inherit"
+            >
+              <IconBell stroke={1.5} size="1.3rem" />
+            </Avatar>
+          </StyledBadge>
+
         </ButtonBase>
       </Box>
       <Popper
@@ -215,7 +225,7 @@ export const NotificationSection = () => {
                         {/*    <Divider sx={{ my: 0 }} />*/}
                         {/*  </Grid>*/}
                         {/*</Grid>*/}
-                        <NotificationList />
+                        <NotificationList notifications={notifications} />
                         {/*</PerfectScrollbar>*/}
                       </div>
                     </Grid>
@@ -234,6 +244,6 @@ export const NotificationSection = () => {
       </Popper>
     </>
   )
-}
+})
 
 export default NotificationSection

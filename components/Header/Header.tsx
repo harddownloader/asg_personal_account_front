@@ -24,7 +24,7 @@ export const Header = ({ handleLeftDrawerToggle }: HeaderProps) => {
 
   return (
     <>
-      {/* logo & toggler button */}
+      {/* logo & toggle button */}
       <Box
         sx={{
           width: 228,

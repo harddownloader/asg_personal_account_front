@@ -26,18 +26,17 @@ import { NotificationItem } from './NotificationItem'
 // store
 import NotificationsStore, { Notification } from "@/stores/notificationsStore"
 
-const NotificationList = observer(() => {
-    const theme = useTheme()
-  const notifications = useMemo(
-    () => NotificationsStore.notifications.items,
-    [JSON.stringify(NotificationsStore.notifications.items)]
-  )
-  console.log(notifications?.length)
+export interface NotificationListProps {
+  notifications: Array<Notification>
+}
 
-    const chipSX = {
-        height: 24,
-        padding: '0 6px'
-    }
+const NotificationList = observer(({ notifications }: NotificationListProps) => {
+  const theme = useTheme()
+
+  const chipSX = {
+      height: 24,
+      padding: '0 6px'
+  }
 
   const chipErrorSX = {
         ...chipSX, // @ts-ignore
@@ -59,7 +58,7 @@ const NotificationList = observer(() => {
         height: 28
     }
 
-    return (
+  return (
         <List
             sx={{
                 width: '100%',
@@ -85,8 +84,10 @@ const NotificationList = observer(() => {
              ? notifications.map((notification, index) => (
                 <Fragment key={index}>
                   <NotificationItem
+                    id={notification.id}
                     title={"Новый пользователь"}
                     message={notification.content}
+                    isViewed={notification.isViewed}
                   />
                 </Fragment>
               ))

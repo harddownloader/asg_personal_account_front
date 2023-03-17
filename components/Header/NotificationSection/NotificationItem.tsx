@@ -1,7 +1,9 @@
+import { useState } from 'react'
+
 // mui
 import {
   Avatar,
-  Button, Divider,
+  Button, ButtonBase, Divider,
   Grid, List,
   ListItem,
   ListItemAvatar,
@@ -9,13 +11,14 @@ import {
   ListItemText,
   Typography
 } from "@mui/material"
-import {styled, useTheme} from "@mui/material/styles"
+import { styled, useTheme } from "@mui/material/styles"
 
 // assets
-import {IconBrandTelegram, IconMailbox} from "@tabler/icons-react"
+import { IconBrandTelegram, IconMailbox } from "@tabler/icons-react"
 
 // store
-import { contentType } from "@/stores/notificationsStore"
+import NotificationsStore, { notificationId, contentType, notificationStatus } from "@/stores/notificationsStore"
+import {StyledBadge} from "../../ui-component/StyledBadge/StyledBadge";
 
 // styles
 const ListItemWrapper = styled('div')(({ theme }) => ({
@@ -31,39 +34,57 @@ const ListItemWrapper = styled('div')(({ theme }) => ({
 }))
 
 export interface NotificationItem {
-  title: string,
+  id: notificationId
+  title: string
   message: contentType
+  isViewed: notificationStatus
 }
 
 export const NotificationItem = ({
+                                    id,
                                     title,
-                                    message
+                                    message,
+                                    isViewed,
                                  }: NotificationItem) => {
   const theme = useTheme()
 
+  const toggleChangeStatus = (unreadStatus: boolean) => {
+    NotificationsStore.editStatus(id, unreadStatus)
+  }
+
+  const markNotificationAsViewed = () => {
+    toggleChangeStatus(true)
+  }
+
   return (
     <>
-      <ListItemWrapper>
+      <ListItemWrapper onMouseEnter={markNotificationAsViewed}>
         <ListItem alignItems="center">
           <ListItemAvatar>
-            <Avatar
-              sx={{
-                color: theme.palette.background.paper,
-                backgroundColor: theme.palette.primary.main,
-                border: 'none',
-                borderColor: theme.palette.primary.main
-              }}
+
+            <StyledBadge
+              overlap="circular"
+              anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+              variant="dot"
+              invisible={isViewed}
             >
-              <IconMailbox stroke={1.5} size="1.3rem" />
-            </Avatar>
+              <Avatar
+                sx={{
+                  color: theme.palette.background.paper,
+                  backgroundColor: theme.palette.primary.main,
+                  border: 'none',
+                  borderColor: theme.palette.primary.main
+                }}
+              >
+                <IconMailbox stroke={1.5} size="1.3rem" />
+              </Avatar>
+            </StyledBadge>
+
           </ListItemAvatar>
           <ListItemText primary={<Typography variant="subtitle1">{title}</Typography>} />
           <ListItemSecondaryAction>
             <Grid container justifyContent="flex-end">
               <Grid item>
-                {/*<Typography variant="caption" display="block" gutterBottom>*/}
-                {/*  2 min ago*/}
-                {/*</Typography>*/}
               </Grid>
             </Grid>
           </ListItemSecondaryAction>
@@ -75,9 +96,6 @@ export const NotificationItem = ({
           <Grid item xs={12}>
             <Grid container>
               <Grid item>
-                {/*<Button variant="contained" disableElevation endIcon={<IconBrandTelegram stroke={1.5} size="1.3rem" />}>*/}
-                {/*  Mail*/}
-                {/*</Button>*/}
               </Grid>
             </Grid>
           </Grid>
