@@ -5,7 +5,7 @@ import { parseCookies } from "nookies"
 import { firebaseAdmin } from "@/lib/firebase/firebaseAdmin"
 import { fixMeInTheFuture } from "@/lib/types"
 import { validateEmail } from "@/lib/validation/email"
-import { UserOfDB, UserSavingResponse } from "@/stores/userStore"
+import { UserOfDB, USERS_DB_COLLECTION_NAME, UserSavingResponse } from "@/stores/userStore"
 
 const UserProfileHandler = async (req: NextApiRequest, res: NextApiResponse) => {
   if (req.method === 'POST') {
@@ -45,7 +45,7 @@ const UserProfileHandler = async (req: NextApiRequest, res: NextApiResponse) => 
         const currentFirebaseUser = await firebaseAdmin.auth().verifyIdToken(cookies.token)
 
         const db = firebaseAdmin.firestore()
-        const usersRef = await db.collection('users')
+        const usersRef = await db.collection(USERS_DB_COLLECTION_NAME)
         const usersDB: Array<UserOfDB> = await usersRef
           .where("id", "==", id)
           .get()

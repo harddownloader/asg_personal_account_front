@@ -1,3 +1,4 @@
+// @ts-nocheck
 import React, { ReactElement, useEffect } from "react"
 import { InferGetServerSidePropsType, GetServerSidePropsContext } from "next"
 import nookies from "nookies"
@@ -26,6 +27,7 @@ import { getUserFromDB } from "@/lib/ssr/requests/getUsers"
 import UserStore, {
   UserDataForSaving,
   UserOfDB,
+  USERS_DB_COLLECTION_NAME,
   UserSavingResponse
 } from "@/stores/userStore"
 
@@ -36,7 +38,7 @@ export const getServerSideProps = async (ctx: GetServerSidePropsContext) => {
     // console.log(JSON.stringify(cookies, null, 2))
     const currentFirebaseUser = await firebaseAdmin.auth().verifyIdToken(cookies.token)
     const db = firebaseAdmin.firestore()
-    const usersRef = await db.collection('users')
+    const usersRef = await db.collection(USERS_DB_COLLECTION_NAME)
     const currentUserInDB: UserOfDB = await getUserFromDB({
       currentUserId: currentFirebaseUser.uid,
       usersRef

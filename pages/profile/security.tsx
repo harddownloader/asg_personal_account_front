@@ -7,7 +7,7 @@ import {firebaseAdmin} from "@/lib/firebase/firebaseAdmin"
 import {getUserFromDB} from "@/lib/ssr/requests/getUsers"
 
 // store
-import UserStore, {UserOfDB} from "@/stores/userStore"
+import UserStore, {UserOfDB, USERS_DB_COLLECTION_NAME} from "@/stores/userStore"
 
 export const getServerSideProps = async (ctx: GetServerSidePropsContext) => {
   try {
@@ -16,7 +16,7 @@ export const getServerSideProps = async (ctx: GetServerSidePropsContext) => {
     // console.log(JSON.stringify(cookies, null, 2))
     const currentFirebaseUser = await firebaseAdmin.auth().verifyIdToken(cookies.token)
     const db = firebaseAdmin.firestore()
-    const usersRef = await db.collection('users')
+    const usersRef = await db.collection(USERS_DB_COLLECTION_NAME)
     const currentUserInDB: UserOfDB = await getUserFromDB({
       currentUserId: currentFirebaseUser.uid,
       usersRef
@@ -56,7 +56,7 @@ export const getServerSideProps = async (ctx: GetServerSidePropsContext) => {
 
 function ProfileSecurity({ currentUser }: InferGetServerSidePropsType<typeof getServerSideProps>) {
   useEffect(() => {
-    if(!UserStore.user.id) UserStore.saveUserToStore({
+    if(!UserStore.user.currentUser.id) UserStore.saveUserToStore({
       id: currentUser.id,
       name: currentUser.name,
       phone: currentUser.phone,
