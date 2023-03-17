@@ -28,10 +28,15 @@ import { LoginFormData } from "@/pages/login"
 import { fixMeInTheFuture } from "@/lib/types"
 import { firebaseAuth, firebaseFirestore } from '@/lib/firebase/firebaseClient'
 
+export const USERS_DB_COLLECTION_NAME: string = 'users'
+
 enum UserRoleEnum {
   CLIENT = 0,
   MANAGER = 1,
 }
+
+export const USER_ROLE_CLIENT = UserRoleEnum.CLIENT
+export const USER_ROLE_MANAGER = UserRoleEnum.MANAGER
 
 export type UserRole = UserRoleEnum
 
@@ -113,7 +118,7 @@ const userDefaultValues = {
   email: '',
   phone: '',
   city: null,
-  role: 0,
+  role: USER_ROLE_CLIENT,
   userCodeId: null
 }
 
@@ -343,7 +348,7 @@ class UserStore {
             return error
           })
 
-          const cityRef = await doc(firebaseFirestore, 'users', firebaseAuth.currentUser.uid)
+          const userRef = await doc(firebaseFirestore, USERS_DB_COLLECTION_NAME, firebaseAuth.currentUser.uid)
           const newUserData: UserOfDB = {
             id: firebaseAuth.currentUser.uid,
             name,
@@ -351,10 +356,10 @@ class UserStore {
             email,
             userCodeId: null,
             city: null,
-            role: 0
+            role: USER_ROLE_CLIENT
           }
           await setDoc(
-            cityRef,
+            userRef,
             newUserData,
             { merge: false }
           ).then((docRef) => {
@@ -363,11 +368,9 @@ class UserStore {
             socket = io()
 
             socket.on('connect', () => {
-              console.log('connected 2222222')
-
+              console.log('socket connected from register method')
+              socket.emit('newUser', `${name}, ${email}`)
             })
-
-            socket.emit('newUser', `${name}, ${email}`)
 
             return docRef
           }).catch((error) => {
