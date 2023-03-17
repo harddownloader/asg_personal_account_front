@@ -6,6 +6,7 @@ export const LogoSection = () => {
     <>
       <Link href="/">
         <Image
+          priority={true}
           src="/img/logo/logo.png"
           alt="logo"
           width="145"
