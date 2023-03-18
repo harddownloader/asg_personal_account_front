@@ -103,6 +103,12 @@ function Home ({
                  clients,
                  notifications,
                }: InferGetServerSidePropsType<typeof getServerSideProps>) {
+  console.log({
+    cargos,
+    currentUser,
+    clients,
+    notifications,
+  })
   useEffect(() => {
     if (cargos?.length) CargosStore.setList(cargos)
 
