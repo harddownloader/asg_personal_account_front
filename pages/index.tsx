@@ -25,7 +25,7 @@ export const getServerSideProps = async (ctx: GetServerSidePropsContext) => {
   try {
     // if the user is authenticated
     const cookies = nookies.get(ctx)
-    // console.log(JSON.stringify(cookies, null, 2))
+    console.log(JSON.stringify(cookies, null, 2))
     const currentFirebaseUser = await firebaseAdmin.auth().verifyIdToken(cookies.token)
 
     const db = firebaseAdmin.firestore()
@@ -79,6 +79,8 @@ export const getServerSideProps = async (ctx: GetServerSidePropsContext) => {
     // either the `token` cookie didn't exist
     // or token verification failed
     // either way: redirect to the login page
+    throw new Error(`${err}`)
+
     return {
       redirect: {
         permanent: false,

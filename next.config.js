@@ -1,6 +1,12 @@
 /** @type {import('next').NextConfig} */
 const path = require('path')
 
+// This file sets a custom webpack configuration to use your Next.js app
+// with Sentry.
+// https://nextjs.org/docs/api-reference/next.config.js/introduction
+// https://docs.sentry.io/platforms/javascript/guides/nextjs/manual-setup/
+const { withSentryConfig } = require('@sentry/nextjs');
+
 const apiURL = new URL(process.env.NEXT_PUBLIC_API_URI)
 const allowedImageDomains = process.env.NEXT_PUBLIC_ALLOWED_IMAGE_DOMAINS
   ? process.env.NEXT_PUBLIC_ALLOWED_IMAGE_DOMAINS.split(",")
@@ -9,6 +15,7 @@ const imageConversionFormats = process.env.NEXT_PUBLIC_IMAGE_CONVERSION_FORMATS
   ? process.env.NEXT_PUBLIC_IMAGE_CONVERSION_FORMATS.split(",")
   : []
 
+/** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
   images: {
@@ -40,3 +47,9 @@ const nextConfig = {
 }
 
 module.exports = nextConfig
+
+module.exports = withSentryConfig(
+  module.exports,
+  { silent: true },
+  { hideSourcemaps: true },
+)
