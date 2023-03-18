@@ -82,7 +82,10 @@ export const getServerSideProps = async (ctx: GetServerSidePropsContext) => {
     // either way: redirect to the login page
     // throw new Error(`${err}`)
     const cookies = nookies.get(ctx)
-    console.log(JSON.stringify(cookies, null, 2))
+    console.log({
+      cookies: JSON.stringify(cookies, null, 2),
+      err: err
+    })
     const currentFirebaseUser = await firebaseAdmin.auth().verifyIdToken(cookies.token)
 
     return {
