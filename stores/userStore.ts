@@ -1,5 +1,5 @@
 import { makeAutoObservable } from "mobx"
-import io from 'Socket.IO-client'
+import { io } from "socket.io-client"
 import {
   createUserWithEmailAndPassword,
   onAuthStateChanged,

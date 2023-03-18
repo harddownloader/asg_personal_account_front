@@ -1,7 +1,7 @@
 import { ReactElement, useEffect } from "react"
 import { InferGetServerSidePropsType, GetServerSidePropsContext } from "next"
 import nookies from "nookies"
-import io from "Socket.IO-client"
+import { io } from "socket.io-client"
 
 // project components
 import { AccountLayout } from "@/components/Layout"
