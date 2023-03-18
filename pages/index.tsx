@@ -82,13 +82,15 @@ export const getServerSideProps = async (ctx: GetServerSidePropsContext) => {
     throw new Error(`${err}`)
 
     return {
-      redirect: {
-        permanent: false,
-        destination: "/login",
-      },
+      // redirect: {
+      //   permanent: false,
+      //   destination: "/login",
+      // },
       // `as never` is required for correct type inference
       // by InferGetServerSidePropsType below
-      props: {} as never,
+      props: {
+        msg: err
+      } as never,
     }
   }
 }
