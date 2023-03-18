@@ -204,8 +204,6 @@ export const CargosInfo = observer(({
                                                     shippingDate,
                                                     volume,
                                                     weight,
-                                                    // spaces, // fields
-    // ...props
                                                   }: CargoInterfaceForForm): Promise<void> => {
     if (!currentCargo?.id) {
       console.warn('currentCargo.id not found')
@@ -213,13 +211,6 @@ export const CargosInfo = observer(({
     }
 
     const currentTmpSpaces = getCurrentTmpSpaces(JSON.parse(notLoadedSpacesSrt))
-
-    console.log({
-      formated: prepareSpaces(currentTmpSpaces),
-      // spaces,
-      currentTmpSpaces
-    })
-    // return
 
     const { data }: CargoSavingResponse = await CargosStore.update({
       id: currentCargo.id,

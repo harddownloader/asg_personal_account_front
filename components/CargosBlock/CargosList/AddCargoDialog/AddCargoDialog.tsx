@@ -1,5 +1,6 @@
-import React, { Fragment, ReactElement, useEffect } from 'react'
+import React, { Fragment, ReactElement, useEffect, useMemo } from 'react'
 import { useForm } from "react-hook-form"
+import { observer } from "mobx-react-lite"
 
 // mui
 import Grid from '@mui/material/Grid'
@@ -18,6 +19,8 @@ import CargosStore, {
   CargoAddResponse, spaceItemType,
 } from "@/stores/cargosStore"
 import { UserCodeIdType, UserIdType } from "@/stores/userStore"
+import {prepareSpaces} from "@/components/CargosBlock/helpers/prepareBody"
+import {getSpacesOfUnsavedCargo} from "@/stores/helpers/spaces";
 
 export interface AddCargoDialogProps {
   isVisible: boolean
@@ -26,7 +29,7 @@ export interface AddCargoDialogProps {
   clientId: UserIdType | null
 }
 
-export const AddCargoDialog = ({
+export const AddCargoDialog = observer(({
                                  isVisible,
                                  handleCancel,
                                  clientCode,
@@ -46,6 +49,31 @@ export const AddCargoDialog = ({
     if (clientCode) reset({ clientCode: clientCode })
   }, [clientCode])
 
+  const getCurrentNewTmpSpaces = (notLoadedSpaces: Array<spaceItemType>) => {
+    if (!clientId) {
+      console.warn('getCurrentNewTmpSpaces: Not found clientId', { clientId })
+      return []
+    }
+
+    const currentSpacesTmp = getSpacesOfUnsavedCargo(notLoadedSpaces, clientId)
+
+    console.log('AddCargoDialog getCurrentNewTmpSpaces', {
+      currentSpacesTmp,
+      notLoadedSpaces
+    })
+
+    return currentSpacesTmp
+  }
+
+  const notLoadedSpacesSrt = JSON.stringify(CargosStore.cargos.notLoadedSpaces)
+  const currentTmpSpaces = useMemo(
+    () => getCurrentNewTmpSpaces(JSON.parse(notLoadedSpacesSrt)), [notLoadedSpacesSrt]
+  )
+  console.log('AddCargoDialog', {
+    currentTmpSpaces,
+    allSpaces: JSON.parse(notLoadedSpacesSrt),
+  })
+
   const handleAddCargo = handleSubmitForm(async ({
                                                     cargoId,
                                                     clientCode,
@@ -58,6 +86,9 @@ export const AddCargoDialog = ({
                                                     volume,
                                                     weight,
                                                   }: CargoInterfaceForForm): Promise<void> => {
+
+    // const currentTmpSpaces = getCurrentNewTmpSpaces(JSON.parse(notLoadedSpacesSrt))
+
     const { data }: CargoAddResponse = await CargosStore.add({
       cargoId,
       clientCode,
@@ -69,8 +100,9 @@ export const AddCargoDialog = ({
       shippingDate,
       volume,
       weight,
-      spaces: [],
+      spaces: currentTmpSpaces
     })
+
 
     if (data?.addingCargo?.errors.length) {
       // Unable to sign in.
@@ -108,42 +140,6 @@ export const AddCargoDialog = ({
 
     return
   })
-
-  const notLoadedSpacesSrt = JSON.stringify(CargosStore.cargos.notLoadedSpaces)
-
-  const getCurrentNewTmpSpaces = (notLoadedSpaces: Array<spaceItemType>) => {
-    if (!clientId) {
-      console.warn('getCurrentNewTmpSpaces: Not found clientId', { clientId })
-      return []
-    }
-
-    // const filterCallback = (space: spaceItemType): boolean => {
-    //   console.log('space?.cargoId', space?.cargoId)
-    //   return (
-    //     space.clientId === clientId &&
-    //     space?.cargoId === undefined
-    //   )
-    // }
-
-    const currentSpacesTmp = notLoadedSpaces.filter((space: spaceItemType): boolean => {
-      return (
-        space.clientId === clientId &&
-        space?.cargoId === undefined
-      )
-    })
-
-    // const newCurrentTmpSpaceItems: Array<spaceItemType> = convertSpacesOfDbToStorageFormat({
-    //   spaces: currentSpacesTmp,
-    //   clientId: currentClient.id,
-    //   cargoId: currentCargo.id
-    // })
-
-    console.log('getCurrentNewTmpSpaces', {
-      currentSpacesTmp,
-      notLoadedSpaces
-    })
-    return currentSpacesTmp
-  }
 
   const closeHandler = () => {
     clearSpacesForAddCargo()
@@ -192,11 +188,11 @@ export const AddCargoDialog = ({
           reset,
           getValues,
         }}
-        currentTmpSpaces={getCurrentNewTmpSpaces(JSON.parse(notLoadedSpacesSrt))}
+        currentTmpSpaces={currentTmpSpaces}
         isItEditForm={false}
       />
     </DialogHOC>
   )
-}
+})
 
 export default AddCargoDialog

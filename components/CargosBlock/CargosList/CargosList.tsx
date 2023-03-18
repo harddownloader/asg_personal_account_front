@@ -100,18 +100,20 @@ export const CargosList = observer(({
         isLoading={isLoading}
         isScrollable
         underContent={
-          <AddCargoDialog
-            isVisible={isOpenAddModal}
-            handleCancel={handleCloseModal}
-            clientCode={ClientsStore.clients.currentItem?.userCodeId
-              ? ClientsStore.clients.currentItem.userCodeId
-              : null
-            }
-            clientId={ClientsStore.clients.currentItem?.id
-              ? ClientsStore.clients.currentItem.id
-              : null
-            }
-          />
+          <>
+            {isOpenAddModal && <AddCargoDialog
+              isVisible={isOpenAddModal}
+              handleCancel={handleCloseModal}
+              clientCode={ClientsStore.clients.currentItem?.userCodeId
+                ? ClientsStore.clients.currentItem.userCodeId
+                : null
+              }
+              clientId={ClientsStore.clients.currentItem?.id
+                ? ClientsStore.clients.currentItem.id
+                : null
+              }
+            />}
+          </>
         }
         >
         <Grid container spacing={GRID_SPACING}>

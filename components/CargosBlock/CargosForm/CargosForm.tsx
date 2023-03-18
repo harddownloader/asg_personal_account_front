@@ -18,10 +18,9 @@ import { fixMeInTheFuture } from "@/lib/types"
 
 // store
 import CargosStore, {
-  CargoInterfaceFull,
-  CargoSavingResponse,
-  CargoInterfaceForForm,
-  CARGO_FIELD_NAMES, statusOptions, spaceItemType,
+  CARGO_FIELD_NAMES,
+  statusOptions,
+  spaceItemType,
 } from "@/stores/cargosStore"
 
 export interface CargoInfoFormControl {
