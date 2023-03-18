@@ -281,6 +281,10 @@ class CargosStore {
     this.cargos.items = [...cargos]
   }
 
+  clearList = () => {
+    this.cargos.items = []
+  }
+
   clearCurrentItemsList = () => {
     this.cargos.currentItemsList = []
   }
@@ -843,6 +847,7 @@ class CargosStore {
     let getSpaceIndex: Function
     if (isItEditForm && cargoId) getSpaceIndex = getIndexOsSavedSpace.bind(null, tmpSpacesBeforeSetNewPhoto, findIndexSpaceCallback)
     else if (!isItEditForm && !cargoId) {
+      // @ts-ignore
       getSpaceIndex = getIndexOfUnsavedSpace.bind(null, tmpSpacesBeforeSetNewPhoto, cargoId, clientId, spaceIndex, isItEditForm)
       if (getSpaceIndex === undefined) {
         console.warn('addPhoto error: getSpaceIndex return undefined')
@@ -1216,6 +1221,13 @@ class CargosStore {
       // Uh-oh, an error occurred!
       console.error('deleteObject return error:', error)
     })
+  }
+
+  clearAll = () => {
+    this.clearNotLoadedSpaces()
+    this.clearCurrentItemsList()
+    this.clearCurrentItem()
+    this.clearList()
   }
 }
 

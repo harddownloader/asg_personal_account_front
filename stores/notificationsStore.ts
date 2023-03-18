@@ -34,6 +34,10 @@ class NotificationsStore {
     this.notifications.items = [...list]
   }
 
+  clearList = () => {
+    this.notifications.items = []
+  }
+
   add = (notification: Notification) => {
     this.notifications.items = [
       ...this.notifications.items,
@@ -90,6 +94,10 @@ class NotificationsStore {
     }))
     await console.log({newNotificationsList})
     this.notifications.items = newNotificationsList
+  }
+
+  clearAll = () => {
+    this.clearList()
   }
 }
 

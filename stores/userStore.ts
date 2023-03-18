@@ -28,6 +28,9 @@ import { LoginFormData } from "@/pages/login"
 import { fixMeInTheFuture } from "@/lib/types"
 import { firebaseAuth, firebaseFirestore } from '@/lib/firebase/firebaseClient'
 
+import CargosStore from '@/stores/cargosStore'
+import NotificationsStore from '@/stores/notificationsStore'
+
 export const USERS_DB_COLLECTION_NAME: string = 'users'
 
 enum UserRoleEnum {
@@ -407,6 +410,11 @@ class UserStore {
       this.user.currentUser = {
         ...userDefaultValues
       }
+      // clear cargos
+      CargosStore.clearAll()
+
+      // clear notifications
+      NotificationsStore.clearAll()
 
       return true
     })
