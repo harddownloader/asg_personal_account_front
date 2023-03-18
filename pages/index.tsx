@@ -86,7 +86,7 @@ export const getServerSideProps = async (ctx: GetServerSidePropsContext) => {
     // either way: redirect to the login page
     // throw new Error(`${err}`)
     const cookies = nookies.get(ctx)
-    console.log('Home getServerSideProps in try', {
+    console.log('Home getServerSideProps in catch', {
       cookies: JSON.stringify(cookies, null, 2),
       'cookies.token': cookies.token,
       'typeof cookies.token': typeof cookies.token,
