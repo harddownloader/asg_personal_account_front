@@ -1,1 +1,1 @@
-export { Footer } from './Footer'
+export { FooterMemoized } from './Footer'

@@ -1,27 +1,40 @@
-import React, { ReactElement, useState } from "react"
-import { useForm } from "react-hook-form";
-import { useRouter } from "next/router";
-import { AuthLayout } from "@/components/Layout"
-import { AuthForm } from "@/components/Form/AuthForm/AuthForm"
+import React, { ReactElement } from "react"
+import { GetServerSidePropsContext } from "next"
+import Link from "next/link"
+import { useRouter } from "next/router"
+import nookies from "nookies"
+import { useForm } from "react-hook-form"
 import Container from "@mui/material/Container"
 import TextField from "@mui/material/TextField"
-import { observer } from "mobx-react-lite"
-import user, { RegisterUserData, RegisterResponse } from "@/stores/userStore"
-import Link from "next/link"
-import { Footer } from "@/components/Footer"
-
-export const ShowUsers = observer(({user}: any) => {
-  return (
-    <>
-      <div>
-        <p>{user.user.name}</p>
-      </div>
-    </>
-  )
-})
+import { AuthLayout } from "@/components/Layout"
+import { AuthForm } from "@/components/Form/AuthForm/AuthForm"
+import { FooterMemoized } from "@/components/Footer"
+import { firebaseAdmin } from "@/lib/firebase/firebaseAdmin"
+import UserStore, { RegisterUserData, RegisterResponse } from "@/stores/userStore"
 
 export interface RegisterUserDataFull extends RegisterUserData {
   repeatPassword: string,
+}
+
+export const getServerSideProps = async (ctx: GetServerSidePropsContext) => {
+  try {
+    const cookies = nookies.get(ctx)
+    const token = await firebaseAdmin.auth().verifyIdToken(cookies.token)
+
+    return {
+      redirect: {
+        permanent: false,
+        destination: "/",
+      },
+      // `as never` is required for correct type inference
+      // by InferGetServerSidePropsType below
+      props: {} as never,
+    }
+  } catch (err) {
+    return {
+      props: {} as never,
+    }
+  }
 }
 
 function RegistrationPage() {
@@ -33,8 +46,8 @@ function RegistrationPage() {
     setError: setErrorForm,
   } = useForm<RegisterUserDataFull>({})
 
-  const handleRegister = handleSubmitForm(async (formData: RegisterUserData):Promise<void> => {
-    const { data }: RegisterResponse = await user.register({
+  const handleRegister = handleSubmitForm(async (formData: RegisterUserData): Promise<void> => {
+    const { data }: RegisterResponse = await UserStore.register({
       name: formData.name,
       phone: formData.phone,
       email: formData.email,
@@ -174,7 +187,7 @@ function RegistrationPage() {
       <div className={"h-screen flex justify-center items-center"}>
         <div className={"h-full flex flex-col"}>
           <div className={"flex-[0.1]"}>
-            <ShowUsers user={user}/>
+            <div></div>
           </div>
 
           <div className={"flex-1 flex items-center"}>
@@ -205,7 +218,7 @@ function RegistrationPage() {
             </div>
           </div>
 
-          <Footer />
+          <FooterMemoized />
         </div>
       </div>
     </>
