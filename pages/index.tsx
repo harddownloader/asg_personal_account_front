@@ -25,7 +25,11 @@ export const getServerSideProps = async (ctx: GetServerSidePropsContext) => {
   try {
     // if the user is authenticated
     const cookies = nookies.get(ctx)
-    console.log(JSON.stringify(cookies, null, 2))
+    console.log('Home getServerSideProps in try', {
+      cookies: JSON.stringify(cookies, null, 2),
+      'cookies.token': cookies.token,
+      'typeof cookies.token': typeof cookies.token,
+    })
     const currentFirebaseUser = await firebaseAdmin.auth().verifyIdToken(cookies.token)
 
     const db = firebaseAdmin.firestore()
@@ -82,9 +86,11 @@ export const getServerSideProps = async (ctx: GetServerSidePropsContext) => {
     // either way: redirect to the login page
     // throw new Error(`${err}`)
     const cookies = nookies.get(ctx)
-    console.log({
+    console.log('Home getServerSideProps in try', {
       cookies: JSON.stringify(cookies, null, 2),
-      err: err
+      'cookies.token': cookies.token,
+      'typeof cookies.token': typeof cookies.token,
+      errorMessage: err,
     })
     const currentFirebaseUser = await firebaseAdmin.auth().verifyIdToken(cookies.token)
 
