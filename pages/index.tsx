@@ -81,6 +81,9 @@ export const getServerSideProps = async (ctx: GetServerSidePropsContext) => {
     // or token verification failed
     // either way: redirect to the login page
     // throw new Error(`${err}`)
+    const cookies = nookies.get(ctx)
+    console.log(JSON.stringify(cookies, null, 2))
+    const currentFirebaseUser = await firebaseAdmin.auth().verifyIdToken(cookies.token)
 
     return {
       // redirect: {
@@ -90,7 +93,9 @@ export const getServerSideProps = async (ctx: GetServerSidePropsContext) => {
       // `as never` is required for correct type inference
       // by InferGetServerSidePropsType below
       props: {
-        error_msg: err
+        error_msg: err,
+        currentFirebaseUser,
+        token: cookies.token,
       } as never,
     }
   }
