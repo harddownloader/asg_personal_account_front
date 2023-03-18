@@ -1,4 +1,4 @@
-@import "./_variables.scss";
+@import "./_themes-vars.module.scss";
 
 /* width */
 ::-webkit-scrollbar {
@@ -12,10 +12,10 @@
 
 /* Handle */
 ::-webkit-scrollbar-thumb {
-  background: $main-color;
+  background: $primaryMain;
 }
 
 /* Handle on hover */
 ::-webkit-scrollbar-thumb:hover {
-  background: $main-color;
+  background: $primaryMain;
 }

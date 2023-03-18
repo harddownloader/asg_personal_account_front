@@ -3,7 +3,7 @@ import Link from "@mui/material/Link"
 import Typography from "@mui/material/Typography"
 import { WEBSITE_NAME } from "@/lib/const"
 
-export const Copyright = memo((props: any) => {
+const Copyright = (props: any) => {
   return (
     <>
       <Typography
@@ -22,4 +22,8 @@ export const Copyright = memo((props: any) => {
       </Typography>
     </>
   )
-})
+}
+
+Copyright.displayName = 'Copyright'
+
+export const CopyrightMemoized = memo(Copyright)

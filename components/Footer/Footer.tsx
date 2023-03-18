@@ -1,13 +1,16 @@
 import { memo } from 'react'
-import { Copyright } from './Copyright'
+import { CopyrightMemoized } from './Copyright'
 
-export const Footer = memo(({}) => {
-
+const Footer = ({}) => {
   return (
     <>
       <footer className={'w-full'}>
-        <Copyright />
+        <CopyrightMemoized />
       </footer>
     </>
   )
-})
+}
+
+Footer.displayName = 'Footer'
+
+export const FooterMemoized = memo(Footer)
