@@ -34,4 +34,12 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# some keys
 serviceAccountKey.json
+
+# Sentry
+.sentryclirc
+
+# Sentry
+next.config.original.js
