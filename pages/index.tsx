@@ -89,7 +89,7 @@ export const getServerSideProps = async (ctx: GetServerSidePropsContext) => {
       // `as never` is required for correct type inference
       // by InferGetServerSidePropsType below
       props: {
-        msg: err
+        error_msg: err
       } as never,
     }
   }

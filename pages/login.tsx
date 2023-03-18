@@ -41,10 +41,10 @@ export const getServerSideProps = async (ctx: GetServerSidePropsContext) => {
       props: {} as never,
     }
   } catch (err) {
-    throw new Error(`${err}`)
-
     return {
-      props: {} as never,
+      props: {
+        error_msg: err
+      } as never,
     }
   }
 }
