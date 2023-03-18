@@ -1,4 +1,4 @@
-import React, { ReactElement } from "react"
+import React, {ReactElement, useEffect} from "react"
 import { GetServerSidePropsContext, InferGetServerSidePropsType } from "next"
 import Link from "next/link"
 import { useRouter } from "next/router"
@@ -58,7 +58,11 @@ export function LoginPage(props: InferGetServerSidePropsType<typeof getServerSid
     handleSubmit: handleSubmitForm,
     formState: { errors: errorsForm },
     setError: setErrorForm,
-  } = useForm<LoginFormData>({});
+  } = useForm<LoginFormData>({})
+
+  useEffect(() => {
+    UserStore.logout()
+  })
 
   const handleLogin = handleSubmitForm(async (formData: LoginFormData):Promise<void> => {
     const { data } = await UserStore.login({
