@@ -29,16 +29,18 @@ export const getServerSideProps = async (ctx: GetServerSidePropsContext) => {
   try {
     const cookies = nookies.get(ctx)
     // console.log(JSON.stringify(cookies, null, 2))
-    const token = await firebaseAdmin.auth().verifyIdToken(cookies.token)
+    const currentFirebaseUser = await firebaseAdmin.auth().verifyIdToken(cookies.token)
 
     return {
-      redirect: {
-        permanent: false,
-        destination: "/",
-      },
+      // redirect: {
+      //   permanent: false,
+      //   destination: "/",
+      // },
       // `as never` is required for correct type inference
       // by InferGetServerSidePropsType below
-      props: {} as never,
+      props: {
+        currentFirebaseUser
+      } as never,
     }
   } catch (err) {
     return {

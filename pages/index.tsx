@@ -58,6 +58,7 @@ export const getServerSideProps = async (ctx: GetServerSidePropsContext) => {
 
     return {
       props: {
+        currentFirebaseUser,
         currentUser: {
           id: currentUserInDB.id,
           name: currentUserInDB.name,
@@ -102,12 +103,14 @@ function Home ({
                  currentUser,
                  clients,
                  notifications,
+                 currentFirebaseUser,
                }: InferGetServerSidePropsType<typeof getServerSideProps>) {
   console.log({
     cargos,
     currentUser,
     clients,
     notifications,
+    currentFirebaseUser,
   })
   useEffect(() => {
     if (cargos?.length) CargosStore.setList(cargos)
