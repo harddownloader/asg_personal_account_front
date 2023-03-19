@@ -48,9 +48,13 @@ export const getServerSideProps = async (ctx: GetServerSidePropsContext) => {
     })
 
     if (!currentUserInDB) return {
-      props: {
-        error: 'Failed to get user from database'
-      }
+      redirect: {
+        permanent: false,
+        destination: "/login",
+      },
+      // props: {
+      //   error: 'Failed to get user from database'
+      // }
     }
 
     // const currentUserInDB: null = null
@@ -154,77 +158,77 @@ function Home ({
     notifications,
     currentFirebaseUser,
   })
-  // useEffect(() => {
-  //   if (cargos?.length) CargosStore.setList(cargos)
-  //
-  //   const currentUserData = {
-  //     id: currentUser.id,
-  //     name: currentUser.name,
-  //     phone: currentUser.phone,
-  //     email: currentUser.email,
-  //     city: currentUser.city,
-  //     role: currentUser.role,
-  //     userCodeId: currentUser.userCodeId,
-  //   }
-  //
-  //   if (!UserStore.user.currentUser.id) UserStore.saveUserToStore({...currentUserData})
-  //
-  //   if (clients === null) ClientsStore.setCurrentItem({...currentUserData})
-  //   else if (clients?.length) ClientsStore.setList(clients)
-  //
-  //   if (notifications?.length) NotificationsStore.setList(notifications)
-  // })
-  //
-  // useEffect(() => {
-  //   socketInitializer()
-  //
-  //   return () => {
-  //     console.log('unmount')
-  //   }
-  // }, [])
-  //
-  // const socketInitializer = async () => {
-  //   console.log('socketInitializer')
-  //
-  //   await fetch('/api/socket')
-  //   socket = io()
-  //
-  //   socket.on('connect', () => {
-  //     console.log('connected, socket.id', socket.id)
-  //     socket.emit('connect user', {
-  //       socketId: socket.id,
-  //       userId: currentUser.id
-  //     })
-  //   })
-  //
-  //   socket.on("disconnect", () => {
-  //     console.log('disconnect socket.id', socket.id) // undefined
-  //   })
-  //
-  //   if (currentUser.role === USER_ROLE_MANAGER) socket.on('newUser', (notifications: Array<Notification>) => {
-  //     console.log({ notifications })
-  //     notificationAudioPlay()
-  //
-  //     const currentNotification = notifications.find((notification) => notification.userId === currentUser.id)
-  //     if (!currentNotification) {
-  //       console.warn('ws notification for current user not found')
-  //       return
-  //     }
-  //     const newUserNotification = {
-  //       id: currentNotification.id,
-  //       userId: currentNotification.userId,
-  //       content: currentNotification.content,
-  //       isViewed: currentNotification.isViewed,
-  //     }
-  //     console.log('newUserNotification', { ...newUserNotification })
-  //     NotificationsStore.add(newUserNotification)
-  //   })
-  // }
+  useEffect(() => {
+    if (cargos?.length) CargosStore.setList(cargos)
+
+    const currentUserData = {
+      id: currentUser.id,
+      name: currentUser.name,
+      phone: currentUser.phone,
+      email: currentUser.email,
+      city: currentUser.city,
+      role: currentUser.role,
+      userCodeId: currentUser.userCodeId,
+    }
+
+    if (!UserStore.user.currentUser.id) UserStore.saveUserToStore({...currentUserData})
+
+    if (clients === null) ClientsStore.setCurrentItem({...currentUserData})
+    else if (clients?.length) ClientsStore.setList(clients)
+
+    if (notifications?.length) NotificationsStore.setList(notifications)
+  })
+
+  useEffect(() => {
+    socketInitializer()
+
+    return () => {
+      console.log('unmount')
+    }
+  }, [])
+
+  const socketInitializer = async () => {
+    console.log('socketInitializer')
+
+    await fetch('/api/socket')
+    socket = io()
+
+    socket.on('connect', () => {
+      console.log('connected, socket.id', socket.id)
+      socket.emit('connect user', {
+        socketId: socket.id,
+        userId: currentUser.id
+      })
+    })
+
+    socket.on("disconnect", () => {
+      console.log('disconnect socket.id', socket.id) // undefined
+    })
+
+    if (currentUser.role === USER_ROLE_MANAGER) socket.on('newUser', (notifications: Array<Notification>) => {
+      console.log({ notifications })
+      notificationAudioPlay()
+
+      const currentNotification = notifications.find((notification) => notification.userId === currentUser.id)
+      if (!currentNotification) {
+        console.warn('ws notification for current user not found')
+        return
+      }
+      const newUserNotification = {
+        id: currentNotification.id,
+        userId: currentNotification.userId,
+        content: currentNotification.content,
+        isViewed: currentNotification.isViewed,
+      }
+      console.log('newUserNotification', { ...newUserNotification })
+      NotificationsStore.add(newUserNotification)
+    })
+  }
 
   return (
     <>
       home page
-      {/*<CargosBlock />*/}
+      <CargosBlock />
     </>
   )
 }
