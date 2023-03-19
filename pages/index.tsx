@@ -57,7 +57,7 @@ export const getServerSideProps = async (ctx: GetServerSidePropsContext) => {
     // const notifications: Array<Notification> = []
     // const clients: Array<UserOfDB> | null = []
     // @ts-ignore
-    const allCargos: [] = []
+    // const allCargos: [] = []
 
     const isUserManager = currentUserInDB.role === USER_ROLE_MANAGER
     //
@@ -77,28 +77,28 @@ export const getServerSideProps = async (ctx: GetServerSidePropsContext) => {
     console.log('Home getServerSideProps in try 5', {
       clients
     })
-    // const cargosRef = await db.collection(CARGOS_DB_COLLECTION_NAME)
-    // const allCargos = isUserManager
-    //     ? await getAllCargos({ cargosRef })
-    //     : currentUserInDB?.userCodeId ? await getCargosByClient({
-    //       cargosRef,
-    //       userCodeId: currentUserInDB.userCodeId,
-    //     }) : []
-    //
-    // console.log('Home getServerSideProps in try 6', {
-    //   allCargos
-    // })
+    const cargosRef = await db.collection(CARGOS_DB_COLLECTION_NAME)
+    const allCargos = isUserManager
+        ? await getAllCargos({ cargosRef })
+        : currentUserInDB?.userCodeId ? await getCargosByClient({
+          cargosRef,
+          userCodeId: currentUserInDB.userCodeId,
+        }) : []
+
+    console.log('Home getServerSideProps in try 6', {
+      allCargos
+    })
     return {
       props: {
         currentFirebaseUser,
         currentUser: {
-          // id: currentUserInDB.id,
-          // name: currentUserInDB.name,
-          // phone: currentUserInDB.phone,
-          // email: currentUserInDB.email,
-          // city: currentUserInDB.city,
-          // role: currentUserInDB.role,
-          // userCodeId: currentUserInDB.userCodeId,
+          id: currentUserInDB.id,
+          name: currentUserInDB.name,
+          phone: currentUserInDB.phone,
+          email: currentUserInDB.email,
+          city: currentUserInDB.city,
+          role: currentUserInDB.role,
+          userCodeId: currentUserInDB.userCodeId,
         },
         notifications,
         clients,
