@@ -49,7 +49,7 @@ export const getServerSideProps = async (ctx: GetServerSidePropsContext) => {
     const notifications: Array<Notification> = []
     const clients: Array<UserOfDB> | null = []
     // @ts-ignore
-    const allCargos = []
+    const allCargos: [] = []
 
     // const isUserManager = currentUserInDB.role === USER_ROLE_MANAGER
     //
