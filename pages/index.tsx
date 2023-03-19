@@ -39,13 +39,14 @@ export const getServerSideProps = async (ctx: GetServerSidePropsContext) => {
     const usersRef = await db.collection(USERS_DB_COLLECTION_NAME)
 
     // @ts-ignore
-    const currentUserInDB: UserOfDB = await getUserFromDB({
-      currentUserId: currentFirebaseUser.uid,
-      usersRef
-    }).catch((error) => console.error('getUserFromDB error', error))
-    console.log('Home getServerSideProps in try 3', {
-      currentUserInDB
-    })
+    // const currentUserInDB: UserOfDB = await getUserFromDB({
+    //   currentUserId: currentFirebaseUser.uid,
+    //   usersRef
+    // }).catch((error) => console.error('getUserFromDB error', error))
+    // console.log('Home getServerSideProps in try 3', {
+    //   currentUserInDB
+    // })
+    const currentUserInDB: null = null
     const notifications: Array<Notification> = []
     const clients: Array<UserOfDB> | null = []
     // @ts-ignore
