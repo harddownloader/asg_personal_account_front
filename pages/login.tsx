@@ -62,7 +62,8 @@ export function LoginPage(props: InferGetServerSidePropsType<typeof getServerSid
 
   useEffect(() => {
     UserStore.logout()
-  })
+    return () => {}
+  }, [])
 
   const handleLogin = handleSubmitForm(async (formData: LoginFormData):Promise<void> => {
     const { data } = await UserStore.login({
