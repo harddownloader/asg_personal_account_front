@@ -62,6 +62,8 @@ export function LoginPage(props: InferGetServerSidePropsType<typeof getServerSid
 
   useEffect(() => {
     UserStore.logout()
+    document.cookie = "username=Joe Biden; expires=Thu, 18 Dec 2013 12:00:00 UTC"
+
     return () => {}
   }, [])
 
