@@ -35,8 +35,8 @@ export const getServerSideProps = async (ctx: GetServerSidePropsContext) => {
       currentFirebaseUser
     })
 
-    // const db = firebaseAdmin.firestore()
-    // const usersRef = await db.collection(USERS_DB_COLLECTION_NAME)
+    const db = firebaseAdmin.firestore()
+    const usersRef = await db.collection(USERS_DB_COLLECTION_NAME)
     //
     // // @ts-ignore
     // const currentUserInDB: UserOfDB = await getUserFromDB({
