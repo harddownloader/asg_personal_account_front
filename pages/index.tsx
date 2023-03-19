@@ -38,43 +38,48 @@ export const getServerSideProps = async (ctx: GetServerSidePropsContext) => {
     const db = firebaseAdmin.firestore()
     const usersRef = await db.collection(USERS_DB_COLLECTION_NAME)
 
+    // @ts-ignore
     const currentUserInDB: UserOfDB = await getUserFromDB({
       currentUserId: currentFirebaseUser.uid,
       usersRef
-    })
+    }).catch((error) => console.error('getUserFromDB error', error))
     console.log('Home getServerSideProps in try 3', {
       currentUserInDB
     })
+    const notifications: Array<Notification> = []
+    const clients: Array<UserOfDB> | null = []
+    // @ts-ignore
+    const allCargos = []
 
-    const isUserManager = currentUserInDB.role === USER_ROLE_MANAGER
-
-    const notificationsRef = await db.collection(NOTIFICATION_DB_COLLECTION_NAME)
-    const notifications: Array<Notification> = await getNotifications({
-      currentUserId: currentFirebaseUser.uid,
-      notificationsRef
-    })
-    console.log('Home getServerSideProps in try 4', {
-      notifications
-    })
-
-    const clients: Array<UserOfDB> | null = isUserManager
-      ? await getAllClients({usersRef})
-      : null
-
-    console.log('Home getServerSideProps in try 5', {
-      clients
-    })
-    const cargosRef = await db.collection(CARGOS_DB_COLLECTION_NAME)
-    const allCargos = isUserManager
-        ? await getAllCargos({ cargosRef })
-        : currentUserInDB?.userCodeId ? await getCargosByClient({
-          cargosRef,
-          userCodeId: currentUserInDB.userCodeId,
-        }) : []
-
-    console.log('Home getServerSideProps in try 6', {
-      allCargos
-    })
+    // const isUserManager = currentUserInDB.role === USER_ROLE_MANAGER
+    //
+    // const notificationsRef = await db.collection(NOTIFICATION_DB_COLLECTION_NAME)
+    // const notifications: Array<Notification> = await getNotifications({
+    //   currentUserId: currentFirebaseUser.uid,
+    //   notificationsRef
+    // })
+    // console.log('Home getServerSideProps in try 4', {
+    //   notifications
+    // })
+    //
+    // const clients: Array<UserOfDB> | null = isUserManager
+    //   ? await getAllClients({usersRef})
+    //   : null
+    //
+    // console.log('Home getServerSideProps in try 5', {
+    //   clients
+    // })
+    // const cargosRef = await db.collection(CARGOS_DB_COLLECTION_NAME)
+    // const allCargos = isUserManager
+    //     ? await getAllCargos({ cargosRef })
+    //     : currentUserInDB?.userCodeId ? await getCargosByClient({
+    //       cargosRef,
+    //       userCodeId: currentUserInDB.userCodeId,
+    //     }) : []
+    //
+    // console.log('Home getServerSideProps in try 6', {
+    //   allCargos
+    // })
     return {
       props: {
         currentFirebaseUser,
