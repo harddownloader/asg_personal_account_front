@@ -1,4 +1,4 @@
-import React, {ReactElement, useEffect} from "react"
+import React, { ReactElement } from "react"
 import { GetServerSidePropsContext, InferGetServerSidePropsType } from "next"
 import Link from "next/link"
 import { useRouter } from "next/router"
@@ -32,21 +32,17 @@ export const getServerSideProps = async (ctx: GetServerSidePropsContext) => {
     const currentFirebaseUser = await firebaseAdmin.auth().verifyIdToken(cookies.token)
 
     return {
-      // redirect: {
-      //   permanent: false,
-      //   destination: "/",
-      // },
+      redirect: {
+        permanent: false,
+        destination: "/",
+      },
       // `as never` is required for correct type inference
       // by InferGetServerSidePropsType below
-      props: {
-        currentFirebaseUser
-      } as never,
+      props: {} as never,
     }
   } catch (err) {
     return {
-      props: {
-        error_msg: err
-      } as never,
+      props: {} as never,
     }
   }
 }
@@ -58,16 +54,7 @@ export function LoginPage(props: InferGetServerSidePropsType<typeof getServerSid
     handleSubmit: handleSubmitForm,
     formState: { errors: errorsForm },
     setError: setErrorForm,
-  } = useForm<LoginFormData>({})
-  if (typeof window !== "undefined") document.cookie = `referral_key2=hello2;max-age=604800;domain=${window.location.hostname}`
-
-
-  useEffect(() => {
-    UserStore.logout()
-    if (typeof window !== "undefined") document.cookie = `referral_key=hello;max-age=604800;domain=${window.location.hostname}`
-
-    return () => {}
-  }, [])
+  } = useForm<LoginFormData>({});
 
   const handleLogin = handleSubmitForm(async (formData: LoginFormData):Promise<void> => {
     const { data } = await UserStore.login({
@@ -171,3 +158,4 @@ LoginPage.getLayout = function getLayout(page: ReactElement) {
 }
 
 export default LoginPage
+
