@@ -9,7 +9,6 @@ export const getUserFromDB = async ({
   currentUserId: string,
   usersRef: fixMeInTheFuture
 }): Promise<UserOfDB> => {
-  console.log('getUserFromDB')
   return await usersRef.doc(currentUserId).get()
     .then((user: fixMeInTheFuture) => {
       const userDecode = {...user.data()}

@@ -37,8 +37,7 @@ export const getServerSideProps = async (ctx: GetServerSidePropsContext) => {
 
     const db = firebaseAdmin.firestore()
     const usersRef = await db.collection(USERS_DB_COLLECTION_NAME)
-    //
-    // // @ts-ignore
+
     const currentUserInDB: UserOfDB | void = await getUserFromDB({
       currentUserId: currentFirebaseUser.uid,
       usersRef
@@ -56,12 +55,6 @@ export const getServerSideProps = async (ctx: GetServerSidePropsContext) => {
       //   error: 'Failed to get user from database'
       // }
     }
-
-    // const currentUserInDB: null = null
-    // const notifications: Array<Notification> = []
-    // const clients: Array<UserOfDB> | null = []
-    // @ts-ignore
-    // const allCargos: [] = []
 
     const isUserManager = currentUserInDB.role === USER_ROLE_MANAGER
     //
@@ -117,27 +110,15 @@ export const getServerSideProps = async (ctx: GetServerSidePropsContext) => {
     // or token verification failed
     // either way: redirect to the login page
     // throw new Error(`${err}`)
-    const cookies = nookies.get(ctx)
-    console.log('Home getServerSideProps in catch', {
-      cookies: JSON.stringify(cookies, null, 2),
-      'cookies.token': cookies.token,
-      'typeof cookies.token': typeof cookies.token,
-      errorMessage: err,
-    })
-    const currentFirebaseUser = await firebaseAdmin.auth().verifyIdToken(cookies.token)
 
     return {
-      // redirect: {
-      //   permanent: false,
-      //   destination: "/login",
-      // },
+      redirect: {
+        permanent: false,
+        destination: "/login",
+      },
       // `as never` is required for correct type inference
       // by InferGetServerSidePropsType below
-      props: {
-        error_msg: err,
-        currentFirebaseUser,
-        token: cookies.token,
-      } as never,
+      props: {} as never,
     }
   }
 }
@@ -227,7 +208,6 @@ function Home ({
 
   return (
     <>
-      home page
       <CargosBlock />
     </>
   )
