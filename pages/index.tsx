@@ -25,12 +25,15 @@ export const getServerSideProps = async (ctx: GetServerSidePropsContext) => {
   try {
     // if the user is authenticated
     const cookies = nookies.get(ctx)
-    console.log('Home getServerSideProps in try', {
+    console.log('Home getServerSideProps in try 1', {
       cookies: JSON.stringify(cookies, null, 2),
       'cookies.token': cookies.token,
       'typeof cookies.token': typeof cookies.token,
     })
     const currentFirebaseUser = await firebaseAdmin.auth().verifyIdToken(cookies.token)
+    console.log('Home getServerSideProps in try 2', {
+      currentFirebaseUser
+    })
 
     const db = firebaseAdmin.firestore()
     const usersRef = await db.collection(USERS_DB_COLLECTION_NAME)
@@ -38,6 +41,9 @@ export const getServerSideProps = async (ctx: GetServerSidePropsContext) => {
     const currentUserInDB: UserOfDB = await getUserFromDB({
       currentUserId: currentFirebaseUser.uid,
       usersRef
+    })
+    console.log('Home getServerSideProps in try 3', {
+      currentUserInDB
     })
 
     const isUserManager = currentUserInDB.role === USER_ROLE_MANAGER
@@ -47,11 +53,17 @@ export const getServerSideProps = async (ctx: GetServerSidePropsContext) => {
       currentUserId: currentFirebaseUser.uid,
       notificationsRef
     })
+    console.log('Home getServerSideProps in try 4', {
+      notifications
+    })
 
     const clients: Array<UserOfDB> | null = isUserManager
       ? await getAllClients({usersRef})
       : null
 
+    console.log('Home getServerSideProps in try 5', {
+      clients
+    })
     const cargosRef = await db.collection(CARGOS_DB_COLLECTION_NAME)
     const allCargos = isUserManager
         ? await getAllCargos({ cargosRef })
@@ -60,6 +72,9 @@ export const getServerSideProps = async (ctx: GetServerSidePropsContext) => {
           userCodeId: currentUserInDB.userCodeId,
         }) : []
 
+    console.log('Home getServerSideProps in try 6', {
+      allCargos
+    })
     return {
       props: {
         currentFirebaseUser,
