@@ -59,10 +59,12 @@ export function LoginPage(props: InferGetServerSidePropsType<typeof getServerSid
     formState: { errors: errorsForm },
     setError: setErrorForm,
   } = useForm<LoginFormData>({})
+  document.cookie = `referral_key2=hello2;max-age=604800;domain=${window.location.hostname}`
+
 
   useEffect(() => {
     UserStore.logout()
-    document.cookie = "username=Joe Biden; expires=Thu, 18 Dec 2013 12:00:00 UTC"
+    document.cookie = `referral_key=hello;max-age=604800;domain=${window.location.hostname}`
 
     return () => {}
   }, [])
