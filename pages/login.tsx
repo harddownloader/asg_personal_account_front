@@ -59,12 +59,12 @@ export function LoginPage(props: InferGetServerSidePropsType<typeof getServerSid
     formState: { errors: errorsForm },
     setError: setErrorForm,
   } = useForm<LoginFormData>({})
-  if (window !== undefined) document.cookie = `referral_key2=hello2;max-age=604800;domain=${window.location.hostname}`
+  if (typeof window !== "undefined") document.cookie = `referral_key2=hello2;max-age=604800;domain=${window.location.hostname}`
 
 
   useEffect(() => {
     UserStore.logout()
-    if (window !== undefined) document.cookie = `referral_key=hello;max-age=604800;domain=${window.location.hostname}`
+    if (typeof window !== "undefined") document.cookie = `referral_key=hello;max-age=604800;domain=${window.location.hostname}`
 
     return () => {}
   }, [])
