@@ -24,6 +24,7 @@ export const getUserFromDB = async ({
         userCodeId: userDecode.userCodeId,
       }
     })
+    .catch((error: fixMeInTheFuture) => console.error('getUserFromDB error:', error))
 }
 
 export type allClientsArgs = {
