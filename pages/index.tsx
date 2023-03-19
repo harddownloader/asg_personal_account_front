@@ -55,7 +55,7 @@ export const getServerSideProps = async (ctx: GetServerSidePropsContext) => {
 
     // const currentUserInDB: null = null
     // const notifications: Array<Notification> = []
-    const clients: Array<UserOfDB> | null = []
+    // const clients: Array<UserOfDB> | null = []
     // @ts-ignore
     const allCargos: [] = []
 
@@ -70,13 +70,13 @@ export const getServerSideProps = async (ctx: GetServerSidePropsContext) => {
       notifications
     })
     //
-    // const clients: Array<UserOfDB> | null = isUserManager
-    //   ? await getAllClients({usersRef})
-    //   : null
-    //
-    // console.log('Home getServerSideProps in try 5', {
-    //   clients
-    // })
+    const clients: Array<UserOfDB> | null = isUserManager
+      ? await getAllClients({usersRef})
+      : null
+
+    console.log('Home getServerSideProps in try 5', {
+      clients
+    })
     // const cargosRef = await db.collection(CARGOS_DB_COLLECTION_NAME)
     // const allCargos = isUserManager
     //     ? await getAllCargos({ cargosRef })
