@@ -46,22 +46,29 @@ export const getServerSideProps = async (ctx: GetServerSidePropsContext) => {
     console.log('Home getServerSideProps in try 3', {
       currentUserInDB
     })
+
+    if (!currentUserInDB) return {
+      props: {
+        error: 'Failed to get user from database'
+      }
+    }
+
     // const currentUserInDB: null = null
-    const notifications: Array<Notification> = []
+    // const notifications: Array<Notification> = []
     const clients: Array<UserOfDB> | null = []
     // @ts-ignore
     const allCargos: [] = []
 
-    // const isUserManager = currentUserInDB.role === USER_ROLE_MANAGER
+    const isUserManager = currentUserInDB.role === USER_ROLE_MANAGER
     //
-    // const notificationsRef = await db.collection(NOTIFICATION_DB_COLLECTION_NAME)
-    // const notifications: Array<Notification> = await getNotifications({
-    //   currentUserId: currentFirebaseUser.uid,
-    //   notificationsRef
-    // })
-    // console.log('Home getServerSideProps in try 4', {
-    //   notifications
-    // })
+    const notificationsRef = await db.collection(NOTIFICATION_DB_COLLECTION_NAME)
+    const notifications: Array<Notification> = await getNotifications({
+      currentUserId: currentFirebaseUser.uid,
+      notificationsRef
+    })
+    console.log('Home getServerSideProps in try 4', {
+      notifications
+    })
     //
     // const clients: Array<UserOfDB> | null = isUserManager
     //   ? await getAllClients({usersRef})
