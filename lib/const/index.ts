@@ -3,6 +3,8 @@ export {
   API_URI,
   BASE_NAME,
   DEFAULT_PATH,
+  SOCKET_SERVER_URL,
+  SOCKET_SERVER_PATH,
 } from './app'
 
 export {

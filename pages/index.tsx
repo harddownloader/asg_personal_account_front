@@ -14,6 +14,7 @@ import { getNotifications } from "@/lib/ssr/requests/notifications/getNotificati
 import { getAllCargos, getCargosByClient } from "@/lib/ssr/requests/getCargos"
 import { fixMeInTheFuture } from "@/lib/types"
 import { notificationAudioPlay } from "@/lib/audio"
+import { SOCKET_SERVER_URL, SOCKET_SERVER_PATH } from "@/lib/const"
 
 // store
 import CargosStore, { CargoInterfaceFull, CARGOS_DB_COLLECTION_NAME } from "@/stores/cargosStore"
@@ -171,8 +172,12 @@ function Home ({
   const socketInitializer = async () => {
     console.log('socketInitializer')
 
-    await fetch('/api/socket')
-    socket = io()
+    socket = io(SOCKET_SERVER_URL, {
+      path: SOCKET_SERVER_PATH,
+      query: {
+        userId: currentUser.id
+      }
+    })
 
     socket.on('connect', () => {
       console.log('connected, socket.id', socket.id)
