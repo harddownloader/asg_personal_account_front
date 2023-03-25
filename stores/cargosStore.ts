@@ -240,7 +240,6 @@ export const UPLOAD_IMAGE_STATUS_ERROR: UploadImageStatus.ERROR = -1
 // state for showing upload images animation
 export type UploadImageType = {
   id: string
-  // cargoId: string
   status: CargoImageStatus
   uploadStatus: UploadImageStatus
   progress?: number
@@ -812,7 +811,13 @@ class CargosStore {
       )
     }
 
-    function getIndexOfUnsavedSpace (spaces: Array<spaceItemType>, cargoId: string, clientId: string, spaceIndex: number, isItEditForm: boolean) {
+    function getIndexOfUnsavedSpace (
+      spaces: Array<spaceItemType>,
+      cargoId: string,
+      clientId: string,
+      spaceIndex: number,
+    ) {
+
       let _spaceIndex = 0
       let result
       for (let i=0; i<spaces.length; i++) {
@@ -820,7 +825,6 @@ class CargosStore {
         if (space?.cargoId) continue
         else if (
           space.clientId === clientId &&
-          (() => isItEditForm ? space.cargoId === cargoId : space?.cargoId === undefined)() &&
           spaceIndex === _spaceIndex
         ) {
           console.log('getIndexOfUnsavedSpaces return ', i)
@@ -837,18 +841,11 @@ class CargosStore {
       return index
     }
 
-    // const _indexOfUnsavedSpaces = getIndexOfUnsavedSpace(tmpSpacesBeforeSetNewPhoto, cargoId, clientId, spaceIndex, isItEditForm)
-    // console.log({
-    //   _indexOfUnsavedSpaces,
-    //   tmpSpacesBeforeSetNewPhoto,
-    //   spaceIndex
-    // })
-
     let getSpaceIndex: Function
     if (isItEditForm && cargoId) getSpaceIndex = getIndexOsSavedSpace.bind(null, tmpSpacesBeforeSetNewPhoto, findIndexSpaceCallback)
     else if (!isItEditForm && !cargoId) {
       // @ts-ignore
-      getSpaceIndex = getIndexOfUnsavedSpace.bind(null, tmpSpacesBeforeSetNewPhoto, cargoId, clientId, spaceIndex, isItEditForm)
+      getSpaceIndex = getIndexOfUnsavedSpace.bind(null, tmpSpacesBeforeSetNewPhoto, cargoId, clientId, spaceIndex)
       if (getSpaceIndex === undefined) {
         console.warn('addPhoto error: getSpaceIndex return undefined')
         return
@@ -862,14 +859,9 @@ class CargosStore {
     const currentSpaceIndex = getSpaceIndex()
     const newPhotoIndex = this.getFileIndex({
       tmpSpaces: tmpSpacesBeforeSetNewPhoto,
-      // findIndexCurrentSpaceCallback: findIndexSpaceCallback,
       spaceIndex: currentSpaceIndex,
-      // getSpaceIndex: isItEditForm
-      //   ? getIndexOsSavedSpace.bind(null, tmpSpacesBeforeSetNewPhoto, findIndexSpaceCallback)
-      //   : getIndexOfUnsavedSpace.bind(null, tmpSpacesBeforeSetNewPhoto, cargoId, clientId, spaceIndex, isItEditForm),
       acceptedFileIndex: fileIndex
     })
-    console.log(`AddPhoto newPhotoIndex = ${newPhotoIndex}`)
     if (newPhotoIndex === null || newPhotoIndex < 0) {
       console.warn('newPhotoIndex is null or < 0', { newPhotoIndex })
       return
@@ -900,7 +892,7 @@ class CargosStore {
       }
     }
     if (isItEditForm) uploadCargoImageArgs.spaceData.cargoId = cargoId
-    console.log({'addPhoto uploadCargoImageArgs': uploadCargoImageArgs})
+
     const url: string | null = await this.uploadCargoImage(uploadCargoImageArgs)
     console.log('addPhoto url', url)
     if(!url) return
@@ -912,6 +904,7 @@ class CargosStore {
       console.warn('AddPhoto error: not found indexOfSpaceToBeUpdated')
       return
     }
+
     // is indexOfSpaceToBeUpdated exists - we was checked from indexOfSpaceBeforeSetNewPhoto
 
     const findIndexPhotoCallback = (photo: UploadImageType): boolean => photo.photoIndex === newPhotoIndex
@@ -923,10 +916,6 @@ class CargosStore {
     }
 
     notLoadedSpacesTmp[indexOfSpaceToBeUpdated].photos[indexOfPhotoToBeUpdated].url = url
-    console.log('addPhoto', {
-      notLoadedSpacesTmp,
-      nowState: JSON.parse(JSON.stringify(this.cargos.notLoadedSpaces))
-    })
     this.cargos.notLoadedSpaces = [...notLoadedSpacesTmp]
   }
 
@@ -1000,11 +989,6 @@ class CargosStore {
     }
 
     const findIndexCallback = (space: spaceItemType, index: number): boolean => {
-      console.log('setUploadImage findIndexCallback', {
-        'space?.cargoId === undefined': space?.cargoId === undefined,
-        'space?.cargoId': space?.cargoId,
-      })
-
       return (
         space.clientId === clientId &&
         (() => isItEditForm ? space.cargoId === cargoId : space?.cargoId === undefined)() &&
@@ -1033,7 +1017,6 @@ class CargosStore {
       ]
     }
 
-    console.log('setUploadImage after', JSON.parse(JSON.stringify(this.cargos.notLoadedSpaces)))
     return newUploadImage
   }
 
@@ -1057,16 +1040,6 @@ class CargosStore {
     cargoId?: string
     isItEditForm: boolean
   }) => {
-    console.log('CargosStore updateUploadImage args', {
-      id,
-      spaceIndex,
-      uploadStatus,
-      progress,
-      isShowProgress,
-      url,
-      clientId,
-      cargoId,
-    })
     const spaces = JSON.parse(JSON.stringify(this.cargos.notLoadedSpaces))
     if (!spaces.length) {
       console.warn('this.cargos.notLoadedSpaces is empty')
@@ -1080,11 +1053,6 @@ class CargosStore {
     }
 
     const currentImageIndex = currentSpace.photos.findIndex((photo: UploadImageType) => photo.id === id)
-    console.log(`updateUploadImage currentImageIndex = ${currentImageIndex}, id = ${id}`, {
-      currentSpace,
-      spaces,
-      spaceIndex
-    })
 
     if (currentImageIndex !== -1) {
       const currentPhoto = {...currentSpace.photos[currentImageIndex]}
@@ -1150,7 +1118,6 @@ class CargosStore {
         isItEditForm,
       }
       if (isItEditForm) setUploadImageArgs.cargoId = cargoId
-      console.log({'uploadCargoImage setUploadImageArgs': setUploadImageArgs})
       const newUploadImage = await this.setUploadImage(setUploadImageArgs)
       if (!newUploadImage) {
         console.warn('failed to create a new instance of the image to upload')

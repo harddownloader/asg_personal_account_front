@@ -93,7 +93,6 @@ export const CargosList = observer(({
     CargosStore.setCurrentItem({...cargo})
   }
 
-  console.log('CargosList', {cargos})
   return (
     <>
       <ScrollableBlock
