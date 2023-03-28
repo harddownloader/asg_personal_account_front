@@ -4,7 +4,6 @@ import { collection, doc, setDoc, addDoc } from "firebase/firestore"
 import {
   getDownloadURL,
   ref,
-  uploadBytes,
   uploadBytesResumable,
   getStorage,
   deleteObject,
@@ -12,12 +11,9 @@ import {
 
 // utils
 import { firebaseAuth, firebaseFirestore, firebaseStorage } from "@/lib/firebase"
-import { fixMeInTheFuture } from "@/lib/types"
 import { compress } from "@/lib/images"
-import firebase from "firebase/compat";
-import functions = firebase.functions;
-import {prepareSpaces} from "@/components/CargosBlock/helpers/prepareBody";
-import {getSpacesOfUnsavedCargo} from "@/stores/helpers/spaces";
+import firebase from "firebase/compat"
+import { prepareSpaces } from "@/components/CargosBlock/helpers/prepareBody"
 
 export const CARGOS_DB_COLLECTION_NAME: string = 'cargos'
 
@@ -249,20 +245,30 @@ export type UploadImageType = {
   url: string | null
 }
 
+export type numberOfPhotosCurrentlyBeingUploadedType = number
+
+export type NotUploadedSpaces = {
+  list: Array<spaceItemType>
+  numberOfPhotosCurrentlyBeingUploaded: numberOfPhotosCurrentlyBeingUploadedType
+}
+
 export type CargosState = {
   items: CargosItems
   currentItemsList: CargosItems
   currentItem: CargoInterfaceFull | null
   isCurrentItemsListArchive: boolean
   isLoading: boolean
-  notLoadedSpaces: Array<spaceItemType>
+  notLoadedSpaces: NotUploadedSpaces // Array<spaceItemType>
 }
 
 class CargosStore {
   cargos: CargosState = {
     items: [],
     currentItemsList: [],
-    notLoadedSpaces: [],
+    notLoadedSpaces: {
+      list: [],
+      numberOfPhotosCurrentlyBeingUploaded: 0,
+    },
     currentItem: null,
     isCurrentItemsListArchive: false,
     isLoading: false,
@@ -366,9 +372,6 @@ class CargosStore {
         spaces: spaces,
         id: Doc.id
       }
-      console.log('addDoc', {
-        newCargoData, newCargo
-      })
 
       // add to all cargos
       this.cargos.items = [
@@ -436,7 +439,6 @@ class CargosStore {
     }
 
     if (status === null || status === undefined || Number(status) < 0) {
-      console.log(status, typeof status)
       response.data.cargoSaving.errors.push({
         field: 'status',
         message: `Не корректный статус`
@@ -595,7 +597,6 @@ class CargosStore {
     }).finally(() => {
       this.cargos.isLoading = false
     })
-    console.log({resSetDoc})
 
     return response
   }
@@ -622,20 +623,20 @@ class CargosStore {
   }
 
   initNotLoadedSpaces = (newSpaces: Array<spaceItemType>) => {
-    this.cargos.notLoadedSpaces = JSON.parse(JSON.stringify(newSpaces))
+    this.cargos.notLoadedSpaces.list = JSON.parse(JSON.stringify(newSpaces))
   }
 
   addNotLoadedSpaces = (newSpaces: Array<spaceItemType>) => {
     // add new tmp spaces instance
     const newNotLoadedSpaces = [
-      ...this.cargos.notLoadedSpaces,
+      ...this.cargos.notLoadedSpaces.list,
       ...newSpaces
     ]
-    this.cargos.notLoadedSpaces = JSON.parse(JSON.stringify(newNotLoadedSpaces))
+    this.cargos.notLoadedSpaces.list = JSON.parse(JSON.stringify(newNotLoadedSpaces))
   }
 
   clearNotLoadedSpaces = () => {
-    this.cargos.notLoadedSpaces = []
+    this.cargos.notLoadedSpaces.list = []
   }
 
   addSpace = ({ clientId, cargoId, newSpaceItem }: {
@@ -657,15 +658,9 @@ class CargosStore {
       return this.generateSpaceItem(generateItemArgs)
     })()
 
-    const tmpSpaces = JSON.parse(JSON.stringify(this.cargos.notLoadedSpaces))
+    const tmpSpaces = JSON.parse(JSON.stringify(this.cargos.notLoadedSpaces.list))
     tmpSpaces.push({...newSpace})
-    // const newTmpSpaces = [
-    //   ...this.cargos.notLoadedSpaces,
-    //   {...newSpace}
-    // ]
-
-    console.log('addSpace after', tmpSpaces)
-    this.cargos.notLoadedSpaces = tmpSpaces
+    this.cargos.notLoadedSpaces.list = tmpSpaces
   }
 
   updateSpace = ({ id, weight, piecesInPlace }: {
@@ -673,12 +668,12 @@ class CargosStore {
     weight?: number
     piecesInPlace?: number
   }) => {
-    const spacesTmp = JSON.parse(JSON.stringify(this.cargos.notLoadedSpaces))
+    const spacesTmp = JSON.parse(JSON.stringify(this.cargos.notLoadedSpaces.list))
     const indexOfSpace = spacesTmp.findIndex((space: spaceItemType) => space.id === id)
     const currentSpace = spacesTmp[indexOfSpace]
     if (weight) currentSpace.weight = weight
     else if (piecesInPlace) currentSpace.piecesInPlace = piecesInPlace
-    this.cargos.notLoadedSpaces = [...spacesTmp]
+    this.cargos.notLoadedSpaces.list = [...spacesTmp]
   }
 
   removeSpace = ({ clientId, cargoId, index, isItEditForm }: {
@@ -687,16 +682,8 @@ class CargosStore {
     index: number,
     isItEditForm: boolean
   }) => {
-    const spacesTmp = JSON.parse(JSON.stringify(this.cargos.notLoadedSpaces))
-    console.log('removeSpace', {clientId, cargoId, index})
+    const spacesTmp = JSON.parse(JSON.stringify(this.cargos.notLoadedSpaces.list))
     const filterCallback = (space: spaceItemType, _index: number) => {
-      console.log('removeSpace filterCallback', {
-        space,
-        '_index !== index': _index !== index,
-        'space.clientId === clientId': space.clientId === clientId,
-        '(() => isItEditForm ? space.cargoId === cargoId : true)()': (() => isItEditForm ? space.cargoId === cargoId : space?.cargoId === undefined)()
-      })
-
       return Boolean(
         _index !== index &&
         space.clientId === clientId &&
@@ -704,7 +691,6 @@ class CargosStore {
       )
     }
     const spacesWithoutRemoved = spacesTmp.filter(filterCallback)
-    console.log({spacesWithoutRemoved})
 
     const newSpaces = spacesWithoutRemoved.map((space: spaceItemType) => {
       if (
@@ -725,33 +711,19 @@ class CargosStore {
       }
     })
 
-    this.cargos.notLoadedSpaces = newSpaces
-    console.log('removeSpace', {
-      now: [...this.cargos.notLoadedSpaces],
-      before: spacesTmp,
-      newSpaces,
-      spacesWithoutRemoved,
-    })
+    this.cargos.notLoadedSpaces.list = newSpaces
   }
 
   getFileIndex = ({
                     tmpSpaces,
-                    // findIndexCurrentSpaceCallback,
                     spaceIndex,
                     acceptedFileIndex
                   }: {
     tmpSpaces: Array<spaceItemType>,
-    // findIndexCurrentSpaceCallback: (value: spaceItemType, index: number, obj: spaceItemType[]) => unknown,
     spaceIndex: number,
     acceptedFileIndex: number
   }): number | null => {
     if (tmpSpaces.length > 0) {
-      // const indexOfSpaceBeforeSetNewPhoto = getSpaceIndex() // tmpSpaces.findIndex(findIndexCurrentSpaceCallback)
-      // console.log('getFileIndex', {indexOfSpaceBeforeSetNewPhoto})
-      // if (indexOfSpaceBeforeSetNewPhoto === -1) {
-      //   console.warn('not found space for update')
-      //   return null
-      // }
       const photosLengthBeforeSetNewPhoto = tmpSpaces[spaceIndex]?.photos?.length
 
       if (photosLengthBeforeSetNewPhoto === null) {
@@ -779,6 +751,14 @@ class CargosStore {
     }
   }
 
+  increaseUploadingFiles = () => {
+    this.cargos.notLoadedSpaces.numberOfPhotosCurrentlyBeingUploaded += 1
+  }
+
+  decreaseUploadingFiles = () => {
+    this.cargos.notLoadedSpaces.numberOfPhotosCurrentlyBeingUploaded -= 1
+  }
+
   addPhoto = async (
     spaceInfo: {
       spaceIndex: number
@@ -792,7 +772,6 @@ class CargosStore {
       fileIndex: number
     }
   ): Promise<void> => {
-
     const { spaceIndex, clientId, cargoId, isItEditForm } = spaceInfo
     const {
       file,
@@ -800,8 +779,9 @@ class CargosStore {
       fileIndex
     } = fileInfo
 
-    const tmpSpacesBeforeSetNewPhoto: Array<spaceItemType> = JSON.parse(JSON.stringify(this.cargos.notLoadedSpaces))
-    console.log('addPhoto spaceInfo args', { spaceInfo, fileInfo }, {tmpSpacesBeforeSetNewPhoto})
+    this.increaseUploadingFiles()
+
+    const tmpSpacesBeforeSetNewPhoto: Array<spaceItemType> = JSON.parse(JSON.stringify(this.cargos.notLoadedSpaces.list))
 
     const findIndexSpaceCallback = (space: spaceItemType, index: number) => {
       return Boolean(
@@ -827,7 +807,6 @@ class CargosStore {
           space.clientId === clientId &&
           spaceIndex === _spaceIndex
         ) {
-          console.log('getIndexOfUnsavedSpaces return ', i)
           result = i
         }
         _spaceIndex += 1
@@ -873,7 +852,8 @@ class CargosStore {
         metadata: object
       }
       spaceData: {
-        spaceIndex: number
+        spaceIndexOfState: number
+        spaceIndexOfForm: number
         photoIndex: number
         clientId: string
         cargoId?: string
@@ -885,7 +865,10 @@ class CargosStore {
         metadata: {}
       },
       spaceData: {
-        spaceIndex: currentSpaceIndex,
+        // spaceIndex: currentSpaceIndex,
+        spaceIndexOfState: currentSpaceIndex,
+        spaceIndexOfForm: spaceIndex,
+        // spaceIndex: isItEditForm ? currentSpaceIndex : spaceIndex, // currentSpaceIndex, //
         photoIndex: newPhotoIndex,
         clientId,
         isItEditForm,
@@ -897,9 +880,9 @@ class CargosStore {
     console.log('addPhoto url', url)
     if(!url) return
 
-    const notLoadedSpacesTmp = JSON.parse(JSON.stringify(this.cargos.notLoadedSpaces))
+    const notLoadedSpacesTmp = JSON.parse(JSON.stringify(this.cargos.notLoadedSpaces.list))
 
-    const indexOfSpaceToBeUpdated = getSpaceIndex() //notLoadedSpacesTmp.findIndex(findIndexSpaceCallback)
+    const indexOfSpaceToBeUpdated = getSpaceIndex()
     if (indexOfSpaceToBeUpdated === -1 || indexOfSpaceToBeUpdated === undefined) {
       console.warn('AddPhoto error: not found indexOfSpaceToBeUpdated')
       return
@@ -916,7 +899,9 @@ class CargosStore {
     }
 
     notLoadedSpacesTmp[indexOfSpaceToBeUpdated].photos[indexOfPhotoToBeUpdated].url = url
-    this.cargos.notLoadedSpaces = [...notLoadedSpacesTmp]
+    this.cargos.notLoadedSpaces.list = [...notLoadedSpacesTmp]
+
+    this.decreaseUploadingFiles()
   }
 
   removePhoto = (
@@ -934,7 +919,7 @@ class CargosStore {
     })
     // CargosStore.deleteCargoImage()
 
-    const spacesTmp = JSON.parse(JSON.stringify(this.cargos.notLoadedSpaces))
+    const spacesTmp = JSON.parse(JSON.stringify(this.cargos.notLoadedSpaces.list))
     const spacesWithoutRemovedPhoto = spacesTmp.map((space: spaceItemType, _space_index: number) => {
       if (
         space.clientId === clientId &&
@@ -952,26 +937,27 @@ class CargosStore {
         return space
       } else return space
     })
-    this.cargos.notLoadedSpaces = spacesWithoutRemovedPhoto
+    this.cargos.notLoadedSpaces.list = spacesWithoutRemovedPhoto
   }
 
   setUploadImage = ({
                       uploadStatus,
-                      spaceIndex,
+                      spaceIndexOfState,
+                      spaceIndexOfForm,
                       photoIndex,
                       clientId,
                       cargoId,
                       isItEditForm,
                     }: {
     uploadStatus: UploadImageStatus
-    spaceIndex: number
+    spaceIndexOfState: number
+    spaceIndexOfForm: number
     photoIndex: number
     clientId: string
     cargoId?: string
     isItEditForm: boolean
   }) => {
-    const spacesTmp = JSON.parse(JSON.stringify(this.cargos.notLoadedSpaces))
-    console.log('setUploadImage before', spacesTmp)
+    const spacesTmp = JSON.parse(JSON.stringify(this.cargos.notLoadedSpaces.list))
     if (isItEditForm && this.cargos?.currentItem === null) {
       console.warn('isItEditForm is true, but this.cargos.currentItem.id not found')
       return
@@ -983,7 +969,7 @@ class CargosStore {
       uploadStatus,
       progress: 0,
       isShowProgress: true,
-      spaceIndex,
+      spaceIndex: isItEditForm ? spaceIndexOfState : spaceIndexOfForm,
       photoIndex,
       url: null
     }
@@ -992,7 +978,7 @@ class CargosStore {
       return (
         space.clientId === clientId &&
         (() => isItEditForm ? space.cargoId === cargoId : space?.cargoId === undefined)() &&
-        spaceIndex === index
+        spaceIndexOfState === index
       )
     }
     const currentSpaceIndex = spacesTmp.findIndex(findIndexCallback)
@@ -1006,12 +992,12 @@ class CargosStore {
       }
       if (isItEditForm) newTmpSpaceItem.cargoId = cargoId
 
-      this.cargos.notLoadedSpaces = [
+      this.cargos.notLoadedSpaces.list = [
         ...spacesTmp,
         newTmpSpaceItem
       ]
     } else {
-      this.cargos.notLoadedSpaces[currentSpaceIndex].photos = [
+      this.cargos.notLoadedSpaces.list[currentSpaceIndex].photos = [
         ...spacesTmp[currentSpaceIndex].photos,
         newUploadImage
       ]
@@ -1022,7 +1008,8 @@ class CargosStore {
 
   updateUploadImage = ({
                          id,
-                         spaceIndex,
+                         spaceIndexOfState,
+                         spaceIndexOfForm,
                          uploadStatus,
                          progress,
                          isShowProgress,
@@ -1031,7 +1018,8 @@ class CargosStore {
                          cargoId,
                        }: {
     id: string
-    spaceIndex: number
+    spaceIndexOfState: number
+    spaceIndexOfForm: number
     uploadStatus?: UploadImageStatus
     isShowProgress?: boolean
     progress?: number
@@ -1040,13 +1028,13 @@ class CargosStore {
     cargoId?: string
     isItEditForm: boolean
   }) => {
-    const spaces = JSON.parse(JSON.stringify(this.cargos.notLoadedSpaces))
+    const spaces = JSON.parse(JSON.stringify(this.cargos.notLoadedSpaces.list))
     if (!spaces.length) {
-      console.warn('this.cargos.notLoadedSpaces is empty')
+      console.warn('this.cargos.notLoadedSpaces.list is empty')
       return
     }
 
-    const currentSpace = spaces[spaceIndex]
+    const currentSpace = spaces[spaceIndexOfState]
     if (!currentSpace || !currentSpace.photos?.length) {
       console.warn('spaces[spaceIndex] not found')
       return
@@ -1061,7 +1049,7 @@ class CargosStore {
       if (url !== undefined) currentPhoto.url = url
       if (isShowProgress !== undefined) currentPhoto.isShowProgress = isShowProgress
 
-      this.cargos.notLoadedSpaces[spaceIndex].photos[currentImageIndex] = { ...currentPhoto }
+      this.cargos.notLoadedSpaces.list[spaceIndexOfState].photos[currentImageIndex] = { ...currentPhoto }
     } else {
       console.warn(`${Object.keys({currentImageIndex})[0]} not found`)
       return
@@ -1078,7 +1066,8 @@ class CargosStore {
                                 metadata={},
                               },
                               spaceData: {
-                                spaceIndex,
+                                spaceIndexOfState,
+                                spaceIndexOfForm,
                                 photoIndex,
                                 clientId,
                                 cargoId,
@@ -1090,7 +1079,8 @@ class CargosStore {
       metadata: object
     },
     spaceData: {
-      spaceIndex: number
+      spaceIndexOfState: number
+      spaceIndexOfForm: number
       photoIndex: number
       clientId: string
       cargoId?: string
@@ -1105,14 +1095,16 @@ class CargosStore {
       if (!compressedFile) reject(null)
       const setUploadImageArgs: {
         uploadStatus: UploadImageStatus
-        spaceIndex: number
+        spaceIndexOfState: number
+        spaceIndexOfForm: number
         photoIndex: number
         clientId: string
         cargoId?: string
         isItEditForm: boolean
       } = {
         uploadStatus: UPLOAD_IMAGE_STATUS_UPLOADING,
-        spaceIndex,
+        spaceIndexOfState,
+        spaceIndexOfForm,
         photoIndex,
         clientId,
         isItEditForm,
@@ -1126,7 +1118,8 @@ class CargosStore {
 
       const updateUploadImageArgs: {
         id: string
-        spaceIndex: number
+        spaceIndexOfState: number
+        spaceIndexOfForm: number
         clientId: string
         isItEditForm: boolean
         progress?: number
@@ -1136,7 +1129,8 @@ class CargosStore {
         id: newUploadImage.id,
         clientId,
         isItEditForm,
-        spaceIndex,
+        spaceIndexOfState,
+        spaceIndexOfForm,
       }
       if (isItEditForm) updateUploadImageArgs.cargoId = cargoId
 

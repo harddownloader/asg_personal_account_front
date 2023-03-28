@@ -67,7 +67,6 @@ export const ImageUpload = observer(({
 
   const onDrop = async (acceptedFiles: Array<File>) => {
     acceptedFiles.map((file, fileIndex) => {
-      console.log({file, fileIndex})
       const metadata = setMetadata(file)
 
       const fileInfoArgs = {

@@ -65,7 +65,7 @@ export const AddCargoDialog = observer(({
     return currentSpacesTmp
   }
 
-  const notLoadedSpacesSrt = JSON.stringify(CargosStore.cargos.notLoadedSpaces)
+  const notLoadedSpacesSrt = JSON.stringify(CargosStore.cargos.notLoadedSpaces.list)
   const currentTmpSpaces = useMemo(
     () => getCurrentNewTmpSpaces(JSON.parse(notLoadedSpacesSrt)), [notLoadedSpacesSrt]
   )

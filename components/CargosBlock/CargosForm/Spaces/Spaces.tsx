@@ -11,13 +11,15 @@ import TextField from "@mui/material/TextField"
 // project components
 import { ImageUpload } from "@/components/CargosBlock/CargosForm/Spaces/ImageUpload/ImageUpload"
 import ImagesSlider from "@/components/CargosBlock/CargosForm/Spaces/ImagesSlider"
+import { CloseSpaceBtn } from "@/components/CargosBlock/CargosForm/Spaces/CloseSpaceBtn"
+import { Preloader } from "@/components/ui-component/Preloader"
 
 // utils
 import { GRID_SPACING } from "@/lib/const"
 import { fixMeInTheFuture } from "@/lib/types"
 
 // assets
-import CloseIcon from '@mui/icons-material/Close'
+import DataUsageIcon from '@mui/icons-material/DataUsage'
 
 // store
 import CargosStore, { CARGO_FIELD_NAMES, spaceItemType, UploadImageType } from "@/stores/cargosStore"
@@ -77,7 +79,8 @@ export const Spaces = observer(({
     [ClientsStore.clients?.currentItem?.id]
   )
 
-  const notLoadedSpacesSrt = JSON.stringify(CargosStore.cargos.notLoadedSpaces)
+  const notLoadedSpacesSrt = JSON.stringify(CargosStore.cargos.notLoadedSpaces.list)
+  const areFilesLoading = Boolean(CargosStore.cargos.notLoadedSpaces.numberOfPhotosCurrentlyBeingUploaded)
   const currentUploadingFiles: Array<UploadImageType> = useMemo(
     () => {
       const filterCallback = (space: spaceItemType) => (
@@ -85,7 +88,7 @@ export const Spaces = observer(({
         (() => isItEditForm ? space.cargoId === currentCargo?.cargoId : true)()
       )
       const reduceCallback = (accumulator: Array<UploadImageType>, space: spaceItemType) => accumulator.concat(space.photos)
-      return CargosStore.cargos.notLoadedSpaces.filter(filterCallback).reduce(reduceCallback, [])
+      return CargosStore.cargos.notLoadedSpaces.list.filter(filterCallback).reduce(reduceCallback, [])
     },
     [notLoadedSpacesSrt])
 
@@ -313,6 +316,10 @@ export const Spaces = observer(({
     )
   }
 
+  const getCurrentUploadingFiles = (photos: UploadImageType[], index: number) => {
+    return photos.filter((photo) => photo.spaceIndex === index)
+  }
+
   return (
     <>
       <Grid item lg={12} md={12} sm={12} xs={12}>
@@ -332,14 +339,10 @@ export const Spaces = observer(({
               <Grid item lg={12} md={12} sm={12} xs={12}>
                 <div className={"flex justify-between items-center border border-solid border-brand p-2 text-center w-full"}>
                   <span className={"font-semibold px-2 py-1"}>Место {index+1}</span>
-                  {isCurrentUserManager && <Button
-                    onClick={(e) => removeSpaceHandler(index)}
-                    className={"min-w-fit"}
-                  >
-                    <CloseIcon
-                      className={"text-brand"}
-                    />
-                  </Button>}
+                  {areFilesLoading ? <Preloader IconComponent={DataUsageIcon} /> : <CloseSpaceBtn
+                    isCurrentUserManager={isCurrentUserManager}
+                    onClickHandler={() => removeSpaceHandler(index)}
+                  />}
                 </div>
               </Grid>
               <Grid item lg={6} md={6} sm={6} xs={12}>
@@ -360,7 +363,7 @@ export const Spaces = observer(({
                   <Grid item lg={12} md={12} sm={12} xs={12}>
                     <ImageUpload
                       addPhotoHandler={addPhotoHandler.call(this, index)}
-                      currentUploadingFiles={space.photos.filter((photo) => photo.spaceIndex === index) || []}
+                      currentUploadingFiles={getCurrentUploadingFiles(space.photos, index)}
                     />
                   </Grid>
                 </>

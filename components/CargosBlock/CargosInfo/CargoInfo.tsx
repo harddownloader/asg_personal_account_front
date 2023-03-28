@@ -154,7 +154,7 @@ export const CargosInfo = observer(({
   }
 
   // load spaces tmp storage
-  const notLoadedSpacesSrt = JSON.stringify(CargosStore.cargos.notLoadedSpaces)
+  const notLoadedSpacesSrt = JSON.stringify(CargosStore.cargos.notLoadedSpaces.list)
 
   const formDefaultValues = currentCargo?.id
     ? {
