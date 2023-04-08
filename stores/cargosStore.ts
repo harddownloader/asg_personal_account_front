@@ -815,13 +815,13 @@ class CargosStore {
       return result
     }
 
-    function getIndexOsSavedSpace (spaces: Array<spaceItemType>, findIndexCurrentSpaceCallback: (value: spaceItemType, index: number, obj: spaceItemType[]) => unknown) {
+    function getIndexOfSavedSpace (spaces: Array<spaceItemType>, findIndexCurrentSpaceCallback: (value: spaceItemType, index: number, obj: spaceItemType[]) => unknown) {
       const index: number = spaces.findIndex(findIndexCurrentSpaceCallback)
       return index
     }
 
     let getSpaceIndex: Function
-    if (isItEditForm && cargoId) getSpaceIndex = getIndexOsSavedSpace.bind(null, tmpSpacesBeforeSetNewPhoto, findIndexSpaceCallback)
+    if (isItEditForm && cargoId) getSpaceIndex = getIndexOfSavedSpace.bind(null, tmpSpacesBeforeSetNewPhoto, findIndexSpaceCallback)
     else if (!isItEditForm && !cargoId) {
       // @ts-ignore
       getSpaceIndex = getIndexOfUnsavedSpace.bind(null, tmpSpacesBeforeSetNewPhoto, cargoId, clientId, spaceIndex)
