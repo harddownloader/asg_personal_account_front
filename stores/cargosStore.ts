@@ -245,6 +245,13 @@ export type UploadImageType = {
   url: string | null
 }
 
+type urlResType = {
+  id: string
+  url: string
+}
+
+export type uploadCargoImageResType = urlResType | null
+
 export type numberOfPhotosCurrentlyBeingUploadedType = number
 
 export type NotUploadedSpaces = {
@@ -759,6 +766,10 @@ class CargosStore {
     this.cargos.notLoadedSpaces.numberOfPhotosCurrentlyBeingUploaded -= 1
   }
 
+  resetUploadFiles = () => {
+    this.cargos.notLoadedSpaces.numberOfPhotosCurrentlyBeingUploaded = 0
+  }
+
   addPhoto = async (
     spaceInfo: {
       spaceIndex: number
@@ -827,11 +838,15 @@ class CargosStore {
       getSpaceIndex = getIndexOfUnsavedSpace.bind(null, tmpSpacesBeforeSetNewPhoto, cargoId, clientId, spaceIndex)
       if (getSpaceIndex === undefined) {
         console.warn('addPhoto error: getSpaceIndex return undefined')
+        this.resetUploadFiles()
+
         return
       }
     }
     else {
       console.warn('addPhoto error: something wrong with cargoId')
+      this.resetUploadFiles()
+
       return
     }
 
@@ -843,6 +858,8 @@ class CargosStore {
     })
     if (newPhotoIndex === null || newPhotoIndex < 0) {
       console.warn('newPhotoIndex is null or < 0', { newPhotoIndex })
+      this.resetUploadFiles()
+
       return
     }
 
@@ -865,10 +882,8 @@ class CargosStore {
         metadata: {}
       },
       spaceData: {
-        // spaceIndex: currentSpaceIndex,
         spaceIndexOfState: currentSpaceIndex,
         spaceIndexOfForm: spaceIndex,
-        // spaceIndex: isItEditForm ? currentSpaceIndex : spaceIndex, // currentSpaceIndex, //
         photoIndex: newPhotoIndex,
         clientId,
         isItEditForm,
@@ -876,15 +891,22 @@ class CargosStore {
     }
     if (isItEditForm) uploadCargoImageArgs.spaceData.cargoId = cargoId
 
-    const url: string | null = await this.uploadCargoImage(uploadCargoImageArgs)
+    const uploadCargoImageRes: uploadCargoImageResType = await this.uploadCargoImage(uploadCargoImageArgs)
+    const url = uploadCargoImageRes?.url
     console.log('addPhoto url', url)
-    if(!url) return
+    if (!url) {
+      this.resetUploadFiles()
+
+      return
+    }
 
     const notLoadedSpacesTmp = JSON.parse(JSON.stringify(this.cargos.notLoadedSpaces.list))
 
     const indexOfSpaceToBeUpdated = getSpaceIndex()
     if (indexOfSpaceToBeUpdated === -1 || indexOfSpaceToBeUpdated === undefined) {
       console.warn('AddPhoto error: not found indexOfSpaceToBeUpdated')
+      this.resetUploadFiles()
+
       return
     }
 
@@ -895,6 +917,8 @@ class CargosStore {
     const indexOfPhotoToBeUpdated = notLoadedSpacesTmp[indexOfSpaceToBeUpdated].photos.findIndex(findIndexPhotoCallback)
     if (indexOfPhotoToBeUpdated === -1) {
       console.warn('AddPhoto error: not found photo of space to update')
+      this.resetUploadFiles()
+
       return
     }
 
@@ -1031,13 +1055,15 @@ class CargosStore {
     const spaces = JSON.parse(JSON.stringify(this.cargos.notLoadedSpaces.list))
     if (!spaces.length) {
       console.warn('this.cargos.notLoadedSpaces.list is empty')
-      return
+
+      return null
     }
 
     const currentSpace = spaces[spaceIndexOfState]
     if (!currentSpace || !currentSpace.photos?.length) {
       console.warn('spaces[spaceIndex] not found')
-      return
+
+      return null
     }
 
     const currentImageIndex = currentSpace.photos.findIndex((photo: UploadImageType) => photo.id === id)
@@ -1052,7 +1078,8 @@ class CargosStore {
       this.cargos.notLoadedSpaces.list[spaceIndexOfState].photos[currentImageIndex] = { ...currentPhoto }
     } else {
       console.warn(`${Object.keys({currentImageIndex})[0]} not found`)
-      return
+
+      return null
     }
   }
 
@@ -1086,7 +1113,7 @@ class CargosStore {
       cargoId?: string
       isItEditForm: boolean
     }
-  }): Promise<string | null> => {
+  }): Promise<uploadCargoImageResType> => {
     const storageRef = await ref(firebaseStorage, `images/${file.name}`)
 
     const compressedFile = await compress(file, 0.6, 2000, 2000, 1000)
@@ -1113,7 +1140,7 @@ class CargosStore {
       const newUploadImage = await this.setUploadImage(setUploadImageArgs)
       if (!newUploadImage) {
         console.warn('failed to create a new instance of the image to upload')
-        return
+        return null
       }
 
       const updateUploadImageArgs: {
@@ -1142,26 +1169,40 @@ class CargosStore {
           updateUploadImageArgs.uploadStatus = UPLOAD_IMAGE_STATUS_UPLOADING
           updateUploadImageArgs.progress = progress
           if (isItEditForm) updateUploadImageArgs.cargoId = cargoId
-          this.updateUploadImage(updateUploadImageArgs)
+          const updatingImageStatus = this.updateUploadImage(updateUploadImageArgs)
+
+          if (updatingImageStatus === null) {
+            console.warn('there was an update on incorrect indexes: updateUploadImage returned null')
+
+            return null
+          }
+
           console.log('Upload is ' + progress + '% done')
         },
         (error) => {
           // Handle unsuccessful uploads
           console.error(`uploadBytes error: ${error}`)
           reject(null)
+
           return null
         },
         async () => {
           return await getDownloadURL(uploadTask.snapshot.ref).then(async (url) => {
             updateUploadImageArgs.uploadStatus = UPLOAD_IMAGE_STATUS_SUCCESS
             this.updateUploadImage(updateUploadImageArgs)
-            resolve(url)
+            // resolve(url)
+            resolve({
+              id: newUploadImage.id,
+              url
+            })
+
             return url
           }).catch((error) => {
             console.error(`uploadBytes error: ${error}`)
             updateUploadImageArgs.uploadStatus = UPLOAD_IMAGE_STATUS_ERROR
             this.updateUploadImage(updateUploadImageArgs)
             reject(null)
+
             return null
           })
         }
