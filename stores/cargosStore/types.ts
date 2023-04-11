@@ -31,12 +31,13 @@ export type spaceOfDB = {
 
 // SPACES data format in local state
 export type clientIdType = string
+export type spaceItemIdType = string
 export type spaceItemType = {
-  id: string,
-  clientId: clientIdType,
-  cargoId?: string,
-  weight: number,
-  piecesInPlace: number,
+  id: spaceItemIdType
+  clientId: clientIdType
+  cargoId?: string
+  weight: number
+  piecesInPlace: number
   photos: Array<UploadImageType>
 }
 
@@ -138,9 +139,65 @@ export type CargosState = {
   notLoadedSpaces: NotUploadedSpaces
 }
 
+// === FOR FUNCTIONS ===
+// addPhoto
+export type addPhotoSpaceInfoArgs = {
+  spaceID: spaceItemIdType,
+  spaceIndex: number
+  clientId: string
+  cargoId?: string
+  isItEditForm: boolean
+}
+
+export type addPhotoFileInfoArgs = {
+  file: File
+  metadata: object
+  fileIndex: number
+}
+
+// uploadCargoImage
+export type uploadCargoImageFileDataArgs = {
+  file: File
+  metadata: object
+}
+
+export type uploadCargoImageSpaceDataArgs = {
+  spaceIndexOfState: number
+  spaceIndexOfForm: number
+  photoIndex: number
+  clientId: string
+  cargoId?: string
+  isItEditForm: boolean
+}
+
 type urlResType = {
   id: string
   url: string
 }
 
 export type uploadCargoImageResType = urlResType | null
+
+// setUploadImageArgs
+export type setUploadImageArgsType = {
+  uploadStatus: UploadImageStatus
+  spaceIndexOfState: number
+  spaceIndexOfForm: number
+  photoIndex: number
+  clientId: string
+  cargoId?: string
+  isItEditForm: boolean
+}
+
+// updateUploadImage
+export type updateUploadImageArgsType = {
+  id: string
+  spaceIndexOfState: number
+  spaceIndexOfForm: number
+  uploadStatus?: UploadImageStatus
+  isShowProgress?: boolean
+  progress?: number
+  url?: string
+  clientId: string
+  cargoId?: string
+  isItEditForm: boolean
+}

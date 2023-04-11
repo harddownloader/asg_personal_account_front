@@ -1,6 +1,5 @@
-import React, { ReactElement, useState, useMemo, useEffect, ChangeEvent } from "react"
+import React, { useMemo, ChangeEvent } from "react"
 import { useFieldArray } from "react-hook-form"
-import { v4 as uuidv4 } from 'uuid'
 import { observer } from "mobx-react-lite"
 
 // mui
@@ -22,7 +21,13 @@ import { fixMeInTheFuture } from "@/lib/types"
 import DataUsageIcon from '@mui/icons-material/DataUsage'
 
 // store
-import CargosStore, { CARGO_FIELD_NAMES, spaceItemType, UploadImageType } from "@/stores/cargosStore"
+import CargosStore, {
+  CARGO_FIELD_NAMES,
+  spaceItemIdType,
+  spaceItemType,
+  UploadImageType,
+  addPhotoSpaceInfoArgs
+} from "@/stores/cargosStore"
 import ClientsStore from "@/stores/clientsStore"
 
 export interface SpaceProps {
@@ -147,18 +152,14 @@ export const Spaces = observer(({
     CargosStore.removeSpace(removeSpaceArgs)
   }
 
-  const addPhotoHandler = (index: number) => {
+  const addPhotoHandler = (index: number, spaceID: spaceItemIdType) => {
     if (!clientId) {
       console.warn('clientId not found')
       return
     }
-    const spaceInfoArgs: {
-      spaceIndex: number,
-      clientId: string,
-      cargoId?: string,
-      isItEditForm: boolean
-    } = {
+    const spaceInfoArgs: addPhotoSpaceInfoArgs = {
       spaceIndex: index,
+      spaceID,
       clientId,
       isItEditForm,
     }
@@ -362,7 +363,7 @@ export const Spaces = observer(({
                 <>
                   <Grid item lg={12} md={12} sm={12} xs={12}>
                     <ImageUpload
-                      addPhotoHandler={addPhotoHandler.call(this, index)}
+                      addPhotoHandler={addPhotoHandler.call(this, index, spaceID)}
                       currentUploadingFiles={getCurrentUploadingFiles(space.photos, index)}
                     />
                   </Grid>

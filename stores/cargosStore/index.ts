@@ -2,12 +2,14 @@ import { CargosStore } from './store'
 export type {
   CargoInterfaceFull,
   UploadImageType,
+  spaceItemIdType,
   spaceItemType,
   CargoInterfaceForForm,
   CargoAddResponse,
   CargoSavingResponse,
   spaceOfDB,
   spacePhotosOfDB,
+  addPhotoSpaceInfoArgs,
 } from './types'
 
 export {

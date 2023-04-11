@@ -28,7 +28,9 @@ import {
   spaceOfDB,
   UploadImageType,
   spaceItemType,
-  UploadImageStatus,
+  addPhotoSpaceInfoArgs,
+  addPhotoFileInfoArgs,
+  uploadCargoImageFileDataArgs, uploadCargoImageSpaceDataArgs, updateUploadImageArgsType, setUploadImageArgsType,
 } from "@/stores/cargosStore/types"
 
 // const
@@ -543,19 +545,16 @@ export class CargosStore {
   }
 
   addPhoto = async (
-    spaceInfo: {
-      spaceIndex: number
-      clientId: string
-      cargoId?: string
-      isItEditForm: boolean
-    },
-    fileInfo: {
-      file: File
-      metadata: object
-      fileIndex: number
-    }
+    spaceInfo: addPhotoSpaceInfoArgs,
+    fileInfo: addPhotoFileInfoArgs
   ): Promise<void> => {
-    const { spaceIndex, clientId, cargoId, isItEditForm } = spaceInfo
+    const {
+      spaceID,
+      spaceIndex,
+      clientId,
+      cargoId,
+      isItEditForm
+    } = spaceInfo
     const {
       file,
       metadata,
@@ -566,9 +565,10 @@ export class CargosStore {
 
     const tmpSpacesBeforeSetNewPhoto: Array<spaceItemType> = JSON.parse(JSON.stringify(this.cargos.notLoadedSpaces.list))
 
-    const findIndexSpaceCallback = (space: spaceItemType, index: number) => {
+    const findIndexSpaceCallback = (space: spaceItemType, index: number): boolean => {
       return Boolean(
         space.clientId === clientId &&
+        spaceID === space.id &&
         spaceIndex === index &&
         (() => isItEditForm ? space.cargoId === cargoId : space?.cargoId === undefined)()
       )
@@ -579,15 +579,15 @@ export class CargosStore {
       cargoId: string,
       clientId: string,
       spaceIndex: number,
-    ) {
-
+    ): number {
       let _spaceIndex = 0
-      let result
+      let result: number = -1
       for (let i=0; i<spaces.length; i++) {
         const space = spaces[i]
         if (space?.cargoId) continue
         else if (
           space.clientId === clientId &&
+          space.id === spaceID &&
           spaceIndex === _spaceIndex
         ) {
           result = i
@@ -598,7 +598,10 @@ export class CargosStore {
       return result
     }
 
-    function getIndexOfSavedSpace (spaces: Array<spaceItemType>, findIndexCurrentSpaceCallback: (value: spaceItemType, index: number, obj: spaceItemType[]) => unknown) {
+    function getIndexOfSavedSpace (
+      spaces: Array<spaceItemType>,
+      findIndexCurrentSpaceCallback: (value: spaceItemType, index: number, obj: spaceItemType[]) => unknown
+    ): number {
       const index: number = spaces.findIndex(findIndexCurrentSpaceCallback)
       return index
     }
@@ -622,7 +625,14 @@ export class CargosStore {
       return
     }
 
-    const currentSpaceIndex = getSpaceIndex()
+    const currentSpaceIndex: number = getSpaceIndex()
+    if (currentSpaceIndex === -1) {
+      console.warn('currentSpaceIndex wasn\'t found')
+      this.resetUploadFiles()
+
+      return
+    }
+
     const newPhotoIndex = this.getFileIndex({
       tmpSpaces: tmpSpacesBeforeSetNewPhoto,
       spaceIndex: currentSpaceIndex,
@@ -636,18 +646,8 @@ export class CargosStore {
     }
 
     const uploadCargoImageArgs: {
-      fileData: {
-        file: File
-        metadata: object
-      }
-      spaceData: {
-        spaceIndexOfState: number
-        spaceIndexOfForm: number
-        photoIndex: number
-        clientId: string
-        cargoId?: string
-        isItEditForm: boolean
-      }
+      fileData: uploadCargoImageFileDataArgs
+      spaceData: uploadCargoImageSpaceDataArgs
     } = {
       fileData: {
         file,
@@ -744,15 +744,7 @@ export class CargosStore {
                       clientId,
                       cargoId,
                       isItEditForm,
-                    }: {
-    uploadStatus: UploadImageStatus
-    spaceIndexOfState: number
-    spaceIndexOfForm: number
-    photoIndex: number
-    clientId: string
-    cargoId?: string
-    isItEditForm: boolean
-  }) => {
+                    }: setUploadImageArgsType) => {
     const spacesTmp = JSON.parse(JSON.stringify(this.cargos.notLoadedSpaces.list))
     if (isItEditForm && this.cargos?.currentItem === null) {
       console.warn('isItEditForm is true, but this.cargos.currentItem.id not found')
@@ -812,18 +804,7 @@ export class CargosStore {
                          url,
                          clientId,
                          cargoId,
-                       }: {
-    id: string
-    spaceIndexOfState: number
-    spaceIndexOfForm: number
-    uploadStatus?: UploadImageStatus
-    isShowProgress?: boolean
-    progress?: number
-    url?: string
-    clientId: string
-    cargoId?: string
-    isItEditForm: boolean
-  }) => {
+                       }: updateUploadImageArgsType) => {
     const spaces = JSON.parse(JSON.stringify(this.cargos.notLoadedSpaces.list))
     if (!spaces.length) {
       console.warn('this.cargos.notLoadedSpaces.list is empty')
@@ -873,18 +854,8 @@ export class CargosStore {
                                 isItEditForm,
                               }
                             }: {
-    fileData: {
-      file: File
-      metadata: object
-    },
-    spaceData: {
-      spaceIndexOfState: number
-      spaceIndexOfForm: number
-      photoIndex: number
-      clientId: string
-      cargoId?: string
-      isItEditForm: boolean
-    }
+    fileData: uploadCargoImageFileDataArgs,
+    spaceData: uploadCargoImageSpaceDataArgs
   }): Promise<uploadCargoImageResType> => {
     const storageRef = await ref(firebaseStorage, `images/${file.name}`)
 
@@ -892,15 +863,7 @@ export class CargosStore {
 
     return new Promise(async (resolve, reject) => {
       if (!compressedFile) reject(null)
-      const setUploadImageArgs: {
-        uploadStatus: UploadImageStatus
-        spaceIndexOfState: number
-        spaceIndexOfForm: number
-        photoIndex: number
-        clientId: string
-        cargoId?: string
-        isItEditForm: boolean
-      } = {
+      const setUploadImageArgs: setUploadImageArgsType = {
         uploadStatus: UPLOAD_IMAGE_STATUS.UPLOADING,
         spaceIndexOfState,
         spaceIndexOfForm,
@@ -915,16 +878,7 @@ export class CargosStore {
         return null
       }
 
-      const updateUploadImageArgs: {
-        id: string
-        spaceIndexOfState: number
-        spaceIndexOfForm: number
-        clientId: string
-        isItEditForm: boolean
-        progress?: number
-        uploadStatus?: UploadImageStatus
-        cargoId?: string
-      } = {
+      const updateUploadImageArgs: updateUploadImageArgsType = {
         id: newUploadImage.id,
         clientId,
         isItEditForm,

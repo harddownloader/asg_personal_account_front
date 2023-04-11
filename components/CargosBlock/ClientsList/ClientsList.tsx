@@ -17,7 +17,6 @@ import { UserOfDB } from '@/stores/userStore'
 import ClientsStore from "@/stores/clientsStore"
 import CargosStore from "@/stores/cargosStore"
 
-
 export interface ClientsListProps {
   isLoading: boolean
   title?: string
