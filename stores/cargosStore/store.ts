@@ -686,7 +686,15 @@ export class CargosStore {
 
     const findIndexPhotoCallback = (photo: UploadImageType): boolean => photo.photoIndex === newPhotoIndex
 
-    const indexOfPhotoToBeUpdated = notLoadedSpacesTmp[indexOfSpaceToBeUpdated].photos.findIndex(findIndexPhotoCallback)
+    const currentPhotos = notLoadedSpacesTmp[indexOfSpaceToBeUpdated]?.photos
+    if (!Array.isArray(currentPhotos)) {
+      console.warn('AddPhoto error: currentPhotos wasn\'t found')
+      this.resetUploadFiles()
+
+      return
+    }
+
+    const indexOfPhotoToBeUpdated = currentPhotos.findIndex(findIndexPhotoCallback)
     if (indexOfPhotoToBeUpdated === -1) {
       console.warn('AddPhoto error: not found photo of space to update')
       this.resetUploadFiles()
@@ -694,7 +702,7 @@ export class CargosStore {
       return
     }
 
-    notLoadedSpacesTmp[indexOfSpaceToBeUpdated].photos[indexOfPhotoToBeUpdated].url = url
+    currentPhotos[indexOfPhotoToBeUpdated].url = url
     this.cargos.notLoadedSpaces.list = [...notLoadedSpacesTmp]
 
     this.decreaseUploadingFiles()
