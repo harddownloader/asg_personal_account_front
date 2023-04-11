@@ -1,40 +1,10 @@
-export const CARGOS_DB_COLLECTION_NAME: string = 'cargos'
+import {
+  CARGO_IMAGE_STATUS,
+  CARGO_STATUS,
+  UPLOAD_IMAGE_STATUS
+} from "@/stores/cargosStore/const"
 
-/*
-* 0 - The shipment has arrived at the warehouse and is awaiting shipment.
-* 1 - Cargo on the way
-* 2 - The shipment has arrived at its destination
-* 3 - Shipment received by customer
-* */
-export enum CargosStatusEnum {
-  CARGO_WAITING_TO_BE_SEND = 0,
-  CARGO_ON_THE_WAY = 1,
-  CARGO_HAS_ARRIVED_AT_ITS_DESTINATION = 2,
-  CARGO_RECEIVED_BY_CUSTOMER = 3
-}
-export const CARGO_WAITING_TO_BE_SEND = 0
-export const CARGO_ON_THE_WAY = 1
-export const CARGO_HAS_ARRIVED_AT_ITS_DESTINATION = 2
-export const CARGO_RECEIVED_BY_CUSTOMER = 3
-
-export const STATUS_OPTIONS = [
-  {
-    text: 'Прибыл на склад в Китае',
-    value: CARGO_WAITING_TO_BE_SEND
-  },
-  {
-    text: 'В пути',
-    value: CARGO_ON_THE_WAY
-  },
-  {
-    text: 'Прибыл на склад в Украину',
-    value: CARGO_HAS_ARRIVED_AT_ITS_DESTINATION
-  },
-  {
-    text: 'Получен клиентом',
-    value: CARGO_RECEIVED_BY_CUSTOMER
-  },
-]
+export type cargoStatusType = typeof CARGO_STATUS[keyof typeof CARGO_STATUS]
 
 export type cargoFieldNamesType<Type> = {
   [key: string]: {
@@ -42,67 +12,6 @@ export type cargoFieldNamesType<Type> = {
     value: string,
     defaultValue?: Type
   }
-}
-
-export const CARGO_FIELD_NAMES: cargoFieldNamesType<string | number> = {
-  CARGO_ID: {
-    label: 'Номер отправки',
-    value: 'cargoId',
-  },
-  CLIENT_CODE: {
-    label: 'Код клиента',
-    value: 'clientCode',
-  },
-  DISPATCH_NUMBER: {
-    label: 'Номер отправки',
-    value: 'dispatchNumber',
-  },
-  NUMBER_OF_SEATS: {
-    label: 'Кол-во мест',
-    value: 'numberOfSeats',
-  },
-  STATUS: {
-    label: 'Статус',
-    value: 'status',
-  },
-  CARGO_PHOTO: {
-    label: 'Фото',
-    value: 'cargoPhoto',
-  },
-  COST_OF_DELIVERY: {
-    label: 'Стоимость доставки($)',
-    value: 'costOfDelivery',
-  },
-  CARGO_NAME: {
-    label: 'Название груза',
-    value: 'cargoName',
-  },
-  INSURANCE: {
-    label: 'Страховка',
-    value: 'insurance',
-  },
-  PIECES_IN_PLACE: {
-    label: 'Шт в месте(шт.)',
-    value: 'piecesInPlace',
-    defaultValue: 0,
-  },
-  COST: {
-    label: 'Стоимость груза',
-    value: 'cost',
-  },
-  SHIPPING_DATE: {
-    label: 'Дата отгрузки',
-    value: 'shippingDate',
-  },
-  VOLUME: {
-    label: 'Объем',
-    value: 'volume',
-  },
-  WEIGHT: {
-    label: 'Вес(кг.)',
-    value: 'weight',
-    defaultValue: 0,
-  },
 }
 
 // SPACES PHOTOS data format in DB
@@ -132,7 +41,7 @@ export type spaceItemType = {
 }
 
 export interface CargoInterface {
-  status: CargosStatusEnum // Статус
+  status: cargoStatusType // Статус
   costOfDelivery: string // Стоимость доставки
   cargoName: string // Название груза
   insurance: number // Страховка
@@ -198,23 +107,8 @@ export interface CargoAddResponse {
   }
 }
 
-export enum CargoImageStatus {
-  FILE_WAS_ALREADY_LOADED = 0, // cargo info was saved
-  FILE_JUST_UPLOADED = 1, // new cargo info wasn't saved
-}
-
-export const IMAGE_STATUS_FILE_WAS_ALREADY_LOADED = 0
-export const IMAGE_STATUS_FILE_JUST_UPLOADED = 1
-
-export enum UploadImageStatus {
-  UPLOADING = 0,
-  SUCCESS = 1,
-  ERROR = -1,
-}
-
-export const UPLOAD_IMAGE_STATUS_UPLOADING: UploadImageStatus.UPLOADING = 0
-export const UPLOAD_IMAGE_STATUS_SUCCESS: UploadImageStatus.SUCCESS = 1
-export const UPLOAD_IMAGE_STATUS_ERROR: UploadImageStatus.ERROR = -1
+export type CargoImageStatus = typeof CARGO_IMAGE_STATUS[keyof typeof CARGO_IMAGE_STATUS]
+export type UploadImageStatus = typeof UPLOAD_IMAGE_STATUS[keyof typeof UPLOAD_IMAGE_STATUS]
 
 // state for showing upload images animation
 export type UploadImageType = {

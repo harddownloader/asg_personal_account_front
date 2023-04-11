@@ -1,3 +1,6 @@
+/* eslint react/display-name: 0 */
+/* eslint react-hooks/rules-of-hooks: 0 */
+
 import React, {
   useState,
 } from 'react'

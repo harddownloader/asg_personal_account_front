@@ -13,29 +13,32 @@ import {
 import { firebaseAuth, firebaseFirestore, firebaseStorage } from "@/lib/firebase"
 import { compress } from "@/lib/images"
 import { prepareSpaces } from "@/components/CargosBlock/helpers/prepareBody"
+
+// types
 import {
   CargosItems,
   CargosState,
-  CARGO_RECEIVED_BY_CUSTOMER,
   uploadCargoImageResType,
   CargoInterfaceFull,
   CargoInterfaceForForm,
   CargoAddResponse,
   AddCargoInterface,
-  CARGOS_DB_COLLECTION_NAME,
   CargoInterfaceDBFormat,
   CargoSavingResponse,
   spaceOfDB,
-  CARGO_FIELD_NAMES,
   UploadImageType,
   spaceItemType,
   UploadImageStatus,
-  IMAGE_STATUS_FILE_JUST_UPLOADED,
-  UPLOAD_IMAGE_STATUS_UPLOADING,
-  UPLOAD_IMAGE_STATUS_SUCCESS, UPLOAD_IMAGE_STATUS_ERROR
 } from "@/stores/cargosStore/types"
 
-
+// const
+import {
+  CARGOS_DB_COLLECTION_NAME,
+  CARGO_STATUS,
+  CARGO_FIELD_NAMES,
+  CARGO_IMAGE_STATUS,
+  UPLOAD_IMAGE_STATUS,
+} from "@/stores/cargosStore/const"
 
 export class CargosStore {
   cargos: CargosState = {
@@ -85,8 +88,8 @@ export class CargosStore {
     this.cargos.currentItemsList = this.cargos.items.filter((cargo) => {
       return Boolean(
         isArchive
-          ? Number(cargo.status) === CARGO_RECEIVED_BY_CUSTOMER
-          : Number(cargo.status) !== CARGO_RECEIVED_BY_CUSTOMER
+          ? Number(cargo.status) === CARGO_STATUS.CARGO_RECEIVED_BY_CUSTOMER
+          : Number(cargo.status) !== CARGO_STATUS.CARGO_RECEIVED_BY_CUSTOMER
       ) && cargo.clientCode === currentUserCode
     })
   }
@@ -158,10 +161,10 @@ export class CargosStore {
       // add for current cargo list
       if ((
         this.cargos.isCurrentItemsListArchive &&
-        status === CARGO_RECEIVED_BY_CUSTOMER
+        status === CARGO_STATUS.CARGO_RECEIVED_BY_CUSTOMER
       ) || (
         !this.cargos.isCurrentItemsListArchive &&
-        status !== CARGO_RECEIVED_BY_CUSTOMER
+        status !== CARGO_STATUS.CARGO_RECEIVED_BY_CUSTOMER
       )) this.cargos.currentItemsList = [
         ...this.cargos.currentItemsList,
         newCargo
@@ -342,10 +345,10 @@ export class CargosStore {
         currCargoInItemsList !== -1 &&
         (
           this.cargos.isCurrentItemsListArchive &&
-          status === CARGO_RECEIVED_BY_CUSTOMER
+          status === CARGO_STATUS.CARGO_RECEIVED_BY_CUSTOMER
         ) || (
           !this.cargos.isCurrentItemsListArchive &&
-          status !== CARGO_RECEIVED_BY_CUSTOMER
+          status !== CARGO_STATUS.CARGO_RECEIVED_BY_CUSTOMER
         )
       ) {
         const currItemsListTmp = JSON.parse(JSON.stringify(this.cargos.currentItemsList))
@@ -758,7 +761,7 @@ export class CargosStore {
 
     const newUploadImage: UploadImageType = {
       id: uuidv4(),
-      status: IMAGE_STATUS_FILE_JUST_UPLOADED,
+      status: CARGO_IMAGE_STATUS.FILE_JUST_UPLOADED,
       uploadStatus,
       progress: 0,
       isShowProgress: true,
@@ -898,7 +901,7 @@ export class CargosStore {
         cargoId?: string
         isItEditForm: boolean
       } = {
-        uploadStatus: UPLOAD_IMAGE_STATUS_UPLOADING,
+        uploadStatus: UPLOAD_IMAGE_STATUS.UPLOADING,
         spaceIndexOfState,
         spaceIndexOfForm,
         photoIndex,
@@ -935,7 +938,7 @@ export class CargosStore {
         (snapshot) => {
           const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100
 
-          updateUploadImageArgs.uploadStatus = UPLOAD_IMAGE_STATUS_UPLOADING
+          updateUploadImageArgs.uploadStatus = UPLOAD_IMAGE_STATUS.UPLOADING
           updateUploadImageArgs.progress = progress
           if (isItEditForm) updateUploadImageArgs.cargoId = cargoId
           const updatingImageStatus = this.updateUploadImage(updateUploadImageArgs)
@@ -957,7 +960,7 @@ export class CargosStore {
         },
         async () => {
           return await getDownloadURL(uploadTask.snapshot.ref).then(async (url) => {
-            updateUploadImageArgs.uploadStatus = UPLOAD_IMAGE_STATUS_SUCCESS
+            updateUploadImageArgs.uploadStatus = UPLOAD_IMAGE_STATUS.SUCCESS
             this.updateUploadImage(updateUploadImageArgs)
             // resolve(url)
             resolve({
@@ -968,7 +971,7 @@ export class CargosStore {
             return url
           }).catch((error) => {
             console.error(`uploadBytes error: ${error}`)
-            updateUploadImageArgs.uploadStatus = UPLOAD_IMAGE_STATUS_ERROR
+            updateUploadImageArgs.uploadStatus = UPLOAD_IMAGE_STATUS.ERROR
             this.updateUploadImage(updateUploadImageArgs)
             reject(null)
 
@@ -1001,5 +1004,3 @@ export class CargosStore {
     this.clearList()
   }
 }
-
-// export default new CargosStore()

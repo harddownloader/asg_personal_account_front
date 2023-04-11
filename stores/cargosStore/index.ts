@@ -11,12 +11,12 @@ export type {
 } from './types'
 
 export {
-  UPLOAD_IMAGE_STATUS_UPLOADING,
-  UPLOAD_IMAGE_STATUS_SUCCESS,
-  UPLOAD_IMAGE_STATUS_ERROR,
-  CARGO_FIELD_NAMES,
-  STATUS_OPTIONS,
   CARGOS_DB_COLLECTION_NAME,
-} from './types'
+  CARGO_STATUS,
+  STATUS_OPTIONS,
+  CARGO_FIELD_NAMES,
+  CARGO_IMAGE_STATUS,
+  UPLOAD_IMAGE_STATUS,
+} from './const'
 
 export default new CargosStore()

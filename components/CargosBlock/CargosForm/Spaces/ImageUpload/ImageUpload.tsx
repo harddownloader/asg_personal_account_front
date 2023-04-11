@@ -26,9 +26,7 @@ import CloseIcon from '@mui/icons-material/Close'
 // store
 import CargosStore, {
   UploadImageType,
-  UPLOAD_IMAGE_STATUS_UPLOADING,
-  UPLOAD_IMAGE_STATUS_SUCCESS,
-  UPLOAD_IMAGE_STATUS_ERROR
+  UPLOAD_IMAGE_STATUS,
 } from '@/stores/cargosStore'
 
 export interface ImageInputProps {
@@ -93,17 +91,17 @@ export const ImageUpload = observer(({
 
     const paddingClass = "p-1"
     switch(image.uploadStatus) {
-      case UPLOAD_IMAGE_STATUS_UPLOADING:
+      case UPLOAD_IMAGE_STATUS.UPLOADING:
         return (<Typography
           variant="caption"
           component="div"
           color="text.secondary"
           className={`${paddingClass}`}
         >{`${Math.round(image.progress)}%`}</Typography>)
-      case UPLOAD_IMAGE_STATUS_SUCCESS:
+      case UPLOAD_IMAGE_STATUS.SUCCESS:
         hideImageProgress(image.id)
         return (<CheckIcon className={`${paddingClass} text-green-500`} />)
-      case UPLOAD_IMAGE_STATUS_ERROR:
+      case UPLOAD_IMAGE_STATUS.ERROR:
         hideImageProgress(image.id)
         return (<CloseIcon className={`${paddingClass} text-red-500`} />)
       default:
