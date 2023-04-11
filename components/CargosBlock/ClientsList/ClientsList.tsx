@@ -1,13 +1,10 @@
-import React, { useState, Fragment, useEffect, useMemo } from 'react'
+import React, { useState, Fragment, useMemo } from 'react'
 import { observer } from "mobx-react-lite"
 
 // mui
-import { useTheme } from '@mui/material/styles'
-import { Avatar, Button, CardActions, CardContent, Divider, Grid, Menu, MenuItem, Typography } from '@mui/material'
+import { Divider, Grid, Typography } from '@mui/material'
 
 // project components
-import MainCard from '@/components/ui-component/cards/MainCard'
-import SkeletonPopularCard from '@/components/ui-component/cards/Skeleton/PopularCard'
 import { ClientsListItem } from './ClientsListItem'
 import EditClientModal from './EditClientModal'
 import { ScrollableBlock } from "@/components/ui-component/ScrollableBlock"
@@ -18,12 +15,13 @@ import { GRID_SPACING } from '@/lib/const'
 // store
 import { UserOfDB } from '@/stores/userStore'
 import ClientsStore from "@/stores/clientsStore"
-import CargosStore, { CargoInterfaceFull } from "@/stores/cargosStore"
+import CargosStore from "@/stores/cargosStore"
 
 
 export interface ClientsListProps {
-  isLoading: boolean,
-  title?: string,
+  isLoading: boolean
+  title?: string
+  showConfirmToLeave?: Function
 }
 
 export type openEditModalHandlerArgs = {
@@ -33,6 +31,7 @@ export type openEditModalHandlerArgs = {
 export const ClientsList = observer(({
                                        isLoading,
                                        title="Список клиентов",
+                                       showConfirmToLeave,
                      }: ClientsListProps) => {
   const clients = useMemo(
     () => [...ClientsStore.clients.items],
@@ -53,7 +52,17 @@ export const ClientsList = observer(({
   }
 
   const selectCurrentClientHandler = (client: UserOfDB) => {
-    ClientsStore.setCurrentItem({...client})
+    const areFilesLoading = Boolean(CargosStore.cargos.notLoadedSpaces.numberOfPhotosCurrentlyBeingUploaded)
+    if (areFilesLoading && showConfirmToLeave) {
+      showConfirmToLeave(
+        setNewCurrentItem.bind(this, client),
+        () => { /* cancel... */ }
+      )
+
+      return
+    }
+
+    setNewCurrentItem(client)
 
     //  set cargos list && set filtering cargos list by "currents"
     if (client.userCodeId) {
@@ -78,6 +87,10 @@ export const ClientsList = observer(({
       console.info('Warning: User doesn\'t have cargos. CargosStore.cargos.currentItemsList?.[0] not found')
       CargosStore.clearCurrentItem()
     }
+  }
+
+  const setNewCurrentItem = (client: UserOfDB) => {
+    ClientsStore.setCurrentItem({...client})
   }
 
   return (

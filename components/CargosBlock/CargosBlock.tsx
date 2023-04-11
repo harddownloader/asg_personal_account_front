@@ -1,6 +1,4 @@
 import React, {
-  Fragment,
-  ReactElement,
   useEffect,
   useState
 } from 'react'
@@ -11,8 +9,10 @@ import { Grid } from '@mui/material'
 
 // project components
 import { CargosInfo } from "@/components/CargosBlock/CargosInfo/CargoInfo"
-import { CargosList } from "@/components/CargosBlock/CargosList/CargosList"
+import { CargosList, CargosListProps } from "@/components/CargosBlock/CargosList/CargosList"
 import { ClientsList } from "@/components/CargosBlock/ClientsList"
+import { ConfirmToLeave } from "@/components/CargosBlock/ConfirmToLeave"
+import { ClientsListProps } from "@/components/CargosBlock/ClientsList/ClientsList"
 
 // utils
 import { GRID_SPACING } from '@/lib/const'
@@ -37,19 +37,24 @@ export const CargosBlock = observer(({}: CargosBlockProps) => {
 
   const isManager = Boolean(UserStore.user.currentUser?.role === USER_ROLE_MANAGER)
 
+  // @ts-ignore
+  const ClientsListWithConfirm: React.FunctionComponent<ClientsListProps> = ConfirmToLeave(ClientsList)
+  // @ts-ignore
+  const CargosListWithConfirm: React.FunctionComponent<CargosListProps> = ConfirmToLeave(CargosList)
+
   return (
     <>
       <Grid container spacing={GRID_SPACING}>
         <Grid item xs={12}>
           <Grid container spacing={GRID_SPACING}>
             {isManager && <Grid item lg={4} md={6} sm={6} xs={12}>
-               <ClientsList
+              <ClientsListWithConfirm
                 isLoading={isLoading}
                 title={"Список клиентов"}
               />
             </Grid>}
             <Grid item lg={4} md={6} sm={6} xs={12}>
-              <CargosList
+              <CargosListWithConfirm
                 items={CargosStore.cargos.currentItemsList}
                 isLoading={isLoading}
                 title={"Список грузов"}
