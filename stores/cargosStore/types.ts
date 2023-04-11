@@ -17,7 +17,7 @@ export const CARGO_ON_THE_WAY = 1
 export const CARGO_HAS_ARRIVED_AT_ITS_DESTINATION = 2
 export const CARGO_RECEIVED_BY_CUSTOMER = 3
 
-export const statusOptions = [
+export const STATUS_OPTIONS = [
   {
     text: 'Прибыл на склад в Китае',
     value: CARGO_WAITING_TO_BE_SEND

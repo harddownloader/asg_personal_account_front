@@ -10,7 +10,7 @@ import Collapse from '@mui/material/Collapse'
 // store
 import CargosStore, {
   CargoInterfaceFull,
-  statusOptions
+  STATUS_OPTIONS
 } from '@/stores/cargosStore'
 
 export interface CargosListItemProps {
@@ -29,7 +29,7 @@ export const CargosListItem = observer(({
   )
   const isCurrentCargosSelected = selectedCargo?.id === item.id
 
-  const statusObj = statusOptions.find((_status) => _status.value === Number(item.status))
+  const statusObj = STATUS_OPTIONS.find((_status) => _status.value === Number(item.status))
   const status = statusObj ? statusObj.text : ''
 
   return (
