@@ -86,7 +86,7 @@ export const ConfirmToLeave = (Component: typeof React.Component) => ({ ...props
           }
           maxWidth={'md'}
         >
-          <p>Сейчас идет загрузка файлов, вы уверены, что хотите прервать загрузку и перейти к другим ?</p>
+          <p>Сейчас идет загрузка файлов, вы уверены, что хотите прервать загрузку?</p>
         </DialogHOC>
       }
     </>
