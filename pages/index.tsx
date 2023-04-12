@@ -17,24 +17,28 @@ import { notificationAudioPlay } from "@/lib/audio"
 import { SOCKET_SERVER_URL, SOCKET_SERVER_PATH } from "@/lib/const"
 
 // store
-import CargosStore, { CargoInterfaceFull, CARGOS_DB_COLLECTION_NAME } from "@/stores/cargosStore"
-import UserStore, { USER_ROLE_MANAGER, UserOfDB, USERS_DB_COLLECTION_NAME } from "@/stores/userStore"
+import CargosStore, { CARGOS_DB_COLLECTION_NAME } from "@/stores/cargosStore"
+import UserStore, {
+  USER_ROLE_MANAGER,
+  UserOfDB,
+  USERS_DB_COLLECTION_NAME
+} from "@/stores/userStore"
 import ClientsStore from "@/stores/clientsStore"
-import NotificationsStore, { Notification, NOTIFICATION_DB_COLLECTION_NAME } from "@/stores/notificationsStore"
+import NotificationsStore, {
+  Notification,
+  NOTIFICATION_DB_COLLECTION_NAME
+} from "@/stores/notificationsStore"
 
 export const getServerSideProps = async (ctx: GetServerSidePropsContext) => {
   try {
     // if the user is authenticated
     const cookies = nookies.get(ctx)
-    console.log('Home getServerSideProps in try 1', {
-      cookies: JSON.stringify(cookies, null, 2),
-      'cookies.token': cookies.token,
-      'typeof cookies.token': typeof cookies.token,
-    })
+    // console.log('Home getServerSideProps in try 1', {
+    //   cookies: JSON.stringify(cookies, null, 2),
+    //   'cookies.token': cookies.token,
+    //   'typeof cookies.token': typeof cookies.token,
+    // })
     const currentFirebaseUser = await firebaseAdmin.auth().verifyIdToken(cookies.token)
-    console.log('Home getServerSideProps in try 2', {
-      currentFirebaseUser
-    })
 
     const db = firebaseAdmin.firestore()
     const usersRef = await db.collection(USERS_DB_COLLECTION_NAME)
@@ -43,9 +47,6 @@ export const getServerSideProps = async (ctx: GetServerSidePropsContext) => {
       currentUserId: currentFirebaseUser.uid,
       usersRef
     }).catch((error) => console.error('getUserFromDB error', error))
-    console.log('Home getServerSideProps in try 3', {
-      currentUserInDB
-    })
 
     if (!currentUserInDB) return {
       redirect: {
@@ -58,23 +59,17 @@ export const getServerSideProps = async (ctx: GetServerSidePropsContext) => {
     }
 
     const isUserManager = currentUserInDB.role === USER_ROLE_MANAGER
-    //
+
     const notificationsRef = await db.collection(NOTIFICATION_DB_COLLECTION_NAME)
     const notifications: Array<Notification> = await getNotifications({
       currentUserId: currentFirebaseUser.uid,
       notificationsRef
     })
-    console.log('Home getServerSideProps in try 4', {
-      notifications
-    })
-    //
+
     const clients: Array<UserOfDB> | null = isUserManager
       ? await getAllClients({usersRef})
       : null
 
-    console.log('Home getServerSideProps in try 5', {
-      clients
-    })
     const cargosRef = await db.collection(CARGOS_DB_COLLECTION_NAME)
     const allCargos = isUserManager
         ? await getAllCargos({ cargosRef })
@@ -133,13 +128,6 @@ function Home ({
                  notifications,
                  currentFirebaseUser,
                }: InferGetServerSidePropsType<typeof getServerSideProps>) {
-  console.log({
-    cargos,
-    currentUser,
-    clients,
-    notifications,
-    currentFirebaseUser,
-  })
   useEffect(() => {
     if (cargos?.length) CargosStore.setList(cargos)
 
