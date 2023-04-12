@@ -1,11 +1,12 @@
 // assets
 import RefreshIcon from '@mui/icons-material/Refresh'
 
-export const Preloader = () => {
-
+export const Preloader = ({
+  IconComponent = RefreshIcon
+                          }) => {
   return (
     <>
-      <RefreshIcon className={"animate-spin h-5 w-5 text‑white"}/>
+      <IconComponent className={"animate-spin h-5 w-5 text‑white"} />
     </>
   )
 }

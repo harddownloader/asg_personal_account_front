@@ -29,7 +29,7 @@ export const getServerSideProps = async (ctx: GetServerSidePropsContext) => {
   try {
     const cookies = nookies.get(ctx)
     // console.log(JSON.stringify(cookies, null, 2))
-    const token = await firebaseAdmin.auth().verifyIdToken(cookies.token)
+    const currentFirebaseUser = await firebaseAdmin.auth().verifyIdToken(cookies.token)
 
     return {
       redirect: {
@@ -41,8 +41,6 @@ export const getServerSideProps = async (ctx: GetServerSidePropsContext) => {
       props: {} as never,
     }
   } catch (err) {
-    throw new Error(`${err}`)
-
     return {
       props: {} as never,
     }
@@ -160,3 +158,4 @@ LoginPage.getLayout = function getLayout(page: ReactElement) {
 }
 
 export default LoginPage
+

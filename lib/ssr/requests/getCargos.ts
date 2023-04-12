@@ -1,5 +1,5 @@
-import {CargoInterfaceFull} from "@/stores/cargosStore"
-import {fixMeInTheFuture} from "@/lib/types"
+import { CargoInterfaceFull } from "@/stores/cargosStore"
+import { fixMeInTheFuture } from "@/lib/types"
 
 export type getAllCargos = {
   cargosRef: fixMeInTheFuture

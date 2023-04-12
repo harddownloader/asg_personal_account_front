@@ -2,7 +2,7 @@ import {
   spaceItemType,
   spaceOfDB,
   spacePhotosOfDB,
-  UPLOAD_IMAGE_STATUS_SUCCESS
+  UPLOAD_IMAGE_STATUS
 } from "@/stores/cargosStore"
 
 export const prepareSpaces = (spaces: Array<spaceItemType>): Array<spaceOfDB> => {
@@ -11,7 +11,7 @@ export const prepareSpaces = (spaces: Array<spaceItemType>): Array<spaceOfDB> =>
     space.photos.forEach((photo) => {
       if (
         photo.url !== null &&
-        (() => Number.isInteger(photo?.uploadStatus) ? photo.uploadStatus === UPLOAD_IMAGE_STATUS_SUCCESS : true)()
+        (() => Number.isInteger(photo?.uploadStatus) ? photo.uploadStatus === UPLOAD_IMAGE_STATUS.SUCCESS : true)()
       ) photos.push({
         id: photo.id,
         photoIndex: Number(photo.photoIndex),
