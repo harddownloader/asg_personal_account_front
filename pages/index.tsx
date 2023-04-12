@@ -78,9 +78,7 @@ export const getServerSideProps = async (ctx: GetServerSidePropsContext) => {
           userCodeId: currentUserInDB.userCodeId,
         }) : []
 
-    console.log('Home getServerSideProps in try 6', {
-      allCargos
-    })
+
     return {
       props: {
         currentFirebaseUser,
