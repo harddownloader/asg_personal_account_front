@@ -9,7 +9,6 @@ export const getUserFromDB = async ({
   currentUserId: string,
   usersRef: fixMeInTheFuture
 }): Promise<UserOfDB> => {
-
   return await usersRef.doc(currentUserId).get()
     .then((user: fixMeInTheFuture) => {
       const userDecode = {...user.data()}
@@ -24,6 +23,7 @@ export const getUserFromDB = async ({
         userCodeId: userDecode.userCodeId,
       }
     })
+    .catch((error: fixMeInTheFuture) => console.error('getUserFromDB error:', error))
 }
 
 export type allClientsArgs = {

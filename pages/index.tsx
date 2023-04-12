@@ -14,27 +14,49 @@ import { getNotifications } from "@/lib/ssr/requests/notifications/getNotificati
 import { getAllCargos, getCargosByClient } from "@/lib/ssr/requests/getCargos"
 import { fixMeInTheFuture } from "@/lib/types"
 import { notificationAudioPlay } from "@/lib/audio"
+import { SOCKET_SERVER_URL, SOCKET_SERVER_PATH } from "@/lib/const"
 
 // store
-import CargosStore, { CargoInterfaceFull, CARGOS_DB_COLLECTION_NAME } from "@/stores/cargosStore"
-import UserStore, { USER_ROLE_MANAGER, UserOfDB, USERS_DB_COLLECTION_NAME } from "@/stores/userStore"
+import CargosStore, { CARGOS_DB_COLLECTION_NAME } from "@/stores/cargosStore"
+import UserStore, {
+  USER_ROLE_MANAGER,
+  UserOfDB,
+  USERS_DB_COLLECTION_NAME
+} from "@/stores/userStore"
 import ClientsStore from "@/stores/clientsStore"
-import NotificationsStore, { Notification, NOTIFICATION_DB_COLLECTION_NAME } from "@/stores/notificationsStore"
+import NotificationsStore, {
+  Notification,
+  NOTIFICATION_DB_COLLECTION_NAME
+} from "@/stores/notificationsStore"
 
 export const getServerSideProps = async (ctx: GetServerSidePropsContext) => {
   try {
     // if the user is authenticated
     const cookies = nookies.get(ctx)
-    console.log(JSON.stringify(cookies, null, 2))
+    // console.log('Home getServerSideProps in try 1', {
+    //   cookies: JSON.stringify(cookies, null, 2),
+    //   'cookies.token': cookies.token,
+    //   'typeof cookies.token': typeof cookies.token,
+    // })
     const currentFirebaseUser = await firebaseAdmin.auth().verifyIdToken(cookies.token)
 
     const db = firebaseAdmin.firestore()
     const usersRef = await db.collection(USERS_DB_COLLECTION_NAME)
 
-    const currentUserInDB: UserOfDB = await getUserFromDB({
+    const currentUserInDB: UserOfDB | void = await getUserFromDB({
       currentUserId: currentFirebaseUser.uid,
       usersRef
-    })
+    }).catch((error) => console.error('getUserFromDB error', error))
+
+    if (!currentUserInDB) return {
+      redirect: {
+        permanent: false,
+        destination: "/login",
+      },
+      // props: {
+      //   error: 'Failed to get user from database'
+      // }
+    }
 
     const isUserManager = currentUserInDB.role === USER_ROLE_MANAGER
 
@@ -56,8 +78,12 @@ export const getServerSideProps = async (ctx: GetServerSidePropsContext) => {
           userCodeId: currentUserInDB.userCodeId,
         }) : []
 
+    console.log('Home getServerSideProps in try 6', {
+      allCargos
+    })
     return {
       props: {
+        currentFirebaseUser,
         currentUser: {
           id: currentUserInDB.id,
           name: currentUserInDB.name,
@@ -79,7 +105,7 @@ export const getServerSideProps = async (ctx: GetServerSidePropsContext) => {
     // either the `token` cookie didn't exist
     // or token verification failed
     // either way: redirect to the login page
-    throw new Error(`${err}`)
+    // throw new Error(`${err}`)
 
     return {
       redirect: {
@@ -100,6 +126,7 @@ function Home ({
                  currentUser,
                  clients,
                  notifications,
+                 currentFirebaseUser,
                }: InferGetServerSidePropsType<typeof getServerSideProps>) {
   useEffect(() => {
     if (cargos?.length) CargosStore.setList(cargos)
@@ -133,8 +160,12 @@ function Home ({
   const socketInitializer = async () => {
     console.log('socketInitializer')
 
-    await fetch('/api/socket')
-    socket = io()
+    socket = io(SOCKET_SERVER_URL, {
+      path: SOCKET_SERVER_PATH,
+      query: {
+        userId: currentUser.id
+      }
+    })
 
     socket.on('connect', () => {
       console.log('connected, socket.id', socket.id)

@@ -64,7 +64,7 @@ export const getServerSideProps = async (ctx: GetServerSidePropsContext) => {
     // either the `token` cookie didn't exist
     // or token verification failed
     // either way: redirect to the login page
-    throw new Error(`${err}`)
+    console.error(`Profile page error: ${err}`)
 
     return {
       redirect: {

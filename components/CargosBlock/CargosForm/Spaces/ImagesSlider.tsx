@@ -19,9 +19,7 @@ export const ImagesSlider = ({
                                urls,
                                isCurrentUserManager,
                              }: ImagesSliderProps) => {
-  // console.log({
-  //   'ImagesSlider urls': urls
-  // })
+
   return (
     <>
       <Grid container spacing={GRID_SPACING}>

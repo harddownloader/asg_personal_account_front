@@ -8,7 +8,7 @@ import { observer } from "mobx-react-lite"
 
 // mui
 import AddIcon from '@mui/icons-material/Add'
-import { Avatar, Button, CardActions, CardContent, Divider, Grid, Menu, MenuItem, Typography } from "@mui/material"
+import { Button, Divider, Grid, Typography } from "@mui/material"
 import { useTheme } from "@mui/material/styles"
 
 // project components
@@ -21,17 +21,17 @@ import { GRID_SPACING } from "@/lib/const"
 
 // store
 import CargosStore, {
-  CARGO_RECEIVED_BY_CUSTOMER,
   CargoInterfaceFull
 } from '@/stores/cargosStore'
 import ClientsStore from "@/stores/clientsStore"
 
 export interface CargosListProps {
-  isLoading: boolean,
-  title?: string,
-  items: Array<CargoInterfaceFull>,
-  isCurrentUserManager: boolean,
-  isCurrentClientHasClientCode: boolean,
+  isLoading: boolean
+  title?: string
+  items: Array<CargoInterfaceFull>
+  isCurrentUserManager: boolean
+  isCurrentClientHasClientCode: boolean
+  showConfirmToLeave?: Function
 }
 
 export const CargosList = observer(({
@@ -40,6 +40,7 @@ export const CargosList = observer(({
                                       items,
                                       isCurrentUserManager,
                                       isCurrentClientHasClientCode,
+                                      showConfirmToLeave,
                            }: CargosListProps) => {
   const theme = useTheme()
 
@@ -90,10 +91,23 @@ export const CargosList = observer(({
   }, [isArchive])
 
   const selectCurrentCargoHandler = (cargo: CargoInterfaceFull) => {
+    const areFilesLoading = Boolean(CargosStore.cargos.notLoadedSpaces.numberOfPhotosCurrentlyBeingUploaded)
+    if (areFilesLoading && showConfirmToLeave) {
+      showConfirmToLeave(
+        setNewCurrentItem.bind(this, cargo),
+        () => { /* cancel... */ }
+      )
+
+      return
+    }
+
+    setNewCurrentItem(cargo)
+  }
+
+  const setNewCurrentItem = (cargo: CargoInterfaceFull) => {
     CargosStore.setCurrentItem({...cargo})
   }
 
-  console.log('CargosList', {cargos})
   return (
     <>
       <ScrollableBlock

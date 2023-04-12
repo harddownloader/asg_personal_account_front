@@ -19,7 +19,7 @@ import { fixMeInTheFuture } from "@/lib/types"
 // store
 import CargosStore, {
   CARGO_FIELD_NAMES,
-  statusOptions,
+  STATUS_OPTIONS,
   spaceItemType,
 } from "@/stores/cargosStore"
 
@@ -134,7 +134,7 @@ export const CargosForm = ({
               disabled={isDisabled}
               {...field}
             >
-              {statusOptions.map((person) => (
+              {STATUS_OPTIONS.map((person) => (
                 <MenuItem key={person.value} value={person.value}>
                   {person.text}
                 </MenuItem>

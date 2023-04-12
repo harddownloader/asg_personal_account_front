@@ -27,6 +27,7 @@ import { validateEmail } from "@/lib/validation/email"
 import { LoginFormData } from "@/pages/login"
 import { fixMeInTheFuture } from "@/lib/types"
 import { firebaseAuth, firebaseFirestore } from '@/lib/firebase/firebaseClient'
+import { SOCKET_SERVER_PATH, SOCKET_SERVER_URL } from "@/lib/const"
 
 import CargosStore from '@/stores/cargosStore'
 import NotificationsStore from '@/stores/notificationsStore'
@@ -351,9 +352,10 @@ class UserStore {
             return error
           })
 
-          const userRef = await doc(firebaseFirestore, USERS_DB_COLLECTION_NAME, firebaseAuth.currentUser.uid)
+          const currentUserId = firebaseAuth.currentUser.uid
+          const userRef = await doc(firebaseFirestore, USERS_DB_COLLECTION_NAME, currentUserId)
           const newUserData: UserOfDB = {
-            id: firebaseAuth.currentUser.uid,
+            id: currentUserId,
             name,
             phone,
             email,
@@ -368,7 +370,12 @@ class UserStore {
           ).then((docRef) => {
             console.log("Document written with ID: ", docRef)
 
-            socket = io()
+            socket = io(SOCKET_SERVER_URL, {
+              path: SOCKET_SERVER_PATH,
+              query: {
+                userId: currentUserId
+              }
+            })
 
             socket.on('connect', () => {
               console.log('socket connected from register method')

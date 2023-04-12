@@ -1,6 +1,5 @@
-import React, { ReactElement, useState, useMemo, useEffect, ChangeEvent } from "react"
+import React, { useMemo, ChangeEvent } from "react"
 import { useFieldArray } from "react-hook-form"
-import { v4 as uuidv4 } from 'uuid'
 import { observer } from "mobx-react-lite"
 
 // mui
@@ -11,16 +10,24 @@ import TextField from "@mui/material/TextField"
 // project components
 import { ImageUpload } from "@/components/CargosBlock/CargosForm/Spaces/ImageUpload/ImageUpload"
 import ImagesSlider from "@/components/CargosBlock/CargosForm/Spaces/ImagesSlider"
+import { CloseSpaceBtn } from "@/components/CargosBlock/CargosForm/Spaces/CloseSpaceBtn"
+import { Preloader } from "@/components/ui-component/Preloader"
 
 // utils
 import { GRID_SPACING } from "@/lib/const"
 import { fixMeInTheFuture } from "@/lib/types"
 
 // assets
-import CloseIcon from '@mui/icons-material/Close'
+import DataUsageIcon from '@mui/icons-material/DataUsage'
 
 // store
-import CargosStore, { CARGO_FIELD_NAMES, spaceItemType, UploadImageType } from "@/stores/cargosStore"
+import CargosStore, {
+  CARGO_FIELD_NAMES,
+  spaceItemIdType,
+  spaceItemType,
+  UploadImageType,
+  addPhotoSpaceInfoArgs
+} from "@/stores/cargosStore"
 import ClientsStore from "@/stores/clientsStore"
 
 export interface SpaceProps {
@@ -77,7 +84,8 @@ export const Spaces = observer(({
     [ClientsStore.clients?.currentItem?.id]
   )
 
-  const notLoadedSpacesSrt = JSON.stringify(CargosStore.cargos.notLoadedSpaces)
+  const notLoadedSpacesSrt = JSON.stringify(CargosStore.cargos.notLoadedSpaces.list)
+  const areFilesLoading = Boolean(CargosStore.cargos.notLoadedSpaces.numberOfPhotosCurrentlyBeingUploaded)
   const currentUploadingFiles: Array<UploadImageType> = useMemo(
     () => {
       const filterCallback = (space: spaceItemType) => (
@@ -85,7 +93,7 @@ export const Spaces = observer(({
         (() => isItEditForm ? space.cargoId === currentCargo?.cargoId : true)()
       )
       const reduceCallback = (accumulator: Array<UploadImageType>, space: spaceItemType) => accumulator.concat(space.photos)
-      return CargosStore.cargos.notLoadedSpaces.filter(filterCallback).reduce(reduceCallback, [])
+      return CargosStore.cargos.notLoadedSpaces.list.filter(filterCallback).reduce(reduceCallback, [])
     },
     [notLoadedSpacesSrt])
 
@@ -144,18 +152,14 @@ export const Spaces = observer(({
     CargosStore.removeSpace(removeSpaceArgs)
   }
 
-  const addPhotoHandler = (index: number) => {
+  const addPhotoHandler = (index: number, spaceID: spaceItemIdType) => {
     if (!clientId) {
       console.warn('clientId not found')
       return
     }
-    const spaceInfoArgs: {
-      spaceIndex: number,
-      clientId: string,
-      cargoId?: string,
-      isItEditForm: boolean
-    } = {
+    const spaceInfoArgs: addPhotoSpaceInfoArgs = {
       spaceIndex: index,
+      spaceID,
       clientId,
       isItEditForm,
     }
@@ -313,6 +317,10 @@ export const Spaces = observer(({
     )
   }
 
+  const getCurrentUploadingFiles = (photos: UploadImageType[], index: number) => {
+    return photos.filter((photo) => photo.spaceIndex === index)
+  }
+
   return (
     <>
       <Grid item lg={12} md={12} sm={12} xs={12}>
@@ -332,14 +340,10 @@ export const Spaces = observer(({
               <Grid item lg={12} md={12} sm={12} xs={12}>
                 <div className={"flex justify-between items-center border border-solid border-brand p-2 text-center w-full"}>
                   <span className={"font-semibold px-2 py-1"}>Место {index+1}</span>
-                  {isCurrentUserManager && <Button
-                    onClick={(e) => removeSpaceHandler(index)}
-                    className={"min-w-fit"}
-                  >
-                    <CloseIcon
-                      className={"text-brand"}
-                    />
-                  </Button>}
+                  {areFilesLoading ? <Preloader IconComponent={DataUsageIcon} /> : <CloseSpaceBtn
+                    isCurrentUserManager={isCurrentUserManager}
+                    onClickHandler={() => removeSpaceHandler(index)}
+                  />}
                 </div>
               </Grid>
               <Grid item lg={6} md={6} sm={6} xs={12}>
@@ -359,8 +363,8 @@ export const Spaces = observer(({
                 <>
                   <Grid item lg={12} md={12} sm={12} xs={12}>
                     <ImageUpload
-                      addPhotoHandler={addPhotoHandler.call(this, index)}
-                      currentUploadingFiles={space.photos.filter((photo) => photo.spaceIndex === index) || []}
+                      addPhotoHandler={addPhotoHandler.call(this, index, spaceID)}
+                      currentUploadingFiles={getCurrentUploadingFiles(space.photos, index)}
                     />
                   </Grid>
                 </>
