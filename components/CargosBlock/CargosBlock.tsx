@@ -21,7 +21,7 @@ import { fixMeInTheFuture } from '@/lib/types'
 // store
 import CargosStore from '@/stores/cargosStore'
 import ClientsStore from "@/stores/clientsStore"
-import UserStore, { USER_ROLE_MANAGER } from "@/stores/userStore"
+import UserStore, { USER_ROLE } from "@/stores/userStore"
 
 export interface CargosBlockProps {
 
@@ -35,7 +35,7 @@ export const CargosBlock = observer(({}: CargosBlockProps) => {
 
   }, [])
 
-  const isManager = Boolean(UserStore.user.currentUser?.role === USER_ROLE_MANAGER)
+  const isManager = Boolean(UserStore.user.currentUser?.role === USER_ROLE.MANAGER)
 
   // @ts-ignore
   const ClientsListWithConfirm: React.FunctionComponent<ClientsListProps> = ConfirmToLeave(ClientsList)
@@ -50,7 +50,7 @@ export const CargosBlock = observer(({}: CargosBlockProps) => {
             {isManager && <Grid item lg={4} md={6} sm={6} xs={12}>
               <ClientsListWithConfirm
                 isLoading={isLoading}
-                title={"Список клиентов"}
+                title={"Грузы по клиентом"}
               />
             </Grid>}
             <Grid item lg={4} md={6} sm={6} xs={12}>
