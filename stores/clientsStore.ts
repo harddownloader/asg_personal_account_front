@@ -1,9 +1,15 @@
 import { makeAutoObservable } from "mobx"
-import {collection, doc, query, updateDoc, where} from "firebase/firestore"
-import {updateEmail, updateProfile} from "firebase/auth"
-import {SaveClientProfileInterface, UserOfDB, UserSavingResponse} from "@/stores/userStore"
-import {validateEmail} from "@/lib/validation/email"
-import {firebaseAuth, firebaseFirestore} from "@/lib/firebase"
+import {
+  SaveClientProfileInterface,
+  UserOfDB,
+  UserSavingResponse
+} from "@/stores/userStore"
+import { firebaseAuth } from "@/lib/firebase"
+
+// helpers
+import {
+  checkEditClientByManagerFields
+} from "@/stores/userStore/helpers/validation"
 
 export interface ClientsState {
   items: Array<UserOfDB>,
@@ -53,25 +59,13 @@ class ClientsStore {
       }
     }
 
-    if (!name || name.length < 2) {
-      response.data.accountSaving.errors.push({
-        field: 'name',
-        message: 'Введите имя'
-      })
-    }
-    if (!phone || phone.length < 5) {
-      response.data.accountSaving.errors.push({
-        field: 'phone',
-        message: 'Не валидный телефон'
-      })
-    }
-    if (!email || !validateEmail(email)) {
-      response.data.accountSaving.errors.push({
-        field: 'email',
-        message: 'Не валидный email'
-      })
-    }
-
+    checkEditClientByManagerFields({
+      name,
+      phone,
+      email,
+      city,
+      responseErrorsArray: response.data.accountSaving.errors,
+    })
 
     if (!response.data.accountSaving.errors.length) {
       try {
