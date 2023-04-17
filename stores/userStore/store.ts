@@ -1,141 +1,57 @@
 import { makeAutoObservable } from "mobx"
-import { io } from "socket.io-client"
+import { firebaseAuth, firebaseFirestore } from "@/lib/firebase"
 import {
   createUserWithEmailAndPassword,
-  onAuthStateChanged,
   signInWithEmailAndPassword,
-  sendEmailVerification,
-  updateProfile,
-  User as FirebaseUser,
-  signOut, getAuth,
+  signOut,
   updatePassword,
-  updateEmail,
-} from 'firebase/auth'
-import {
-  getFirestore,
-  doc,
-  setDoc,
-  updateDoc,
-  collection,
-  addDoc,
-  query,
-  where,
-} from "firebase/firestore"
+  updateProfile,
+} from "firebase/auth"
+import { doc, setDoc } from "firebase/firestore"
+import { io } from "socket.io-client"
 
 // utils
-import { validateEmail } from "@/lib/validation/email"
-import { LoginFormData } from "@/pages/login"
-import { fixMeInTheFuture } from "@/lib/types"
-import { firebaseAuth, firebaseFirestore } from '@/lib/firebase/firebaseClient'
 import { SOCKET_SERVER_PATH, SOCKET_SERVER_URL } from "@/lib/const"
 
-import CargosStore from '@/stores/cargosStore'
-import NotificationsStore from '@/stores/notificationsStore'
+// helpers
+import {
+  checkContactUserDataFields,
+  checkNewPasswordFields,
+  checkRegistrationFields,
+} from "@/stores/userStore/helpers/validation"
 
-export const USERS_DB_COLLECTION_NAME: string = 'users'
+// types
+import type {
+  LoginResponse,
+  RegisterResponse,
+  RegisterUserData,
+  UserOfDB,
+  UserPasswordSavingResponse,
+  UserSecurityDataForSaving,
+  UserStoreInterface,
+  UserSavingResponse,
+} from "./types"
+import type { LoginFormData } from "@/pages/login"
+import type { fixMeInTheFuture } from "@/lib/types"
+import { saveContactUserDataArgs } from "@/stores/userStore/types/profile/profile"
 
-enum UserRoleEnum {
-  CLIENT = 0,
-  MANAGER = 1,
-}
+// const
+import {
+  USERS_DB_COLLECTION_NAME,
+  USER_ROLE,
+  USER_DEFAULT_VALUES,
+} from "@/stores/userStore/const"
 
-export const USER_ROLE_CLIENT = UserRoleEnum.CLIENT
-export const USER_ROLE_MANAGER = UserRoleEnum.MANAGER
+// stores
+import CargosStore from "@/stores/cargosStore"
+import NotificationsStore from "@/stores/notificationsStore"
 
-export type UserRole = UserRoleEnum
-
-export interface UserInterface {
-  name: string,
-  email: string,
-  phone: string
-}
-
-export type UserIdType = string
-export type UserCodeIdType = string | null
-export type UserCityType = string | null
-
-export interface UserOfDB extends UserInterface {
-  id: UserIdType
-  userCodeId: UserCodeIdType,
-  city: UserCityType,
-  role: UserRole
-}
-
-export interface RegisterUserData extends UserInterface {
-  password: string,
-  repeatPassword: string,
-}
-
-export interface SaveClientProfileInterface extends UserInterface {
-  id: UserIdType
-  userCodeId: UserCodeIdType,
-  city: UserCityType,
-}
-
-export interface UserSecurityDataForSaving {
-  id: UserIdType
-  currentPassword: string,
-  newPassword: string,
-  repeatNewPassword: string
-}
-
-// responses structures
-export type RegisterResponse = {
-  data: {
-    accountRegister: {
-      errors: Array<{
-        field: string,
-        message: string
-      }>
-      currentUser?: FirebaseUser
-    }
-  }
-}
-
-export type UserSavingResponse = {
-  data: {
-    accountSaving: {
-      errors: Array<{
-        field: string,
-        message: string
-      }>
-      currentUser?: FirebaseUser
-    }
-  }
-}
-
-export type LoginResponse = {
-  data: {
-    tokenCreate: {
-      errors: Array<{
-        field: string,
-        message: string
-      }>
-      currentUser?: FirebaseUser
-    }
-  }
-}
-
-const userDefaultValues = {
-  id: '',
-  name: '',
-  email: '',
-  phone: '',
-  city: null,
-  role: USER_ROLE_CLIENT,
-  userCodeId: null
-}
-
-export interface UserStoreInterface {
-  currentUser: UserOfDB
-  isLoading: boolean
-}
 
 let socket: fixMeInTheFuture
 
-class UserStore {
+export class UserStore {
   user: UserStoreInterface = {
-    currentUser: {...userDefaultValues},
+    currentUser: {...USER_DEFAULT_VALUES},
     isLoading: false,
   }
 
@@ -163,11 +79,12 @@ class UserStore {
     }
   }
 
-  saveNewPassword = async ({
-                             currentPassword,
-                             newPassword,
-                             repeatNewPassword,
-                           }: UserSecurityDataForSaving): Promise<UserSavingResponse> => {
+  saveContactUserData = async ({
+                                  name,
+                                  phone,
+                                  email,
+                                  city,
+                               }: saveContactUserDataArgs) => {
     const response: UserSavingResponse = {
       data: {
         accountSaving: {
@@ -176,24 +93,36 @@ class UserStore {
       }
     }
 
-    if (!currentPassword || currentPassword.length < 8) {
-      response.data.accountSaving.errors.push({
-        field: 'currentPassword',
-        message: 'Текущий пароль введен не корректно'
-      })
+    checkContactUserDataFields({
+      name,
+      phone,
+      email,
+      city,
+      responseErrorsArray: response.data.accountSaving.errors,
+    })
+
+    return response
+  }
+
+  saveNewPassword = async ({
+                             currentPassword,
+                             newPassword,
+                             repeatNewPassword,
+                           }: UserSecurityDataForSaving): Promise<UserPasswordSavingResponse> => {
+    const response: UserPasswordSavingResponse = {
+      data: {
+        accountSaving: {
+          errors: []
+        }
+      }
     }
-    if (!newPassword || newPassword.length < 8) {
-      response.data.accountSaving.errors.push({
-        field: 'newPassword',
-        message: 'Пароль должен быть от 8 символов'
-      })
-    }
-    if (newPassword !== repeatNewPassword) {
-      response.data.accountSaving.errors.push({
-        field: 'repeatNewPassword',
-        message: 'Пароли не совпадают'
-      })
-    }
+
+    checkNewPasswordFields({
+      currentPassword,
+      newPassword,
+      repeatNewPassword,
+      responseErrorsArray: response.data.accountSaving.errors,
+    })
 
     if (!response.data.accountSaving.errors.length) {
       try {
@@ -263,36 +192,14 @@ class UserStore {
       }
     }
 
-    if (!name || name.length < 2) {
-      response.data.accountRegister.errors.push({
-        field: 'name',
-        message: 'Введите имя'
-      })
-    }
-    if (!phone || phone.length < 5) {
-      response.data.accountRegister.errors.push({
-        field: 'phone',
-        message: 'Не валидный телефон'
-      })
-    }
-    if (!email || !validateEmail(email)) {
-      response.data.accountRegister.errors.push({
-        field: 'email',
-        message: 'Не валидный email'
-      })
-    }
-    if (!password || password.length < 8) {
-      response.data.accountRegister.errors.push({
-        field: 'password',
-        message: 'Пароль должен быть от 8 символов'
-      })
-    }
-    if (password !== repeatPassword) {
-      response.data.accountRegister.errors.push({
-        field: 'repeatPassword',
-        message: 'Пароли не совпадают'
-      })
-    }
+    checkRegistrationFields({
+      name,
+      phone,
+      email,
+      password,
+      repeatPassword,
+      responseErrorsArray: response.data.accountRegister.errors
+    })
 
     if (!response.data.accountRegister.errors.length) {
       try {
@@ -338,7 +245,7 @@ class UserStore {
             firebaseAuth.currentUser,
             { displayName: name }
           ).then((updateProfileRes) => {
-            //  update user store
+            // update user store
             console.log({updateProfileRes})
 
             return updateProfileRes
@@ -361,7 +268,7 @@ class UserStore {
             email,
             userCodeId: null,
             city: null,
-            role: USER_ROLE_CLIENT
+            role: USER_ROLE.CLIENT
           }
           await setDoc(
             userRef,
@@ -415,7 +322,7 @@ class UserStore {
   logout() {
     return signOut(firebaseAuth).then((result) => {
       this.user.currentUser = {
-        ...userDefaultValues
+        ...USER_DEFAULT_VALUES
       }
       // clear cargos
       CargosStore.clearAll()
@@ -427,5 +334,3 @@ class UserStore {
     })
   }
 }
-
-export default new UserStore()
