@@ -19,7 +19,7 @@ import { SOCKET_SERVER_URL, SOCKET_SERVER_PATH } from "@/lib/const"
 // store
 import CargosStore, { CARGOS_DB_COLLECTION_NAME } from "@/stores/cargosStore"
 import UserStore, {
-  USER_ROLE_MANAGER,
+  USER_ROLE,
   UserOfDB,
   USERS_DB_COLLECTION_NAME
 } from "@/stores/userStore"
@@ -58,7 +58,7 @@ export const getServerSideProps = async (ctx: GetServerSidePropsContext) => {
       // }
     }
 
-    const isUserManager = currentUserInDB.role === USER_ROLE_MANAGER
+    const isUserManager = currentUserInDB.role === USER_ROLE.MANAGER
 
     const notificationsRef = await db.collection(NOTIFICATION_DB_COLLECTION_NAME)
     const notifications: Array<Notification> = await getNotifications({
@@ -177,7 +177,7 @@ function Home ({
       console.log('disconnect socket.id', socket.id) // undefined
     })
 
-    if (currentUser.role === USER_ROLE_MANAGER) socket.on('newUser', (notifications: Array<Notification>) => {
+    if (currentUser.role === USER_ROLE.MANAGER) socket.on('newUser', (notifications: Array<Notification>) => {
       console.log({ notifications })
       notificationAudioPlay()
 
