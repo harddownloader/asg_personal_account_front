@@ -48,14 +48,17 @@ export const CargosList = observer(({
     () => ([...CargosStore.cargos.currentItemsList]),
     [JSON.stringify([CargosStore.cargos.currentItemsList])]
   )
-  const isArchive = useMemo(
-    () => (CargosStore.cargos.isCurrentItemsListArchive),
-    [JSON.stringify([CargosStore.cargos.isCurrentItemsListArchive])]
-  )
+  const isArchive = CargosStore.cargos.isCurrentItemsListArchive
   const [isOpenAddModal, setIsOpenAddModal] = useState<boolean>(false)
 
   useEffect(() => {
-   if (!isCurrentUserManager && isCurrentClientHasClientCode) archiveItemsToggle(false)
+   if (
+     !isCurrentUserManager &&
+     isCurrentClientHasClientCode &&
+     !CargosStore.cargos.currentItemsList.length
+   ) {
+     archiveItemsToggle(false)
+   }
   }, [isCurrentClientHasClientCode])
 
   const archiveItemsToggle = (status: boolean): void => {
