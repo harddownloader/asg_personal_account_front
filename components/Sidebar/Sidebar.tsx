@@ -1,26 +1,20 @@
-// import PropTypes from 'prop-types'
-
 // mui
 import { useTheme } from '@mui/material/styles'
 import { Box, Drawer, useMediaQuery } from '@mui/material'
 
-// third-party
-// import PerfectScrollbar from 'react-perfect-scrollbar'
-// import { BrowserView, MobileView } from 'react-device-detect'
-
 // project components
 import { MenuList } from './MenuList'
-import { MenuCard } from './MenuCard'
-import { DRAWER_WIDTH } from '@/lib/const'
 import { LogoSection } from "@/components/LogoSection"
 
-// Sidebar.propTypes = {
-//   drawerOpen: PropTypes.bool,
-//   drawerToggle: PropTypes.func,
-//   window: PropTypes.object
-// }
+// utils
+import { DRAWER_WIDTH } from '@/lib/const'
 
-export const Sidebar = ({ drawerOpen, drawerToggle, window }: any) => {
+export interface SidebarProps {
+  drawerOpen: boolean
+  drawerToggle: () => void
+}
+
+export const Sidebar = ({ drawerOpen, drawerToggle }: SidebarProps) => {
   const theme = useTheme()
   const matchUpMd = useMediaQuery(theme.breakpoints.up('md'))
 
@@ -31,34 +25,20 @@ export const Sidebar = ({ drawerOpen, drawerToggle, window }: any) => {
           <LogoSection />
         </Box>
       </Box>
-      {/*<BrowserView>*/}
-        {/*<PerfectScrollbar*/}
-        {/*  component="div"*/}
-        {/*  style={{*/}
-        {/*    height: !matchUpMd ? 'calc(100vh - 56px)' : 'calc(100vh - 88px)',*/}
-        {/*    paddingLeft: '16px',*/}
-        {/*    paddingRight: '16px'*/}
-        {/*  }}*/}
-        {/*>*/}
-          <MenuList />
-          {/*<MenuCard />*/}
-        {/*</PerfectScrollbar>*/}
-      {/*</BrowserView>*/}
-      {/*<MobileView>*/}
-      {/*  <Box sx={{ px: 2 }}>*/}
-      {/*    <MenuList />*/}
-      {/*    <MenuCard />*/}
-      {/*  </Box>*/}
-      {/*</MobileView>*/}
+      <MenuList />
     </>
   )
 
-  const container = window !== undefined ? () => window.document.body : undefined
-
   return (
-    <Box component="nav" sx={{ flexShrink: { md: 0 }, width: matchUpMd ? DRAWER_WIDTH : 'auto' }} aria-label="mailbox folders">
+    <Box
+      component="nav"
+      sx={{
+        flexShrink: { md: 0 },
+        width: matchUpMd ? DRAWER_WIDTH : 'auto'
+      }}
+      aria-label="mailbox folders"
+    >
       <Drawer
-        container={container}
         variant={matchUpMd ? 'persistent' : 'temporary'}
         anchor="left"
         open={drawerOpen}
