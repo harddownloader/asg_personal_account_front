@@ -84,6 +84,8 @@ export class UserStore {
                                   phone,
                                   email,
                                   city,
+                                  id,
+                                  userCodeId,
                                }: saveContactUserDataArgs) => {
     const response: UserSavingResponse = {
       data: {
@@ -101,6 +103,30 @@ export class UserStore {
       responseErrorsArray: response.data.accountSaving.errors,
     })
 
+    if (!response.data.accountSaving.errors.length && firebaseAuth.currentUser) {
+      this.user.isLoading = true
+      const updatedUserData = await fetch("/api/userProfile", {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        credentials: "same-origin",
+        body: JSON.stringify({
+          name,
+          phone,
+          email,
+          city,
+          userCodeId,
+          id
+        })
+      })
+      .then((response) => response.json())
+      .then((res) => res)
+      .finally(() => {
+        this.user.isLoading = false
+      })
+    }
+
     return response
   }
 
@@ -116,29 +142,40 @@ export class UserStore {
         }
       }
     }
+    this.user.isLoading = true
 
-    checkNewPasswordFields({
+    await checkNewPasswordFields({
       currentPassword,
       newPassword,
       repeatNewPassword,
       responseErrorsArray: response.data.accountSaving.errors,
     })
 
-    if (!response.data.accountSaving.errors.length) {
+    if (
+      !response.data.accountSaving.errors.length &&
+      firebaseAuth.currentUser &&
+      newPassword
+    ) {
       try {
-        if (firebaseAuth.currentUser) {
-          if (newPassword) await updatePassword(firebaseAuth.currentUser, newPassword).then(() => {
-            // Update successful.
-            console.log('password was changed')
-          }).catch((error) => {
-            // An error ocurred
-            console.error('password wasn\'t changed')
+        await updatePassword(firebaseAuth.currentUser, newPassword).then(() => {
+          // Update successful.
+          console.log('password was changed')
+        }).catch((error) => {
+          // An error occurred
+          console.error(`password wasn\'t changed, Error: ${error}`, {error})
+          response.data.accountSaving.errors.push({
+            field: 'server.firebase',
+            message: error.code
           })
-        }
-      } catch (err) {
-        console.error(`Some request was failed, error: ${err}`);
+        }).finally(() => {
+          this.user.isLoading = false
+        })
+      } catch (error) {
+        this.user.isLoading = false
+        console.error(`Some request was failed, Error: ${error}`, {error})
       }
     } else {
+      this.user.isLoading = false
       response.data.accountSaving.errors.push({
         field: 'server',
         message: `firebaseAuth.currentUser is not exists`

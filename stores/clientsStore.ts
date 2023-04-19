@@ -72,7 +72,7 @@ class ClientsStore {
         if (firebaseAuth.currentUser) {
           this.clients.isLoading = true
           const updatedUserData = await fetch("/api/userProfile", {
-            method: 'POST',
+            method: 'PUT',
             headers: {
               'Content-Type': 'application/json',
             },
@@ -110,7 +110,7 @@ class ClientsStore {
 
       } catch (err) {
         this.clients.isLoading = false
-        console.error(`Some request was failed, error: ${err}`);
+        console.error(`Some request was failed, error: ${err}`)
       }
     }
 
