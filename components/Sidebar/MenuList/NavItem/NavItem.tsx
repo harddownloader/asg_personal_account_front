@@ -37,8 +37,8 @@ const NavItemComponent = ({ item, level }: NavItemProps) => {
   ) : (
     <FiberManualRecordIcon
       sx={{
-        width: MenuStore.menu.isOpen.findIndex((id) => id === item?.id) > -1 ? 8 : 6,
-        height: MenuStore.menu.isOpen.findIndex((id) => id === item?.id) > -1 ? 8 : 6
+        width: MenuStore.menu.openedIds.findIndex((id) => id === item?.id) > -1 ? 8 : 6,
+        height: MenuStore.menu.openedIds.findIndex((id) => id === item?.id) > -1 ? 8 : 6
       }}
       fontSize={level > 0 ? 'inherit' : 'medium'}
     />
@@ -69,6 +69,7 @@ const NavItemComponent = ({ item, level }: NavItemProps) => {
   }
 
   const itemHandler = (id: string) => {
+    console.log(`itemHandler ${id}`)
     MenuStore.setOpenMenuItem(id)
     if (matchesSM) MenuStore.toggleMenuStatus(false)
   }
@@ -79,7 +80,9 @@ const NavItemComponent = ({ item, level }: NavItemProps) => {
       .toString()
       .split('/')
       .findIndex((id) => id === item.id)
+    console.log('useEffect currentIndex', {currentIndex, 'item.id': item.id})
     if (currentIndex > -1) {
+      console.log(`useEffect ${item.id}`)
       MenuStore.setOpenMenuItem(item.id)
     }
   }, [])
@@ -98,7 +101,7 @@ const NavItemComponent = ({ item, level }: NavItemProps) => {
           py: level > 1 ? 1 : 1.25,
           pl: `${level * 24}px`
         }}
-        selected={MenuStore.menu.isOpen.findIndex((id) => id === item.id) > -1}
+        selected={MenuStore.menu.openedIds.findIndex((id) => id === item.id) > -1}
         onClick={() => itemHandler(item.id)}
       >
         <ListItemIcon
@@ -111,7 +114,7 @@ const NavItemComponent = ({ item, level }: NavItemProps) => {
         <ListItemText
           primary={
             <Typography
-              variant={MenuStore.menu.isOpen.findIndex((id) => id === item.id) > -1 ? 'h5' : 'body1'}
+              variant={MenuStore.menu.openedIds.findIndex((id) => id === item.id) > -1 ? 'h5' : 'body1'}
               color="inherit"
             >
               {item.title}

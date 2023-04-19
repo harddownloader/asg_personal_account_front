@@ -10,24 +10,24 @@ const pages = {
     type: 'group',
     children: [
       {
-        id: 'profile',
+        id: 'user_profile',
         title: 'Мои профиль',
         type: 'collapse',
         icon: IconUserCircle,
-        url: '/profile',
+        url: '/user_profile',
         children: [
           {
-            id: 'profile_contacts',
+            id: 'profile',
             title: 'Контактная информация',
             type: 'item',
-            url: '/profile/profile',
+            url: '/user_profile/profile',
             target: false
           },
           {
-            id: 'profile_security',
+            id: 'security',
             title: 'Безопастность',
             type: 'item',
-            url: '/profile/security',
+            url: '/user_profile/security',
             target: false
           }
         ]
