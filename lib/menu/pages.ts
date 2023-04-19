@@ -16,12 +16,27 @@ const pages = {
     type: 'group',
     children: [
       {
-          id: 'profile',
-          title: 'Мои профиль',
-          type: 'item',
-          icon: icons.IconUserCircle,
-          url: '/profile',
-          target: false,
+        id: 'profile',
+        title: 'Мои профиль',
+        type: 'collapse',
+        icon: icons.IconUserCircle,
+        url: '/profile',
+        children: [
+          {
+            id: 'profile_contacts',
+            title: 'Контактная информация',
+            type: 'item',
+            url: '/profile/profile',
+            target: false
+          },
+          {
+            id: 'profile_security',
+            title: 'Безопастность',
+            type: 'item',
+            url: '/profile/security',
+            target: false
+          }
+        ]
       },
       {
         id: 'cargos',
