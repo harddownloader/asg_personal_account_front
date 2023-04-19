@@ -104,31 +104,12 @@ export const checkPassword = ({
   }
 }
 
-// const reauthenticate = (currentPassword: passwordType) => {
-//   const currentUser = firebaseAuth?.currentUser
-//   if (!currentUser || currentUser?.email !== null) return
-//   const { email } = currentUser
-//   const credential = EmailAuthProvider.credential(
-//     currentUser.email, currentPassword
-//   )
-//
-//   return reauthenticateWithCredential(firebaseAuth.currentUser, credential)
-// }
-
 export const checkPasswordByReAuthentication = async ({
                                                   password,
                                                   responseErrorsArray,
                                                   fieldName,
                                                   errorMessage,
                                 }: commonArgsForCheckType & { password: passwordType }) => {
-  // reauthenticate = (currentPassword: passwordType) => {
-  //   const { email } = firebaseAuth.currentUser
-  //   const credential = EmailAuthProvider.credential(
-  //     email, currentPassword
-  //   )
-  //
-  //   return reauthenticateWithCredential(firebaseAuth.currentUser, credential)
-  // }
   if (!firebaseAuth.currentUser || !firebaseAuth.currentUser?.email) return
   const { email } = firebaseAuth.currentUser
   const credential = EmailAuthProvider.credential(

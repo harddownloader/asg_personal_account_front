@@ -14,6 +14,7 @@ import {
   checkCargoCost,
   checkCargoShippingData,
   checkCargoId,
+  checkPasswordByReAuthentication,
 } from "@/stores/helpers/validation/fields/conditions"
 
 // types
@@ -79,7 +80,7 @@ export const checkContactUserDataFields = ({
   })
 }
 
-export const checkNewPasswordFields = ({
+export const checkNewPasswordFields = async ({
                                   currentPassword,
                                   newPassword,
                                   repeatNewPassword,
@@ -90,21 +91,28 @@ export const checkNewPasswordFields = ({
   repeatNewPassword: passwordType
   responseErrorsArray: responseFieldErrorsArray
 }) => {
-  checkPassword({
+  await checkPassword({
     password: currentPassword,
     responseErrorsArray: responseErrorsArray,
     fieldName: 'currentPassword',
     errorMessage: 'Текущий пароль введен не корректно'
   })
 
-  checkPassword({
+  await checkPasswordByReAuthentication({
+    password: currentPassword,
+    responseErrorsArray: responseErrorsArray,
+    fieldName: 'currentPassword',
+    errorMessage: 'Текущий пароль введен не верно'
+  })
+
+  await checkPassword({
     password: newPassword,
     responseErrorsArray: responseErrorsArray,
     fieldName: 'newPassword',
     errorMessage: 'Пароль должен быть от 8 символов'
   })
 
-  checkRepeatPassword({
+  await checkRepeatPassword({
     password: newPassword,
     repeatPassword: repeatNewPassword,
     responseErrorsArray: responseErrorsArray,
@@ -152,7 +160,7 @@ export const checkRegistrationFields = ({
   checkPassword({
     password,
     responseErrorsArray: responseErrorsArray,
-    fieldName: 'currentPassword',
+    fieldName: 'password',
     errorMessage: 'Пароль должен быть от 8 символов'
   })
 
@@ -160,7 +168,7 @@ export const checkRegistrationFields = ({
     password,
     repeatPassword,
     responseErrorsArray: responseErrorsArray,
-    fieldName: 'repeatNewPassword',
+    fieldName: 'repeatPassword',
     errorMessage: 'Пароли не совпадают'
   })
 }
