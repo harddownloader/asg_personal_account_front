@@ -1,13 +1,19 @@
 // @ts-nocheck
-// import PropTypes from 'prop-types'
 import { forwardRef, useEffect } from 'react'
 import Link from 'next/link'
-import {observer} from "mobx-react-lite"
-
+import { observer } from "mobx-react-lite"
 
 // mui
 import { useTheme } from '@mui/material/styles'
-import { Avatar, Chip, ListItemButton, ListItemIcon, ListItemText, Typography, useMediaQuery } from '@mui/material'
+import {
+  Avatar,
+  Chip,
+  ListItemButton,
+  ListItemIcon,
+  ListItemText,
+  Typography,
+  useMediaQuery
+} from '@mui/material'
 
 // store
 import MenuStore from '@/stores/menuStore'
@@ -87,6 +93,7 @@ const NavItemComponent = ({ item, level }: NavItemProps) => {
           borderRadius: `4px`,
           mb: 0.5,
           alignItems: 'flex-start',
+          color: level > 1 ? `${theme.palette.primary.main} !important` : 'inherit',
           backgroundColor: level > 1 ? 'transparent !important' : 'inherit',
           py: level > 1 ? 1 : 1.25,
           pl: `${level * 24}px`
@@ -95,7 +102,11 @@ const NavItemComponent = ({ item, level }: NavItemProps) => {
         onClick={() => itemHandler(item.id)}
       >
         <ListItemIcon
-          sx={{ my: 'auto', minWidth: !item?.icon ? 18 : 36 }}
+          sx={{
+            my: 'auto',
+            minWidth: !item?.icon ? 18 : 36,
+            color: level > 1 ? `${theme.palette.primary.main} !important` : 'inherit'
+          }}
         >{itemIcon}</ListItemIcon>
         <ListItemText
           primary={
