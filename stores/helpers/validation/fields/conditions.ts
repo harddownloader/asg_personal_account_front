@@ -1,3 +1,5 @@
+import { EmailAuthProvider, reauthenticateWithCredential } from "firebase/auth"
+import { validateEmail } from "@/lib/validation/email"
 import { responseFieldErrorsArray } from "@/lib/types"
 import {
   UserEmail,
@@ -6,7 +8,6 @@ import {
   passwordType,
   UserCityType
 } from "@/stores/userStore/types"
-import { validateEmail } from "@/lib/validation/email"
 import {
   CargoClientCodeType,
   CargoCostOfDeliveryType,
@@ -18,6 +19,7 @@ import {
   CargoShippingDateType,
   CargoStatusType,
 } from "@/stores/cargosStore/types"
+import { firebaseAuth } from "@/lib/firebase"
 
 // export const getNameCondition = (name: string) => !name || name.length < 2
 //
@@ -102,6 +104,50 @@ export const checkPassword = ({
   }
 }
 
+// const reauthenticate = (currentPassword: passwordType) => {
+//   const currentUser = firebaseAuth?.currentUser
+//   if (!currentUser || currentUser?.email !== null) return
+//   const { email } = currentUser
+//   const credential = EmailAuthProvider.credential(
+//     currentUser.email, currentPassword
+//   )
+//
+//   return reauthenticateWithCredential(firebaseAuth.currentUser, credential)
+// }
+
+export const checkPasswordByReAuthentication = async ({
+                                                  password,
+                                                  responseErrorsArray,
+                                                  fieldName,
+                                                  errorMessage,
+                                }: commonArgsForCheckType & { password: passwordType }) => {
+  // reauthenticate = (currentPassword: passwordType) => {
+  //   const { email } = firebaseAuth.currentUser
+  //   const credential = EmailAuthProvider.credential(
+  //     email, currentPassword
+  //   )
+  //
+  //   return reauthenticateWithCredential(firebaseAuth.currentUser, credential)
+  // }
+  if (!firebaseAuth.currentUser || !firebaseAuth.currentUser?.email) return
+  const { email } = firebaseAuth.currentUser
+  const credential = EmailAuthProvider.credential(
+    email, password
+  )
+
+  const reauthenticateRes = await reauthenticateWithCredential(firebaseAuth.currentUser, credential)
+    .then((res) => {
+      console.log({res})
+      return res
+    }).catch((error) => {
+      console.warn('reauthenticateWithCredential catch error: ',{error})
+      responseErrorsArray.push({
+        field: fieldName,
+        message: errorMessage
+      })
+    })
+}
+
 export const checkRepeatPassword = ({
                                       password,
                                       repeatPassword,
@@ -126,7 +172,7 @@ export const checkCity = ({
                             fieldName,
                             errorMessage,
                           }: commonArgsForCheckType & { city: UserCityType }) => {
-  if (!city || city.length < 2) {
+  if (city && city.length < 2) {
     responseErrorsArray.push({
       field: fieldName,
       message: errorMessage
