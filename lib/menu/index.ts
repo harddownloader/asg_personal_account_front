@@ -14,6 +14,7 @@ export interface MenuItemInterface {
   url?: string
   breadcrumbs?: boolean
   icon?: ReactElement
+  caption?: string
 }
 
 export interface MenuItemsInterface {
