@@ -3,6 +3,8 @@ import {
   UserName,
   UserPhone,
   UserCityType,
+  UserIdType,
+  UserCodeIdType,
 } from "@/stores/userStore/types/user"
 
 export interface ProfileContacts {
@@ -13,5 +15,6 @@ export interface ProfileContacts {
 }
 
 export interface saveContactUserDataArgs extends ProfileContacts {
-
+  id: UserIdType
+  userCodeId: UserCodeIdType
 }
