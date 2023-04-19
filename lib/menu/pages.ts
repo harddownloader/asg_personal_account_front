@@ -1,12 +1,6 @@
 // assets
 import { IconBoxSeam, IconUserCircle } from '@tabler/icons-react'
 
-// constant
-const icons = {
-  IconBoxSeam,
-  IconUserCircle
-}
-
 // ==============================|| EXTRA PAGES MENU ITEMS ||============================== //
 
 const pages = {
@@ -19,7 +13,7 @@ const pages = {
         id: 'profile',
         title: 'Мои профиль',
         type: 'collapse',
-        icon: icons.IconUserCircle,
+        icon: IconUserCircle,
         url: '/profile',
         children: [
           {
@@ -42,7 +36,7 @@ const pages = {
         id: 'cargos',
         title: 'Мои грузы',
         type: 'item',
-        icon: icons.IconBoxSeam,
+        icon: IconBoxSeam,
         url: '/',
         target: false,
       },
