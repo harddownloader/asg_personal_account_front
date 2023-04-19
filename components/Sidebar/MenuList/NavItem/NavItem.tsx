@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { forwardRef, useEffect } from 'react'
 import Link from 'next/link'
 import { observer } from "mobx-react-lite"
@@ -52,6 +51,7 @@ const NavItemComponent = ({ item, level }: NavItemProps) => {
   const ListItemNextJSLinkComponent = forwardRef((props, ref) => (
     <Link href={item.url} passHref legacyBehavior>
       <a
+        // @ts-ignore
         ref={ref}
         {...props}
         href={item.url}
@@ -65,11 +65,11 @@ const NavItemComponent = ({ item, level }: NavItemProps) => {
   }
 
   if (item?.external) {
+    // @ts-ignore
     listItemProps = { component: 'a', href: item.url, target: itemTarget }
   }
 
   const itemHandler = (id: string) => {
-    console.log(`itemHandler ${id}`)
     MenuStore.setOpenMenuItem(id)
     if (matchesSM) MenuStore.toggleMenuStatus(false)
   }
@@ -80,9 +80,7 @@ const NavItemComponent = ({ item, level }: NavItemProps) => {
       .toString()
       .split('/')
       .findIndex((id) => id === item.id)
-    console.log('useEffect currentIndex', {currentIndex, 'item.id': item.id})
     if (currentIndex > -1) {
-      console.log(`useEffect ${item.id}`)
       MenuStore.setOpenMenuItem(item.id)
     }
   }, [])
@@ -124,6 +122,7 @@ const NavItemComponent = ({ item, level }: NavItemProps) => {
             item.caption && (
               <Typography
                 variant="caption"
+                // @ts-ignore
                 sx={{ ...theme.typography.subMenuCaption }}
                 display="block"
                 gutterBottom
