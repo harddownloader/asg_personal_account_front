@@ -1,5 +1,6 @@
 import React, {
   ReactElement,
+  useRef,
   useState,
 } from 'react'
 import { RegisterOptions, UseFormRegisterReturn } from 'react-hook-form'
@@ -24,9 +25,20 @@ export const PasswordField = ({
   label: string | null
   errorsFormJSX: ReactElement | null
 }) => {
-  const [showPassword, setShowPassword] = useState(false)
+  const [showPassword, setShowPassword] = useState<boolean>(false)
+  const fieldRef = useRef<HTMLInputElement>(null)
 
-  const handleClickShowPassword = () => setShowPassword((show) => !show)
+  const handleClickShowPassword = () => {
+    setShowPassword((show) => !show)
+
+    if (fieldRef?.current === null) return
+
+    setTimeout(() => {
+      fieldRef.current!.focus()
+      fieldRef.current!.selectionStart = fieldRef.current!.value.length
+      fieldRef.current!.selectionEnd = fieldRef.current!.value.length
+    }, 0)
+  }
 
   const handleMouseDownPassword = (event: React.MouseEvent<HTMLButtonElement>) => {
     event.preventDefault()
@@ -48,6 +60,7 @@ export const PasswordField = ({
         autoComplete="current-password"
         className={"bg-white rounded"}
         {...registerFormFunc}
+        inputRef={fieldRef}
         type={showPassword ? 'text' : 'password'}
         InputProps={{
           endAdornment: <InputAdornment position="end">
