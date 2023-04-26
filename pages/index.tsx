@@ -1,7 +1,6 @@
 import { ReactElement, useEffect } from "react"
 import { InferGetServerSidePropsType, GetServerSidePropsContext } from "next"
 import nookies from "nookies"
-import { io } from "socket.io-client"
 
 // project components
 import { AccountLayout } from "@/components/Layout"
@@ -12,9 +11,6 @@ import { getAllClients, getUserFromDB } from "@/lib/ssr/requests/getUsers"
 import { firebaseAdmin } from "@/lib/firebase/firebaseAdmin"
 import { getNotifications } from "@/lib/ssr/requests/notifications/getNotifications"
 import { getAllCargos, getCargosByClient } from "@/lib/ssr/requests/getCargos"
-import { fixMeInTheFuture } from "@/lib/types"
-import { notificationAudioPlay } from "@/lib/audio"
-import { SOCKET_SERVER_URL, SOCKET_SERVER_PATH } from "@/lib/const"
 
 // store
 import CargosStore, { CARGOS_DB_COLLECTION_NAME } from "@/stores/cargosStore"
@@ -33,11 +29,6 @@ export const getServerSideProps = async (ctx: GetServerSidePropsContext) => {
   try {
     // if the user is authenticated
     const cookies = nookies.get(ctx)
-    // console.log('Home getServerSideProps in try 1', {
-    //   cookies: JSON.stringify(cookies, null, 2),
-    //   'cookies.token': cookies.token,
-    //   'typeof cookies.token': typeof cookies.token,
-    // })
     const currentFirebaseUser = await firebaseAdmin.auth().verifyIdToken(cookies.token)
 
     const db = firebaseAdmin.firestore()
@@ -53,9 +44,6 @@ export const getServerSideProps = async (ctx: GetServerSidePropsContext) => {
         permanent: false,
         destination: "/login",
       },
-      // props: {
-      //   error: 'Failed to get user from database'
-      // }
     }
 
     const isUserManager = currentUserInDB.role === USER_ROLE.MANAGER
@@ -117,14 +105,11 @@ export const getServerSideProps = async (ctx: GetServerSidePropsContext) => {
   }
 }
 
-let socket: fixMeInTheFuture
-
 function Home ({
                  cargos,
                  currentUser,
                  clients,
                  notifications,
-                 currentFirebaseUser,
                }: InferGetServerSidePropsType<typeof getServerSideProps>) {
   useEffect(() => {
     if (cargos?.length) CargosStore.setList(cargos)
@@ -146,56 +131,6 @@ function Home ({
 
     if (notifications?.length) NotificationsStore.setList(notifications)
   })
-
-  useEffect(() => {
-    socketInitializer()
-
-    return () => {
-      console.log('unmount')
-    }
-  }, [])
-
-  const socketInitializer = async () => {
-    console.log('socketInitializer')
-
-    socket = io(SOCKET_SERVER_URL, {
-      path: SOCKET_SERVER_PATH,
-      query: {
-        userId: currentUser.id
-      }
-    })
-
-    socket.on('connect', () => {
-      console.log('connected, socket.id', socket.id)
-      socket.emit('connect user', {
-        socketId: socket.id,
-        userId: currentUser.id
-      })
-    })
-
-    socket.on("disconnect", () => {
-      console.log('disconnect socket.id', socket.id) // undefined
-    })
-
-    if (currentUser.role === USER_ROLE.MANAGER) socket.on('newUser', (notifications: Array<Notification>) => {
-      console.log({ notifications })
-      notificationAudioPlay()
-
-      const currentNotification = notifications.find((notification) => notification.userId === currentUser.id)
-      if (!currentNotification) {
-        console.warn('ws notification for current user not found')
-        return
-      }
-      const newUserNotification = {
-        id: currentNotification.id,
-        userId: currentNotification.userId,
-        content: currentNotification.content,
-        isViewed: currentNotification.isViewed,
-      }
-      console.log('newUserNotification', { ...newUserNotification })
-      NotificationsStore.add(newUserNotification)
-    })
-  }
 
   return (
     <>
