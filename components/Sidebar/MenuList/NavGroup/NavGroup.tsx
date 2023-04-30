@@ -1,6 +1,3 @@
-// @ts-nocheck
-// import PropTypes from 'prop-types'
-
 // mui
 import { useTheme } from '@mui/material/styles'
 import { Divider, List, Typography } from '@mui/material'
@@ -8,14 +5,19 @@ import { Divider, List, Typography } from '@mui/material'
 // project components
 import { NavItem } from '../NavItem'
 import { NavCollapse } from '../NavCollapse'
+import { fixMeInTheFuture } from "@/lib/types"
 
 // ==============================|| SIDEBAR MENU LIST GROUP ||============================== //
 
-export const NavGroup = ({ item }) => {
+export interface NavGroupProps {
+  item: fixMeInTheFuture
+}
+
+export const NavGroup = ({ item }: NavGroupProps) => {
   const theme = useTheme()
 
   // menu list collapse & items
-  const items = item.children?.map((menu) => {
+  const items = item.children?.map((menu: fixMeInTheFuture) => {
     switch (menu.type) {
       case 'collapse':
         return <NavCollapse key={menu.id} menu={menu} level={1} />
@@ -35,9 +37,11 @@ export const NavGroup = ({ item }) => {
       <List
         subheader={
           item.title && (
+            // @ts-ignore
             <Typography variant="caption" sx={{ ...theme.typography.menuCaption }} display="block" gutterBottom>
               {item.title}
               {item.caption && (
+                // @ts-ignore
                 <Typography variant="caption" sx={{ ...theme.typography.subMenuCaption }} display="block" gutterBottom>
                   {item.caption}
                 </Typography>
@@ -54,9 +58,5 @@ export const NavGroup = ({ item }) => {
     </>
   )
 }
-
-// NavGroup.propTypes = {
-//   item: PropTypes.object
-// }
 
 export default NavGroup

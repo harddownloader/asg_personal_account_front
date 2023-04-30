@@ -107,7 +107,7 @@ export const NavCollapse = ({ menu, level }: fixMeInTheFuture) => {
               height: '100%',
               width: '1px',
               opacity: 1,
-              background: theme.palette.primary.light
+              background: theme.palette.primary.main
             }
           }}
         >

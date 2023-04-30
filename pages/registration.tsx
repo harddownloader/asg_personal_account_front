@@ -4,12 +4,21 @@ import Link from "next/link"
 import { useRouter } from "next/router"
 import nookies from "nookies"
 import { useForm } from "react-hook-form"
+
+// mui
 import Container from "@mui/material/Container"
 import TextField from "@mui/material/TextField"
+
+// project components
 import { AuthLayout } from "@/components/Layout"
 import { AuthForm } from "@/components/Form/AuthForm/AuthForm"
 import { FooterMemoized } from "@/components/Footer"
+import { PasswordField as PasswordFieldComponent } from '@/components/ui-component/fields/PasswordField'
+
+// utils
 import { firebaseAdmin } from "@/lib/firebase/firebaseAdmin"
+
+// store
 import UserStore, { RegisterUserData, RegisterResponse } from "@/stores/userStore"
 
 export interface RegisterUserDataFull extends RegisterUserData {
@@ -144,43 +153,37 @@ function RegistrationPage() {
 
   const PasswordField: ReactElement = (
     <>
-      <TextField
-        margin="normal"
-        required
-        fullWidth
+      <PasswordFieldComponent
         placeholder="Ваш пароль"
-        type="password"
         id="password"
-        autoComplete="current-password"
-        className={"bg-white rounded"}
-        {...registerForm("password",{
+        label={null}
+        registerFormFunc={registerForm("password",{
           required: true,
         })}
+        errorsFormJSX={<>
+          {!!errorsForm.password && (
+            <p className="text-sm text-red-500 pt-2">{errorsForm.password?.message}</p>
+          )}
+        </>}
       />
-      {!!errorsForm.password && (
-        <p className="text-sm text-red-500 pt-2">{errorsForm.password?.message}</p>
-      )}
     </>
   )
 
   const RepeatPasswordField: ReactElement = (
     <>
-      <TextField
-        margin="normal"
-        required
-        fullWidth
+      <PasswordFieldComponent
         placeholder="Повторите ваш пароль"
-        type="password"
         id="repeatPassword"
-        autoComplete="current-password"
-        className={"bg-white rounded"}
-        {...registerForm("repeatPassword", {
+        label={null}
+        registerFormFunc={registerForm("repeatPassword",{
           required: true,
         })}
+        errorsFormJSX={<>
+          {!!errorsForm.repeatPassword && (
+            <p className="text-sm text-red-500 pt-2">{errorsForm.repeatPassword?.message}</p>
+          )}
+        </>}
       />
-      {!!errorsForm.repeatPassword && (
-        <p className="text-sm text-red-500 pt-2">{errorsForm.repeatPassword?.message}</p>
-      )}
     </>
   )
 

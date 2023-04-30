@@ -4,13 +4,13 @@ export type openedType = boolean
 
 export interface MenuState {
   opened: openedType
-  isOpen: Array<string>
+  openedIds: Array<string>
 }
 
 class MenuStore {
   menu: MenuState = {
-    opened: false,
-    isOpen: [], // for active default menu
+    opened: true,
+    openedIds: [], // for active default menu
   }
 
   constructor() {
@@ -22,7 +22,7 @@ class MenuStore {
   }
 
   setOpenMenuItem = (id: string) => {
-    this.menu.isOpen = [id]
+    this.menu.openedIds = [id]
   }
 }
 

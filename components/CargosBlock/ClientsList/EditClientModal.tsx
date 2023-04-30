@@ -1,4 +1,4 @@
-import React, {useEffect} from "react"
+import React, { useEffect } from "react"
 import { useForm } from "react-hook-form"
 
 // project components
@@ -6,8 +6,9 @@ import { EditForm } from "@/components/ClientProfileForm"
 import { DialogHOC } from "@/components/Dialog/Modal/DialogHOC"
 
 // store
-import UserStore, {
-  SaveClientProfileInterface, UserOfDB,
+import {
+  SaveClientProfileInterface,
+  UserOfDB,
   UserSavingResponse,
 } from "@/stores/userStore"
 import ClientsStore from '@/stores/clientsStore'

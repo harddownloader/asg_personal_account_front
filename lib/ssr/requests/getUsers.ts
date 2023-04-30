@@ -1,5 +1,5 @@
 import { fixMeInTheFuture } from "@/lib/types"
-import { USER_ROLE_MANAGER, UserOfDB, USER_ROLE_CLIENT, USERS_DB_COLLECTION_NAME } from "@/stores/userStore"
+import { USER_ROLE, UserOfDB, USERS_DB_COLLECTION_NAME } from "@/stores/userStore"
 import { firebaseAdmin } from "@/lib/firebase/firebaseAdmin"
 
 export const getUserFromDB = async ({
@@ -34,7 +34,7 @@ export const getAllClients = async ({
                                       usersRef
                                     }: allClientsArgs): Promise<Array<UserOfDB>> => {
   return await usersRef
-    .where("role", "==", USER_ROLE_CLIENT)
+    .where("role", "==", USER_ROLE.CLIENT)
     .get()
     .then((clients: fixMeInTheFuture) => {
       return clients.docs.map((client: fixMeInTheFuture) => {
@@ -58,7 +58,7 @@ export const getAllManagers = async (): Promise<Array<UserOfDB>> => {
   const usersRef = await db.collection(USERS_DB_COLLECTION_NAME)
 
   return await usersRef
-    .where("role", "==", USER_ROLE_MANAGER)
+    .where("role", "==", USER_ROLE.MANAGER)
     .get()
     .then((clients: fixMeInTheFuture) => {
       return clients.docs.map((client: fixMeInTheFuture) => {

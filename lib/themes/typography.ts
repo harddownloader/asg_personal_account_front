@@ -16,7 +16,7 @@ export default function themeTypography(theme: fixMeInTheFuture) {
         h5: {
             fontSize: '0.875rem',
             color: theme.heading,
-            fontWeight: 500
+            fontWeight: 600
         },
         h4: {
             fontSize: '1rem',

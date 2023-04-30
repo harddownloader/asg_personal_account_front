@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { observer } from "mobx-react-lite"
 
 // mui
@@ -127,7 +126,9 @@ export const AccountLayout = observer(({ children }: AccountLayoutProps) => {
         <Main theme={theme} open={isLeftDrawerOpened}>
           {/* breadcrumb */}
           <Breadcrumbs
+            // @ts-ignore
             separator={IconChevronRight}
+            // @ts-ignore
             navigation={menuItems}
             isIcon
             isTitle

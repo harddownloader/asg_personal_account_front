@@ -13,6 +13,7 @@ import TextField from '@mui/material/TextField'
 import { AuthForm } from '@/components/Form'
 import { AuthLayout } from "@/components/Layout/AuthLayout/AuthLayout"
 import { FooterMemoized } from "@/components/Footer"
+import { PasswordField as PasswordFieldComponent } from '@/components/ui-component/fields/PasswordField'
 
 // utils
 import { firebaseAdmin } from "@/lib/firebase/firebaseAdmin"
@@ -91,19 +92,17 @@ export function LoginPage(props: InferGetServerSidePropsType<typeof getServerSid
   )
 
   const PasswordField: ReactElement = (
-    <TextField
-      margin="normal"
-      required
-      fullWidth
-      placeholder="Пароль"
-      type="password"
-      id="password"
-      autoComplete="current-password"
-      className={"bg-white rounded"}
-      {...registerForm("password", {
-        required: true,
-      })}
-    />
+    <>
+      <PasswordFieldComponent
+        placeholder="Пароль"
+        id="password"
+        label={null}
+        registerFormFunc={registerForm("password",{
+          required: true,
+        })}
+        errorsFormJSX={null}
+      />
+    </>
   )
 
   return (
