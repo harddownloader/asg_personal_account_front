@@ -8,7 +8,7 @@ import { validateEmail } from "@/lib/validation/email"
 import { UserOfDB, USERS_DB_COLLECTION_NAME, UserSavingResponse } from "@/stores/userStore"
 
 const UserProfileHandler = async (req: NextApiRequest, res: NextApiResponse) => {
-  if (req.method === 'POST') {
+  if (req.method === 'PUT') {
     const response: UserSavingResponse = {
       data: {
         accountSaving: {

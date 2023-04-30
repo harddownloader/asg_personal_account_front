@@ -1,13 +1,18 @@
-// @ts-nocheck
-// import PropTypes from 'prop-types'
 import { forwardRef, useEffect } from 'react'
 import Link from 'next/link'
-import {observer} from "mobx-react-lite"
-
+import { observer } from "mobx-react-lite"
 
 // mui
 import { useTheme } from '@mui/material/styles'
-import { Avatar, Chip, ListItemButton, ListItemIcon, ListItemText, Typography, useMediaQuery } from '@mui/material'
+import {
+  Avatar,
+  Chip,
+  ListItemButton,
+  ListItemIcon,
+  ListItemText,
+  Typography,
+  useMediaQuery
+} from '@mui/material'
 
 // store
 import MenuStore from '@/stores/menuStore'
@@ -31,8 +36,8 @@ const NavItemComponent = ({ item, level }: NavItemProps) => {
   ) : (
     <FiberManualRecordIcon
       sx={{
-        width: MenuStore.menu.isOpen.findIndex((id) => id === item?.id) > -1 ? 8 : 6,
-        height: MenuStore.menu.isOpen.findIndex((id) => id === item?.id) > -1 ? 8 : 6
+        width: MenuStore.menu.openedIds.findIndex((id) => id === item?.id) > -1 ? 8 : 6,
+        height: MenuStore.menu.openedIds.findIndex((id) => id === item?.id) > -1 ? 8 : 6
       }}
       fontSize={level > 0 ? 'inherit' : 'medium'}
     />
@@ -46,6 +51,7 @@ const NavItemComponent = ({ item, level }: NavItemProps) => {
   const ListItemNextJSLinkComponent = forwardRef((props, ref) => (
     <Link href={item.url} passHref legacyBehavior>
       <a
+        // @ts-ignore
         ref={ref}
         {...props}
         href={item.url}
@@ -59,6 +65,7 @@ const NavItemComponent = ({ item, level }: NavItemProps) => {
   }
 
   if (item?.external) {
+    // @ts-ignore
     listItemProps = { component: 'a', href: item.url, target: itemTarget }
   }
 
@@ -87,20 +94,25 @@ const NavItemComponent = ({ item, level }: NavItemProps) => {
           borderRadius: `4px`,
           mb: 0.5,
           alignItems: 'flex-start',
+          color: level > 1 ? `${theme.palette.primary.main} !important` : 'inherit',
           backgroundColor: level > 1 ? 'transparent !important' : 'inherit',
           py: level > 1 ? 1 : 1.25,
           pl: `${level * 24}px`
         }}
-        selected={MenuStore.menu.isOpen.findIndex((id) => id === item.id) > -1}
+        selected={MenuStore.menu.openedIds.findIndex((id) => id === item.id) > -1}
         onClick={() => itemHandler(item.id)}
       >
         <ListItemIcon
-          sx={{ my: 'auto', minWidth: !item?.icon ? 18 : 36 }}
+          sx={{
+            my: 'auto',
+            minWidth: !item?.icon ? 18 : 36,
+            color: level > 1 ? `${theme.palette.primary.main} !important` : 'inherit'
+          }}
         >{itemIcon}</ListItemIcon>
         <ListItemText
           primary={
             <Typography
-              variant={MenuStore.menu.isOpen.findIndex((id) => id === item.id) > -1 ? 'h5' : 'body1'}
+              variant={MenuStore.menu.openedIds.findIndex((id) => id === item.id) > -1 ? 'h5' : 'body1'}
               color="inherit"
             >
               {item.title}
@@ -110,6 +122,7 @@ const NavItemComponent = ({ item, level }: NavItemProps) => {
             item.caption && (
               <Typography
                 variant="caption"
+                // @ts-ignore
                 sx={{ ...theme.typography.subMenuCaption }}
                 display="block"
                 gutterBottom

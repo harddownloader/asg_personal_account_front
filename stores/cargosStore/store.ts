@@ -10,7 +10,7 @@ import {
 } from "firebase/storage"
 
 // utils
-import { firebaseAuth, firebaseFirestore, firebaseStorage } from "@/lib/firebase"
+import { firebaseFirestore, firebaseStorage } from "@/lib/firebase"
 import { compress } from "@/lib/images"
 import { prepareSpaces } from "@/components/CargosBlock/helpers/prepareBody"
 
@@ -41,6 +41,12 @@ import {
   CARGO_IMAGE_STATUS,
   UPLOAD_IMAGE_STATUS,
 } from "@/stores/cargosStore/const"
+
+// helpers
+import {
+  checkAddCargoFields,
+  checkUpdateCargoFields
+} from '@/stores/userStore/helpers/validation'
 
 export class CargosStore {
   cargos: CargosState = {
@@ -121,12 +127,19 @@ export class CargosStore {
       }
     }
 
-    if (!firebaseAuth?.currentUser?.uid) {
-      response.data.addingCargo.errors.push({
-        field: 'client',
-        message: `firebaseAuth?.currentUser?.uid, is not a found`
-      })
+    checkAddCargoFields({
+      cargoId,
+      clientCode,
+      status,
+      costOfDelivery,
+      cargoName,
+      insurance,
+      cost,
+      shippingDate,
+      responseErrorsArray: response.data.addingCargo.errors
+    })
 
+    if (response.data.addingCargo.errors.length) {
       return response
     }
 
@@ -205,68 +218,18 @@ export class CargosStore {
       }
     }
 
-    if (!cargoId || cargoId.length <= 2) {
-      response.data.cargoSaving.errors.push({
-        field: 'cargoId',
-        message: `Не корректный номер отправки`
-      })
-    }
-
-    if (!clientCode || clientCode.length < 2) {
-      response.data.cargoSaving.errors.push({
-        field: 'clientCode',
-        message: `Не корректный код клиента`
-      })
-    }
-
-    if (status === null || status === undefined || Number(status) < 0) {
-      response.data.cargoSaving.errors.push({
-        field: 'status',
-        message: `Не корректный статус`
-      })
-    }
-
-    if (!costOfDelivery || costOfDelivery.length < 0) {
-      response.data.cargoSaving.errors.push({
-        field: 'costOfDelivery',
-        message: `Не корректная стоимость доставки`
-      })
-    }
-
-    if (!cargoName || cargoName.length < 2) {
-      response.data.cargoSaving.errors.push({
-        field: 'cargoName',
-        message: `Не корректное название груза`
-      })
-    }
-
-    if (!insurance || Number(insurance) < 0) {
-      response.data.cargoSaving.errors.push({
-        field: 'insurance',
-        message: `Не корректная страховка`
-      })
-    }
-
-    if (!cost || Number(cost) < 0) {
-      response.data.cargoSaving.errors.push({
-        field: 'cost',
-        message: `Не корректная стоимость`
-      })
-    }
-
-    if (!shippingDate || shippingDate.length < 4) {
-      response.data.cargoSaving.errors.push({
-        field: 'shippingDate',
-        message: `Не корректный номер отправки`
-      })
-    }
-
-    if (!id || id.length < 2) {
-      response.data.cargoSaving.errors.push({
-        field: 'client',
-        message: `Что то пошло не так. Попробуейте перезагрузить страницу и повторить.`
-      })
-    }
+    checkUpdateCargoFields({
+      cargoId,
+      clientCode,
+      status,
+      costOfDelivery,
+      cargoName,
+      insurance,
+      cost,
+      shippingDate,
+      id,
+      responseErrorsArray: response.data.cargoSaving.errors
+    })
 
     if (spaces.length && cargoId.length >= 2) {
       enum spacePropertiesEnum {

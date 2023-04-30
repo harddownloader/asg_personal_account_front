@@ -8,7 +8,7 @@ import componentStyleOverrides from '@/lib/themes/compStyleOverride'
 import themePalette from '@/lib/themes/palette'
 import themeTypography from '@/lib/themes/typography'
 import { customizationInterface } from "@/lib/themes"
-import {fixMeInTheFuture} from "@/lib/types";
+import { fixMeInTheFuture } from "@/lib/types"
 
 /**
  * Represent theme style and structure as per Material-UI

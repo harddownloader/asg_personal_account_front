@@ -1,7 +1,7 @@
 import { makeAutoObservable } from 'mobx'
-import { doc, FieldPath, updateDoc } from "firebase/firestore"
-import { firebaseAuth, firebaseFirestore } from "@/lib/firebase"
-import { USER_ROLE_CLIENT, UserIdType, UserOfDB } from "@/stores/userStore"
+import { doc, updateDoc } from "firebase/firestore"
+import { firebaseFirestore } from "@/lib/firebase"
+import { UserIdType } from "@/stores/userStore"
 
 export const NOTIFICATION_DB_COLLECTION_NAME: string = 'notifications'
 

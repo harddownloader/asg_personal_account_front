@@ -3,8 +3,7 @@ import {
   CARGO_STATUS,
   UPLOAD_IMAGE_STATUS
 } from "@/stores/cargosStore/const"
-
-export type cargoStatusType = typeof CARGO_STATUS[keyof typeof CARGO_STATUS]
+import { responseFieldErrorsArray } from "@/lib/types"
 
 export type cargoFieldNamesType<Type> = {
   [key: string]: {
@@ -41,20 +40,28 @@ export type spaceItemType = {
   photos: Array<UploadImageType>
 }
 
-export interface CargoInterface {
-  status: cargoStatusType // Статус
-  costOfDelivery: string // Стоимость доставки
-  cargoName: string // Название груза
-  insurance: number // Страховка
-  cost: number // Стоимость
-  shippingDate: string // Дата отгрузки
-  volume: number // Объем
-  weight: number // Вес
-}
-
 export type CargoID = string
 export type CargoCustomIdentify = string
-export type CargoClientCode = string
+export type CargoClientCodeType = string
+export type CargoStatusType = typeof CARGO_STATUS[keyof typeof CARGO_STATUS] // Статус
+export type CargoCostOfDeliveryType = string // Стоимость доставки
+export type CargoNameType = string // Название груза
+export type CargoInsuranceType = number // Страховка
+export type CargoCostType = number // Стоимость
+export type CargoShippingDateType = string // Дата отгрузки
+export type CargoVolumeType = number // Объем
+export type CargoWeightType = number // Вес
+
+export interface CargoInterface {
+  status: CargoStatusType
+  costOfDelivery: CargoCostOfDeliveryType
+  cargoName: CargoNameType
+  insurance: CargoInsuranceType
+  cost: CargoCostType
+  shippingDate: CargoShippingDateType
+  volume: CargoVolumeType
+  weight: CargoWeightType
+}
 
 export interface CargoInterfaceLocalFormat extends CargoInterface {
   spaces: Array<spaceItemType>
@@ -63,13 +70,13 @@ export interface CargoInterfaceLocalFormat extends CargoInterface {
 export interface CargoInterfaceDBFormat extends CargoInterface {
   spaces: Array<spaceOfDB>
   cargoId: CargoCustomIdentify // Номер отправки
-  clientCode: CargoClientCode // Код клиента
+  clientCode: CargoClientCodeType // Код клиента
   id: CargoID // index in DB
 }
 
 export interface CargoInterfaceForForm extends CargoInterfaceLocalFormat {
   cargoId: CargoCustomIdentify // Номер отправки
-  clientCode: CargoClientCode // Код клиента
+  clientCode: CargoClientCodeType // Код клиента
 }
 
 export interface CargoInterfaceFull extends CargoInterfaceForForm {
@@ -79,7 +86,7 @@ export interface CargoInterfaceFull extends CargoInterfaceForForm {
 export interface AddCargoInterface extends CargoInterface {
   spaces: Array<spaceOfDB>
   cargoId: CargoCustomIdentify // Номер отправки
-  clientCode: CargoClientCode // Код клиента
+  clientCode: CargoClientCodeType // Код клиента
 }
 
 export type CargosItems = Array<CargoInterfaceFull>
@@ -87,10 +94,7 @@ export type CargosItems = Array<CargoInterfaceFull>
 export interface CargoSavingResponse {
   data: {
     cargoSaving: {
-      errors: Array<{
-        field: string,
-        message: string
-      }>
+      errors: responseFieldErrorsArray
       currentCargo?: CargoInterfaceFull
     }
   }
@@ -99,10 +103,7 @@ export interface CargoSavingResponse {
 export interface CargoAddResponse {
   data: {
     addingCargo: {
-      errors: Array<{
-        field: string,
-        message: string
-      }>
+      errors: responseFieldErrorsArray
       currentCargo?: CargoInterfaceFull
     }
   }

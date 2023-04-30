@@ -1,31 +1,32 @@
-// @ts-nocheck
-import React, { ReactElement, useEffect } from "react"
-import { InferGetServerSidePropsType, GetServerSidePropsContext } from "next"
+import React, {
+  ReactElement,
+  useEffect,
+  useMemo
+} from "react"
+import {
+  InferGetServerSidePropsType,
+  GetServerSidePropsContext
+} from "next"
 import nookies from "nookies"
 import { useForm } from "react-hook-form"
 
 // mui
 import { Grid } from "@mui/material"
 import TextField from "@mui/material/TextField"
-import Button from "@mui/material/Button"
 import Box from "@mui/material/Box"
 
 // project components
 import { AccountLayout } from '@/components/Layout'
+import { SubmitButton } from "@/components/ui-component/SubmitButton/SubmitButton"
 
 // utils
-import { fixMeInTheFuture } from "@/lib/types"
 import { GRID_SPACING } from "@/lib/const"
 import { firebaseAdmin } from "@/lib/firebase/firebaseAdmin"
-import {
-  firebaseAuth,
-  firebaseFirestore,
-} from "@/lib/firebase"
 import { getUserFromDB } from "@/lib/ssr/requests/getUsers"
 
 // store
 import UserStore, {
-  UserDataForSaving,
+  ProfileContacts,
   UserOfDB,
   USERS_DB_COLLECTION_NAME,
   UserSavingResponse
@@ -64,7 +65,7 @@ export const getServerSideProps = async (ctx: GetServerSidePropsContext) => {
     // either the `token` cookie didn't exist
     // or token verification failed
     // either way: redirect to the login page
-    console.error(`Profile page error: ${err}`)
+    console.error(`Profile contacts info page error: ${err}`)
 
     return {
       redirect: {
@@ -78,11 +79,13 @@ export const getServerSideProps = async (ctx: GetServerSidePropsContext) => {
   }
 }
 
-function Profile({
+function ProfileContactsPage({
                    currentUser,
                  }: InferGetServerSidePropsType<typeof getServerSideProps>) {
+  const isLoading = useMemo(() => UserStore.user.isLoading, [UserStore.user.isLoading])
+
   useEffect(() => {
-    if(!UserStore.user.id) UserStore.saveUserToStore({
+    if(!UserStore.user.currentUser.id) UserStore.saveUserToStore({
       id: currentUser.id,
       name: currentUser.name,
       phone: currentUser.phone,
@@ -98,25 +101,23 @@ function Profile({
     handleSubmit: handleSubmitForm,
     formState: { errors: errorsForm },
     setError: setErrorForm,
-  } = useForm<UserDataForSaving>({
+  } = useForm<ProfileContacts>({
     defaultValues: {
       name: currentUser.name,
       email: currentUser.email,
       phone: currentUser.phone,
-      currentPassword: '',
-      newPassword: '',
-      repeatNewPassword: '',
+      city: currentUser.city,
     }
   })
 
-  const handleSubmit = handleSubmitForm(async (formData: UserDataForSaving):Promise<void> => {
-    const { data }: UserSavingResponse = await UserStore.save({
+  const handleSubmit = handleSubmitForm(async (formData: ProfileContacts): Promise<void> => {
+    const { data }: UserSavingResponse = await UserStore.saveContactUserData({
       name: formData.name,
       phone: formData.phone,
       email: formData.email,
-      currentPassword: formData.currentPassword,
-      newPassword: formData.newPassword,
-      repeatNewPassword: formData.repeatNewPassword,
+      city: formData.city,
+      id: currentUser.id,
+      userCodeId: currentUser.userCodeId,
     })
 
     if (data?.accountSaving?.errors.length) {
@@ -128,14 +129,10 @@ function Profile({
           setErrorForm("phone", { message: e.message! })
         } else if (e.field === "email") {
           setErrorForm("email", { message: e.message! })
-        } else if (e.field === "currentPassword") {
-          setErrorForm("currentPassword", { message: e.message! })
-        } else if (e.field === "password") {
-          setErrorForm("newPassword", { message: e.message! })
-        } else if (e.field === 'repeatPassword') {
-          setErrorForm("repeatNewPassword", { message: e.message! })
+        } else if (e.field === "city") {
+          setErrorForm("city", { message: e.message! })
         } else {
-          console.error("Registration error:", e)
+          console.error("Change profile data error:", e)
         }
       })
 
@@ -207,72 +204,25 @@ function Profile({
     </>
   )
 
-  const CurrentPasswordField: ReactElement = (
+  const CityField: ReactElement = (
     <>
       <TextField
         margin="normal"
-        required
         fullWidth
-        placeholder="Введите ваш текущий пароль"
-        type="password"
-        id="currentPassword"
-        label="Текущий пароль"
-        autoComplete="current-password"
+        id="city"
+        label="Город"
+        placeholder="Ваш город"
+        autoComplete="email"
         className={"bg-white rounded"}
-        {...registerForm("currentPassword",{
-          required: true,
+        {...registerForm("city", {
+          required: false,
         })}
       />
-      {!!errorsForm.currentPassword && (
-        <p className="text-sm text-red-500 pt-2">{errorsForm.currentPassword?.message}</p>
+      {!!errorsForm.city && (
+        <p className="text-sm text-red-500 pt-2">{errorsForm.city?.message}</p>
       )}
     </>
   )
-
-  const NewPasswordField: ReactElement = (
-    <>
-      <TextField
-        margin="normal"
-        required
-        fullWidth
-        placeholder="Введите ваш новый пароль"
-        type="password"
-        id="newPassword"
-        label="Новый пароль"
-        autoComplete="current-password"
-        className={"bg-white rounded"}
-        {...registerForm("newPassword",{
-          required: true,
-        })}
-      />
-      {!!errorsForm.newPassword && (
-        <p className="text-sm text-red-500 pt-2">{errorsForm.newPassword?.message}</p>
-      )}
-    </>
-  )
-
-  const RepeatNewPasswordField: ReactElement = (
-    <>
-      <TextField
-        margin="normal"
-        required
-        fullWidth
-        placeholder="Повторите ваш новый пароль"
-        label="Повторите ваш новый пароль"
-        type="password"
-        id="repeatNewPassword"
-        autoComplete="current-password"
-        className={"bg-white rounded"}
-        {...registerForm("repeatNewPassword", {
-          required: true,
-        })}
-      />
-      {!!errorsForm.repeatNewPassword && (
-        <p className="text-sm text-red-500 pt-2">{errorsForm.repeatNewPassword?.message}</p>
-      )}
-    </>
-  )
-
 
   return (
     <>
@@ -282,38 +232,41 @@ function Profile({
         className={"mt-2"}
       >
         <Grid container spacing={GRID_SPACING}>
+          {/*<Grid item xs={4}>*/}
+          {/*  <Grid container spacing={GRID_SPACING}>*/}
+          {/*    <Grid item lg={12} md={12} sm={12} xs={12}>*/}
+          {/*      <Avatar*/}
+          {/*        alt="Remy Sharp"*/}
+          {/*        // src="/static/images/avatar/1.jpg"*/}
+          {/*        variant="rounded"*/}
+          {/*        sx={{ width: '100%', maxWidth: '250px', height: '100%' }}*/}
+          {/*      />*/}
+          {/*    </Grid>*/}
+          {/*  </Grid>*/}
+          {/*</Grid>*/}
           <Grid item xs={12}>
             <Grid container spacing={GRID_SPACING}>
-              <Grid item lg={4} md={6} sm={6} xs={12}>
+              <Grid item lg={6} md={6} sm={6} xs={12}>
                 {NameField}
               </Grid>
-              <Grid item lg={4} md={6} sm={6} xs={12}>
+              <Grid item lg={6} md={6} sm={6} xs={12}>
                 {PhoneField}
               </Grid>
-              <Grid item lg={4} md={6} sm={6} xs={12}>
+              <Grid item lg={6} md={6} sm={6} xs={12}>
                 {LoginField}
               </Grid>
-              <Grid item lg={4} md={6} sm={6} xs={12}>
-                {CurrentPasswordField}
-              </Grid>
-              <Grid item lg={4} md={6} sm={6} xs={12}>
-                {NewPasswordField}
-              </Grid>
-              <Grid item lg={4} md={6} sm={6} xs={12}>
-                {RepeatNewPasswordField}
+              <Grid item lg={6} md={6} sm={6} xs={12}>
+                {CityField}
               </Grid>
             </Grid>
           </Grid>
         </Grid>
         <Grid container spacing={GRID_SPACING}>
           <Grid item xs={12}>
-            <Button
-              type="submit"
-              fullWidth
-              className={"bg-brand border-solid border border-white text-white font-bold rounded h-14 mt-4 hover:text-brand hover:bg-white hover:border-brand"}
-            >
-              Сохранить
-            </Button>
+            <SubmitButton
+              text="Сохранить"
+              isLoading={isLoading}
+            />
           </Grid>
         </Grid>
       </Box>
@@ -321,8 +274,8 @@ function Profile({
   )
 }
 
-Profile.getLayout = function getLayout(page: ReactElement) {
+ProfileContactsPage.getLayout = function getLayout(page: ReactElement) {
   return <AccountLayout>{page}</AccountLayout>
 }
 
-export default Profile
+export default ProfileContactsPage

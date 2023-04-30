@@ -1,12 +1,6 @@
-import React, { Fragment, ReactElement, useEffect, useMemo } from 'react'
+import React, { useEffect, useMemo } from 'react'
 import { useForm } from "react-hook-form"
 import { observer } from "mobx-react-lite"
-
-// mui
-import Grid from '@mui/material/Grid'
-import Button from "@mui/material/Button"
-import Box from "@mui/material/Box"
-import TextField from "@mui/material/TextField"
 
 // project components
 import { CargosForm } from "@/components/CargosBlock/CargosForm"
@@ -16,11 +10,11 @@ import { DialogHOC } from '@/components/Dialog/Modal/DialogHOC'
 import CargosStore, {
   CargoInterfaceForForm,
   CargoInterfaceFull,
-  CargoAddResponse, spaceItemType,
+  CargoAddResponse,
+  spaceItemType,
 } from "@/stores/cargosStore"
 import { UserCodeIdType, UserIdType } from "@/stores/userStore"
-import {prepareSpaces} from "@/components/CargosBlock/helpers/prepareBody"
-import {getSpacesOfUnsavedCargo} from "@/stores/helpers/spaces";
+import { getSpacesOfUnsavedCargo } from "@/stores/helpers/spaces"
 
 export interface AddCargoDialogProps {
   isVisible: boolean
@@ -69,10 +63,6 @@ export const AddCargoDialog = observer(({
   const currentTmpSpaces = useMemo(
     () => getCurrentNewTmpSpaces(JSON.parse(notLoadedSpacesSrt)), [notLoadedSpacesSrt]
   )
-  console.log('AddCargoDialog', {
-    currentTmpSpaces,
-    allSpaces: JSON.parse(notLoadedSpacesSrt),
-  })
 
   const handleAddCargo = handleSubmitForm(async ({
                                                     cargoId,
