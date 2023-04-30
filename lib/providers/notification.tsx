@@ -93,7 +93,7 @@ export function NotificationProvider({ children }: NotificationProps) {
     })
 
     socket.on('connect', () => {
-      console.log('connected, socket.id', socket.id)
+      console.log(`connected, socket.id ${socket.id}`)
       socket.emit('connect user', {
         socketId: socket.id,
         userId: currentUser.id
