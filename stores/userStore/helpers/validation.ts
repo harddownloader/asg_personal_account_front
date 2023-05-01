@@ -12,7 +12,7 @@ import {
   checkCargoName,
   checkCargoInsurance,
   checkCargoCost,
-  checkCargoShippingData,
+  checkCargoTariff,
   checkCargoId,
   checkPasswordByReAuthentication,
 } from "@/stores/helpers/validation/fields/conditions"
@@ -34,7 +34,7 @@ import {
   CargoID,
   CargoInsuranceType,
   CargoNameType,
-  CargoShippingDateType,
+  CargoTariffType,
   CargoStatusType,
 } from "@/stores/cargosStore/types"
 
@@ -223,7 +223,7 @@ export const checkAddCargoFields = ({
                                       cargoName,
                                       insurance,
                                       cost,
-                                      shippingDate,
+                                      tariff,
                                       responseErrorsArray,
                                     }: {
   cargoId: CargoCustomIdentify
@@ -233,7 +233,7 @@ export const checkAddCargoFields = ({
   cargoName: CargoNameType
   insurance: CargoInsuranceType
   cost: CargoCostType
-  shippingDate: CargoShippingDateType
+  tariff: CargoTariffType
   responseErrorsArray: responseFieldErrorsArray
 }) => {
   checkCargoCustomIdentify({
@@ -285,11 +285,11 @@ export const checkAddCargoFields = ({
     errorMessage: 'Не корректная стоимость',
   })
 
-  checkCargoShippingData({
-    shippingDate,
+  checkCargoTariff({
+    tariff,
     responseErrorsArray,
-    fieldName: 'shippingDate',
-    errorMessage: 'Не корректный номер отправки',
+    fieldName: 'tariff',
+    errorMessage: 'Не корректный тариф',
   })
 }
 
@@ -301,7 +301,7 @@ export const checkUpdateCargoFields = ({
                                          cargoName,
                                          insurance,
                                          cost,
-                                         shippingDate,
+                                         tariff,
                                          id,
                                          responseErrorsArray,
                                        }: {
@@ -312,7 +312,7 @@ export const checkUpdateCargoFields = ({
   cargoName: CargoNameType
   insurance: CargoInsuranceType
   cost: CargoCostType
-  shippingDate: CargoShippingDateType
+  tariff: CargoTariffType
   id: CargoID
   responseErrorsArray: responseFieldErrorsArray
 }) => {
@@ -365,11 +365,11 @@ export const checkUpdateCargoFields = ({
     errorMessage: 'Не корректная стоимость',
   })
 
-  checkCargoShippingData({
-    shippingDate,
+  checkCargoTariff({
+    tariff,
     responseErrorsArray,
-    fieldName: 'shippingDate',
-    errorMessage: 'Не корректный номер отправки',
+    fieldName: 'tariff',
+    errorMessage: 'Не корректный тариф',
   })
 
   checkCargoId({

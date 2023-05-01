@@ -233,23 +233,23 @@ export const CargosForm = ({
     </>
   )
 
-  const ShippingDateField: ReactElement = (
+  const TariffField: ReactElement = (
     <>
       <TextField
         margin="normal"
         required
         fullWidth
-        id={CARGO_FIELD_NAMES.SHIPPING_DATE.value}
-        placeholder={CARGO_FIELD_NAMES.SHIPPING_DATE.label}
-        label={CARGO_FIELD_NAMES.SHIPPING_DATE.label}
+        id={CARGO_FIELD_NAMES.TARIFF.value}
+        placeholder={CARGO_FIELD_NAMES.TARIFF.label}
+        label={CARGO_FIELD_NAMES.TARIFF.label}
         className={"bg-white rounded"}
         disabled={isDisabled}
-        {...registerForm("shippingDate", {
+        {...registerForm("tariff", {
           required: true,
         })}
       />
-      {!!errorsForm.shippingDate && (
-        <p className="text-sm text-red-500 pt-2">{errorsForm.shippingDate?.message}</p>
+      {!!errorsForm.tariff && (
+        <p className="text-sm text-red-500 pt-2">{errorsForm.tariff?.message}</p>
       )}
     </>
   )
@@ -345,7 +345,7 @@ export const CargosForm = ({
                     {CostPlaceField}
                   </Grid>
                   <Grid item lg={lgColValue} md={6} sm={6} xs={12}>
-                    {ShippingDateField}
+                    {TariffField}
                   </Grid>
                 </Grid>
               </Grid>
