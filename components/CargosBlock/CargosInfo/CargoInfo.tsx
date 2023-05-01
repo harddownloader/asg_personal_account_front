@@ -155,7 +155,7 @@ export const CargosInfo = observer(({
         cargoName: currentCargo.cargoName,
         insurance: currentCargo.insurance,
         cost: currentCargo.cost,
-        shippingDate: currentCargo.shippingDate,
+        tariff: currentCargo.tariff,
         volume: currentCargo.volume,
         weight: currentCargo.weight,
         spaces: currentCargo?.spaces,
@@ -190,7 +190,7 @@ export const CargosInfo = observer(({
                                                     cargoName,
                                                     insurance,
                                                     cost,
-                                                    shippingDate,
+                                                    tariff,
                                                     volume,
                                                     weight,
                                                   }: CargoInterfaceForForm): Promise<void> => {
@@ -210,7 +210,7 @@ export const CargosInfo = observer(({
       cargoName,
       insurance,
       cost,
-      shippingDate,
+      tariff,
       volume,
       weight,
       spaces: prepareSpaces(currentTmpSpaces)
@@ -233,8 +233,8 @@ export const CargosInfo = observer(({
           setErrorForm("insurance", { message: e.message! })
         } else if (e.field === 'cost') {
           setErrorForm("cost", { message: e.message! })
-        } else if (e.field === 'shippingDate') {
-          setErrorForm("shippingDate", { message: e.message! })
+        } else if (e.field === 'tariff') {
+          setErrorForm("tariff", { message: e.message! })
         } else if (e.field === 'volume') {
           setErrorForm("volume", { message: e.message! })
         } else if (e.field === 'weight') {

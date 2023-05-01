@@ -13,8 +13,7 @@ export const getAllCargos = async ({
       const cargosList: Array<CargoInterfaceFull> = []
       cargos.forEach((cargo: fixMeInTheFuture) => {
         const cargoDecode = {...cargo.data()}
-        cargosList.push({
-          id: cargo.id,
+        const cargoData = {
           cargoId: cargoDecode.cargoId,
           clientCode: cargoDecode.clientCode,
           status: cargoDecode.status,
@@ -22,11 +21,40 @@ export const getAllCargos = async ({
           cargoName: cargoDecode.cargoName,
           insurance: cargoDecode.insurance,
           cost: cargoDecode.cost,
-          shippingDate: cargoDecode.shippingDate,
+          tariff: cargoDecode.tariff,
           volume: cargoDecode.volume,
           weight: cargoDecode.weight,
           spaces: cargoDecode.spaces,
+          // updatedAt: String(new Date(cargoDecode.lastUpdateDocDate*1000)),
+          // createdAt: cargoDecode.createdDocDate,
+        }
+        cargosList.push({
+          id: cargo.id,
+          ...cargoData
         })
+
+      //   await console.log({
+      //     cargoDecode: {
+      //       id: cargo.id,
+      //       ...cargoDecode,
+      //     }
+      //   })
+      //
+      //
+      //   await setTimeout(async () => {
+      //     function getRandomInt(max) {
+      //       return Math.floor(Math.random() * max);
+      //     }
+      //     const minusTime = 1000 + getRandomInt(1000)
+      //     const aMinuteAgo = new Date( Date.now() - minusTime * 60 );
+      //
+      //     // await cargosRef.doc(cargo.id).set({
+      //     //   ...cargoData,
+      //     //   // tariff: '0',
+      //     //   createdAt: new Date(),
+      //     //   updatedAt: aMinuteAgo,
+      //     // })
+      //   }, 1000)
       })
 
       return cargosList
@@ -61,7 +89,7 @@ export const getCargosByClient = async ({
           cargoName: cargoDecode.cargoName,
           insurance: cargoDecode.insurance,
           cost: cargoDecode.cost,
-          shippingDate: cargoDecode.shippingDate,
+          tariff: cargoDecode.tariff,
           volume: cargoDecode.volume,
           weight: cargoDecode.weight,
           spaces: cargoDecode.spaces,

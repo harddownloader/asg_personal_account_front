@@ -72,7 +72,7 @@ export const AddCargoDialog = observer(({
                                                     cargoName,
                                                     insurance,
                                                     cost,
-                                                    shippingDate,
+                                                   tariff,
                                                     volume,
                                                     weight,
                                                   }: CargoInterfaceForForm): Promise<void> => {
@@ -87,7 +87,7 @@ export const AddCargoDialog = observer(({
       cargoName,
       insurance,
       cost,
-      shippingDate,
+      tariff,
       volume,
       weight,
       spaces: currentTmpSpaces
@@ -111,8 +111,8 @@ export const AddCargoDialog = observer(({
           setErrorForm("insurance", { message: e.message! })
         } else if (e.field === 'cost') {
           setErrorForm("cost", { message: e.message! })
-        } else if (e.field === 'shippingDate') {
-          setErrorForm("shippingDate", { message: e.message! })
+        } else if (e.field === 'tariff') {
+          setErrorForm("tariff", { message: e.message! })
         } else if (e.field === 'volume') {
           setErrorForm("volume", { message: e.message! })
         } else if (e.field === 'weight') {

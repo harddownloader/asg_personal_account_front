@@ -114,7 +114,7 @@ export class CargosStore {
                  cargoName,
                  insurance,
                  cost,
-                 shippingDate,
+                 tariff,
                  volume,
                  weight,
                  spaces,
@@ -135,7 +135,7 @@ export class CargosStore {
       cargoName,
       insurance,
       cost,
-      shippingDate,
+      tariff,
       responseErrorsArray: response.data.addingCargo.errors
     })
 
@@ -152,7 +152,7 @@ export class CargosStore {
       cargoName,
       insurance,
       cost,
-      shippingDate,
+      tariff,
       volume,
       weight,
       spaces: prepareSpaces(spaces),
@@ -204,7 +204,7 @@ export class CargosStore {
                     cargoName,
                     insurance,
                     cost,
-                    shippingDate,
+                    tariff,
                     volume,
                     weight,
                     id,
@@ -226,7 +226,7 @@ export class CargosStore {
       cargoName,
       insurance,
       cost,
-      shippingDate,
+      tariff,
       id,
       responseErrorsArray: response.data.cargoSaving.errors
     })
@@ -287,7 +287,7 @@ export class CargosStore {
       cargoName,
       insurance,
       cost,
-      shippingDate,
+      tariff,
       volume,
       weight,
       spaces
