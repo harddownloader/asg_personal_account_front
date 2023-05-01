@@ -16,7 +16,7 @@ import {
   CargoID,
   CargoInsuranceType,
   CargoNameType,
-  CargoShippingDateType,
+  CargoTariffType,
   CargoStatusType,
 } from "@/stores/cargosStore/types"
 import { firebaseAuth } from "@/lib/firebase"
@@ -259,13 +259,13 @@ export const checkCargoCost = ({
   }
 }
 
-export const checkCargoShippingData = ({
-                                       shippingDate,
+export const checkCargoTariff = ({
+                                       tariff,
                                        responseErrorsArray,
                                        fieldName,
                                        errorMessage,
-}: commonArgsForCheckType & { shippingDate: CargoShippingDateType }) => {
-  if (!shippingDate || shippingDate.length < 4) {
+}: commonArgsForCheckType & { tariff: CargoTariffType }) => {
+  if (!tariff || Number(tariff) < 0) {
     responseErrorsArray.push({
       field: fieldName,
       message: errorMessage

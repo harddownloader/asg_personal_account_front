@@ -48,7 +48,7 @@ export type CargoCostOfDeliveryType = string // Стоимость достав�
 export type CargoNameType = string // Название груза
 export type CargoInsuranceType = number // Страховка
 export type CargoCostType = number // Стоимость
-export type CargoShippingDateType = string // Дата отгрузки
+export type CargoTariffType = string // Дата отгрузки
 export type CargoVolumeType = number // Объем
 export type CargoWeightType = number // Вес
 
@@ -58,7 +58,7 @@ export interface CargoInterface {
   cargoName: CargoNameType
   insurance: CargoInsuranceType
   cost: CargoCostType
-  shippingDate: CargoShippingDateType
+  tariff: CargoTariffType
   volume: CargoVolumeType
   weight: CargoWeightType
 }

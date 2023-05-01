@@ -81,9 +81,9 @@ export const CARGO_FIELD_NAMES: cargoFieldNamesType<string | number> = {
     label: 'Стоимость груза',
     value: 'cost',
   },
-  SHIPPING_DATE: {
-    label: 'Дата отгрузки',
-    value: 'shippingDate',
+  TARIFF: {
+    label: 'Тариф',
+    value: 'tariff',
   },
   VOLUME: {
     label: 'Объем',
