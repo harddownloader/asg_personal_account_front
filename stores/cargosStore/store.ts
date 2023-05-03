@@ -19,18 +19,22 @@ import {
   CargosItems,
   CargosState,
   uploadCargoImageResType,
-  CargoInterfaceFull,
-  CargoInterfaceForForm,
+  ICargoFull,
+  ICargoForForm,
   CargoAddResponse,
-  AddCargoInterface,
-  CargoInterfaceDBFormat,
+  IAddCargo,
+  ICargoDBFormat,
   CargoSavingResponse,
   spaceOfDB,
   UploadImageType,
   spaceItemType,
   addPhotoSpaceInfoArgs,
   addPhotoFileInfoArgs,
-  uploadCargoImageFileDataArgs, uploadCargoImageSpaceDataArgs, updateUploadImageArgsType, setUploadImageArgsType,
+  uploadCargoImageFileDataArgs,
+  uploadCargoImageSpaceDataArgs,
+  updateUploadImageArgsType,
+  setUploadImageArgsType,
+  ICargoDBFormatWithoutId,
 } from "@/stores/cargosStore/types"
 
 // const
@@ -47,6 +51,7 @@ import {
   checkAddCargoFields,
   checkUpdateCargoFields
 } from '@/stores/userStore/helpers/validation'
+import { getSortedCurrentItemsListByDate } from "@/stores/cargosStore/helpers"
 
 export class CargosStore {
   cargos: CargosState = {
@@ -93,16 +98,18 @@ export class CargosStore {
     currentUserCode: string
   }) => {
     this.cargos.isCurrentItemsListArchive = isArchive
-    this.cargos.currentItemsList = this.cargos.items.filter((cargo) => {
+    const filteredList = this.cargos.items.filter((cargo) => {
       return Boolean(
         isArchive
           ? Number(cargo.status) === CARGO_STATUS.CARGO_RECEIVED_BY_CUSTOMER
           : Number(cargo.status) !== CARGO_STATUS.CARGO_RECEIVED_BY_CUSTOMER
       ) && cargo.clientCode === currentUserCode
     })
+
+    this.cargos.currentItemsList = getSortedCurrentItemsListByDate(filteredList, 'asc')
   }
 
-  setCurrentItem = (currentItem: CargoInterfaceFull) => {
+  setCurrentItem = (currentItem: ICargoFull) => {
     this.cargos.currentItem = {...currentItem}
   }
 
@@ -118,7 +125,7 @@ export class CargosStore {
                  volume,
                  weight,
                  spaces,
-               }: CargoInterfaceForForm) => {
+               }: ICargoForForm) => {
     const response: CargoAddResponse = {
       data: {
         addingCargo: {
@@ -144,7 +151,8 @@ export class CargosStore {
     }
 
     this.cargos.isLoading = true
-    const newCargoData: AddCargoInterface = {
+    const newUpdatedAndCreatedAt = new Date()
+    const newCargoData: IAddCargo = {
       cargoId,
       clientCode,
       status,
@@ -156,6 +164,8 @@ export class CargosStore {
       volume,
       weight,
       spaces: prepareSpaces(spaces),
+      updatedAt: newUpdatedAndCreatedAt,
+      createdAt: newUpdatedAndCreatedAt,
     }
     await addDoc(
       collection(firebaseFirestore, CARGOS_DB_COLLECTION_NAME),
@@ -163,6 +173,8 @@ export class CargosStore {
     ).then((Doc) => {
       const newCargo = {
         ...newCargoData,
+        updatedAt: String(newUpdatedAndCreatedAt),
+        createdAt: String(newUpdatedAndCreatedAt),
         spaces: spaces,
         id: Doc.id
       }
@@ -180,10 +192,10 @@ export class CargosStore {
       ) || (
         !this.cargos.isCurrentItemsListArchive &&
         status !== CARGO_STATUS.CARGO_RECEIVED_BY_CUSTOMER
-      )) this.cargos.currentItemsList = [
+      )) this.cargos.currentItemsList = getSortedCurrentItemsListByDate([
         ...this.cargos.currentItemsList,
         newCargo
-      ]
+      ], 'asc')
 
       // set as current item in info block
       this.cargos.currentItem = newCargo
@@ -209,7 +221,9 @@ export class CargosStore {
                     weight,
                     id,
                     spaces,
-                  }: CargoInterfaceDBFormat) => {
+                    updatedAt,
+                    createdAt,
+                  }: ICargoDBFormat) => {
     const response: CargoSavingResponse = {
       data: {
         cargoSaving: {
@@ -278,8 +292,7 @@ export class CargosStore {
     this.cargos.isLoading = true
 
     const cargosRef = await doc(firebaseFirestore, CARGOS_DB_COLLECTION_NAME, id)
-    const newCargoData: CargoInterfaceDBFormat = {
-      id,
+    const requestData: ICargoDBFormatWithoutId = {
       cargoId,
       clientCode,
       status,
@@ -290,17 +303,25 @@ export class CargosStore {
       tariff,
       volume,
       weight,
-      spaces
+      spaces,
+      updatedAt,
+      createdAt,
     }
     const resSetDoc = await setDoc(
       cargosRef,
-      newCargoData,
+      requestData,
       { merge: false }
     ).then((docRef) => {
       console.log("Document written with ID: ", docRef)
 
+      const newCargoData: ICargoDBFormat = {
+        ...requestData,
+        updatedAt: String(updatedAt),
+        createdAt: String(createdAt),
+        id,
+      }
       const cargosTmp = JSON.parse(JSON.stringify(this.cargos.items))
-      const currentCargoIndex = cargosTmp.findIndex((cargo: CargoInterfaceFull) => cargo.id === id)
+      const currentCargoIndex = cargosTmp.findIndex((cargo: ICargoFull) => cargo.id === id)
       cargosTmp[currentCargoIndex] = { ...newCargoData }
       this.cargos.items = cargosTmp
 
@@ -319,12 +340,12 @@ export class CargosStore {
         const currItemsListTmp = JSON.parse(JSON.stringify(this.cargos.currentItemsList))
 
         currItemsListTmp.splice(currCargoInItemsList, 1, newCargoData)
-        this.cargos.currentItemsList = [...currItemsListTmp]
+        this.cargos.currentItemsList = getSortedCurrentItemsListByDate([...currItemsListTmp], 'asc')
       } else if (currCargoInItemsList !== -1) {
         const currItemsListTmp = JSON.parse(JSON.stringify(this.cargos.currentItemsList))
 
         currItemsListTmp.splice(currCargoInItemsList, 1)
-        this.cargos.currentItemsList = [...currItemsListTmp]
+        this.cargos.currentItemsList = getSortedCurrentItemsListByDate([...currItemsListTmp], 'asc')
       } else {
         console.error('Something went wrong in add/edit/delete from current cargo list logic')
       }

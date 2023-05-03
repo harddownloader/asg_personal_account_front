@@ -15,8 +15,8 @@ import { prepareSpaces } from '@/components/CargosBlock/helpers/prepareBody'
 
 // store
 import CargosStore, {
-  CargoInterfaceForForm,
-  CargoInterfaceFull,
+  ICargoForForm,
+  ICargoFull,
   CargoSavingResponse, spaceItemType, UploadImageType,
 } from "@/stores/cargosStore"
 import ClientsStore from "@/stores/clientsStore"
@@ -170,7 +170,7 @@ export const CargosInfo = observer(({
     reset,
     control,
     getValues,
-  } = useForm<CargoInterfaceFull>({
+  } = useForm<ICargoFull>({
     defaultValues: formDefaultValues
   })
 
@@ -193,7 +193,7 @@ export const CargosInfo = observer(({
                                                     tariff,
                                                     volume,
                                                     weight,
-                                                  }: CargoInterfaceForForm): Promise<void> => {
+                                                  }: ICargoForForm): Promise<void> => {
     if (!currentCargo?.id) {
       console.warn('currentCargo.id not found')
       return
@@ -213,7 +213,9 @@ export const CargosInfo = observer(({
       tariff,
       volume,
       weight,
-      spaces: prepareSpaces(currentTmpSpaces)
+      spaces: prepareSpaces(currentTmpSpaces),
+      createdAt: new Date(currentCargo.createdAt),
+      updatedAt: new Date(),
     })
 
     if (data?.cargoSaving?.errors.length) {

@@ -21,14 +21,14 @@ import { GRID_SPACING } from "@/lib/const"
 
 // store
 import CargosStore, {
-  CargoInterfaceFull
+  ICargoFull
 } from '@/stores/cargosStore'
 import ClientsStore from "@/stores/clientsStore"
 
 export interface CargosListProps {
   isLoading: boolean
   title?: string
-  items: Array<CargoInterfaceFull>
+  items: Array<ICargoFull>
   isCurrentUserManager: boolean
   isCurrentClientHasClientCode: boolean
   showConfirmToLeave?: Function
@@ -44,7 +44,7 @@ export const CargosList = observer(({
                            }: CargosListProps) => {
   const theme = useTheme()
 
-  const cargos: Array<CargoInterfaceFull> = useMemo(
+  const cargos: Array<ICargoFull> = useMemo(
     () => ([...CargosStore.cargos.currentItemsList]),
     [JSON.stringify([CargosStore.cargos.currentItemsList])]
   )
@@ -93,7 +93,7 @@ export const CargosList = observer(({
     return [getToggleBtnClass(!isArchive), getToggleBtnClass(isArchive)]
   }, [isArchive])
 
-  const selectCurrentCargoHandler = (cargo: CargoInterfaceFull) => {
+  const selectCurrentCargoHandler = (cargo: ICargoFull) => {
     const areFilesLoading = Boolean(CargosStore.cargos.notLoadedSpaces.numberOfPhotosCurrentlyBeingUploaded)
     if (areFilesLoading && showConfirmToLeave) {
       showConfirmToLeave(
@@ -107,7 +107,7 @@ export const CargosList = observer(({
     setNewCurrentItem(cargo)
   }
 
-  const setNewCurrentItem = (cargo: CargoInterfaceFull) => {
+  const setNewCurrentItem = (cargo: ICargoFull) => {
     CargosStore.setCurrentItem({...cargo})
   }
 
