@@ -1,18 +1,20 @@
-import React, {MouseEvent, useMemo, useState} from "react"
+import React, { MouseEvent, useMemo, useState } from "react"
 import { observer } from "mobx-react-lite"
 
 // mui
-import { Avatar, Divider, Grid, Typography } from "@mui/material"
+import {
+  Grid,
+  Tooltip,
+  Typography,
+  Collapse
+} from "@mui/material"
 import EditIcon from '@mui/icons-material/Edit'
-import { useTheme } from "@mui/material/styles"
-import Collapse from '@mui/material/Collapse'
 
 // types
 import type { openEditModalHandlerArgs } from '@/components/CargosBlock/ClientsList/ClientsList'
 
 // store
 import { UserOfDB } from '@/stores/userStore'
-import CargosStore from "@/stores/cargosStore";
 import ClientsStore from "@/stores/clientsStore"
 
 export interface ClientsListItemProps {
@@ -68,11 +70,12 @@ export const ClientsListItem = observer(({
                       className={'flex items-center justify-center w-8 h-8 p-1 rounded cursor-pointer ml-4 border border-brand bg-white text-brand hover:text-white hover:bg-brand'}
                       onClick={clickHandler}
                     >
-                      <EditIcon
-                        // fontSize="small"
-                        color="inherit"
-                        className={'w-[1.5rem] h-[1.5rem]'}
-                      />
+                      <Tooltip title="Редактировать клиента">
+                        <EditIcon
+                          color="inherit"
+                          className={'w-[1.5rem] h-[1.5rem]'}
+                        />
+                      </Tooltip>
                     </div>
                   </Collapse>
                 </Grid>
