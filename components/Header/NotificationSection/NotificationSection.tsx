@@ -35,7 +35,7 @@ import { IconBell } from '@tabler/icons-react'
 
 // store
 import NotificationsStore from "@/stores/notificationsStore"
-import {observer} from "mobx-react-lite";
+import { observer } from "mobx-react-lite"
 
 // notification status options
 const status = [
