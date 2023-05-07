@@ -1,4 +1,8 @@
-import { makeAutoObservable } from 'mobx'
+import {
+  action,
+  makeObservable,
+  observable
+} from 'mobx'
 import { v4 as uuidv4 } from 'uuid'
 import { collection, doc, setDoc, addDoc } from "firebase/firestore"
 import {
@@ -53,6 +57,15 @@ import {
 } from '@/stores/userStore/helpers/validation'
 import { getSortedCurrentItemsListByDate } from "@/stores/cargosStore/helpers"
 
+// stores
+import {
+  IFiltersOfList,
+  SORTING_BY_DATE,
+  TByDate,
+  TIsShowFilters
+} from '@/stores/cargosStore/filters'
+import ClientsStore from "@/stores/clientsStore"
+
 export class CargosStore {
   cargos: CargosState = {
     items: [],
@@ -66,8 +79,48 @@ export class CargosStore {
     isLoading: false,
   }
 
+  filtersOfList: IFiltersOfList = {
+    isShowFilters: false,
+    byDate: SORTING_BY_DATE.ASC
+  }
+
   constructor() {
-    makeAutoObservable(this)
+    makeObservable(this, {
+      cargos: observable,
+      toggleIsCurrentItemsListArchive: action,
+      setList: action,
+      clearList: action,
+      clearCurrentItemsList: action,
+      clearCurrentItem: action,
+      setCurrentItemsListByStatus: action,
+      setCurrentItem: action,
+      add: action,
+      update: action,
+      generateSpaceItem: action,
+      initNotLoadedSpaces: action,
+      addNotLoadedSpaces: action,
+      clearNotLoadedSpaces: action,
+      addSpace: action,
+      updateSpace: action,
+      removeSpace: action,
+      getFileIndex: action,
+      increaseUploadingFiles: action,
+      decreaseUploadingFiles: action,
+      resetUploadFiles: action,
+      addPhoto: action,
+      removePhoto: action,
+      setUploadImage: action,
+      updateUploadImage: action,
+      hideUploadImageProgress: action,
+      uploadCargoImage: action,
+      deleteCargoImage: action,
+      clearAll: action,
+
+      // FILTERS
+      toggleShowingFilters: action,
+      toggleByDate: action,
+      filtersOfList: observable,
+    })
   }
 
   toggleIsCurrentItemsListArchive = (status: boolean) => {
@@ -97,6 +150,7 @@ export class CargosStore {
     isArchive: boolean,
     currentUserCode: string
   }) => {
+    console.log('setCurrentItemsListByStatus', JSON.parse(JSON.stringify(this.cargos.currentItemsList)))
     this.cargos.isCurrentItemsListArchive = isArchive
     const filteredList = this.cargos.items.filter((cargo) => {
       return Boolean(
@@ -106,7 +160,17 @@ export class CargosStore {
       ) && cargo.clientCode === currentUserCode
     })
 
-    this.cargos.currentItemsList = getSortedCurrentItemsListByDate(filteredList, 'asc')
+    // this.filtersOfList.byDate - не изменяется
+    const sortedCargos = getSortedCurrentItemsListByDate(
+      JSON.parse(JSON.stringify(filteredList)),
+      this.filtersOfList.byDate
+    ) // FiltersStore.filtersOfList.byDate
+    console.log({
+      sortedCargos,
+      filteredList: JSON.parse(JSON.stringify(filteredList)),
+      'this.filtersOfList.byDate': this.filtersOfList.byDate
+    })
+    this.cargos.currentItemsList = sortedCargos
   }
 
   setCurrentItem = (currentItem: ICargoFull) => {
@@ -195,7 +259,7 @@ export class CargosStore {
       )) this.cargos.currentItemsList = getSortedCurrentItemsListByDate([
         ...this.cargos.currentItemsList,
         newCargo
-      ], 'asc')
+      ], this.filtersOfList.byDate)
 
       // set as current item in info block
       this.cargos.currentItem = newCargo
@@ -340,12 +404,12 @@ export class CargosStore {
         const currItemsListTmp = JSON.parse(JSON.stringify(this.cargos.currentItemsList))
 
         currItemsListTmp.splice(currCargoInItemsList, 1, newCargoData)
-        this.cargos.currentItemsList = getSortedCurrentItemsListByDate([...currItemsListTmp], 'asc')
+        this.cargos.currentItemsList = getSortedCurrentItemsListByDate([...currItemsListTmp], this.filtersOfList.byDate)
       } else if (currCargoInItemsList !== -1) {
         const currItemsListTmp = JSON.parse(JSON.stringify(this.cargos.currentItemsList))
 
         currItemsListTmp.splice(currCargoInItemsList, 1)
-        this.cargos.currentItemsList = getSortedCurrentItemsListByDate([...currItemsListTmp], 'asc')
+        this.cargos.currentItemsList = getSortedCurrentItemsListByDate([...currItemsListTmp], this.filtersOfList.byDate)
       } else {
         console.error('Something went wrong in add/edit/delete from current cargo list logic')
       }
@@ -948,5 +1012,24 @@ export class CargosStore {
     this.clearCurrentItemsList()
     this.clearCurrentItem()
     this.clearList()
+  }
+
+  // FILTERS
+  toggleShowingFilters = (status: TIsShowFilters) => {
+    this.filtersOfList.isShowFilters = status
+  }
+
+  toggleByDate = (status: TByDate) => {
+    this.filtersOfList.byDate = status
+
+    if (!ClientsStore.clients.currentItem?.userCodeId) {
+      console.warn('toggleByDate error: ClientsStore.clients.currentItem.userCodeId not found')
+      return
+    }
+
+    this.setCurrentItemsListByStatus({
+      isArchive: this.cargos.isCurrentItemsListArchive,
+      currentUserCode: ClientsStore.clients.currentItem.userCodeId
+    })
   }
 }

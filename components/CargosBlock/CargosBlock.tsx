@@ -32,7 +32,6 @@ export const CargosBlock = observer(({}: CargosBlockProps) => {
 
   useEffect(() => {
     setLoading(false)
-
   }, [])
 
   const isManager = Boolean(UserStore.user.currentUser?.role === USER_ROLE.MANAGER)
@@ -55,7 +54,6 @@ export const CargosBlock = observer(({}: CargosBlockProps) => {
             </Grid>}
             <Grid item lg={4} md={6} sm={6} xs={12}>
               <CargosListWithConfirm
-                items={CargosStore.cargos.currentItemsList}
                 isLoading={isLoading}
                 title={"Список грузов"}
                 isCurrentUserManager={isManager}

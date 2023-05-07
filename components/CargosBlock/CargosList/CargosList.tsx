@@ -8,13 +8,21 @@ import { observer } from "mobx-react-lite"
 
 // mui
 import AddIcon from '@mui/icons-material/Add'
-import { Button, Divider, Grid, Typography } from "@mui/material"
+import FilterAltIcon from '@mui/icons-material/FilterAlt'
+import {
+  Button,
+  Divider,
+  Grid,
+  Tooltip,
+  Typography
+} from "@mui/material"
 import { useTheme } from "@mui/material/styles"
 
 // project components
 import { CargosListItem } from '@/components/CargosBlock/CargosList/CargosListItem'
 import { AddCargoDialog } from "@/components/CargosBlock/CargosList/AddCargoDialog/AddCargoDialog"
 import { ScrollableBlock } from "@/components/ui-component/ScrollableBlock"
+import { FiltersGridWrap } from "@/components/CargosBlock/CargosList/Filters"
 
 // utils
 import { GRID_SPACING } from "@/lib/const"
@@ -28,7 +36,6 @@ import ClientsStore from "@/stores/clientsStore"
 export interface CargosListProps {
   isLoading: boolean
   title?: string
-  items: Array<ICargoFull>
   isCurrentUserManager: boolean
   isCurrentClientHasClientCode: boolean
   showConfirmToLeave?: Function
@@ -37,7 +44,6 @@ export interface CargosListProps {
 export const CargosList = observer(({
                                       isLoading,
                                       title="Список грузов",
-                                      items,
                                       isCurrentUserManager,
                                       isCurrentClientHasClientCode,
                                       showConfirmToLeave,
@@ -111,6 +117,11 @@ export const CargosList = observer(({
     CargosStore.setCurrentItem({...cargo})
   }
 
+  const isShowFilters = CargosStore.filtersOfList.isShowFilters
+  const showFiltersHandler = () => {
+    CargosStore.toggleShowingFilters(!isShowFilters)
+  }
+
   return (
     <>
       <ScrollableBlock
@@ -141,21 +152,41 @@ export const CargosList = observer(({
               </Grid>
               {isCurrentUserManager && isCurrentClientHasClientCode && <Grid item>
                 <>
-                  <AddIcon
-                    fontSize="small"
-                    sx={{
-                      // @ts-ignore
-                      color: theme.palette.primary[200],
-                      cursor: 'pointer'
-                    }}
-                    aria-controls="menu-popular-card"
-                    aria-haspopup="true"
-                    onClick={handleClick}
-                  />
+                  <Tooltip title="Фильтры">
+                    <FilterAltIcon
+                      className={'w-[1.5rem] h-[1.5rem] mx-1'}
+                      sx={{
+                        // @ts-ignore
+                        color: theme.palette.primary[200],
+                        cursor: 'pointer'
+                      }}
+                      aria-controls="menu-popular-card"
+                      aria-haspopup="true"
+                      onClick={showFiltersHandler}
+                    />
+                  </Tooltip>
+                  <Tooltip title="Создать новый груз">
+                    <AddIcon
+                      className={'w-[1.5rem] h-[1.5rem]'}
+                      sx={{
+                        // @ts-ignore
+                        color: theme.palette.primary[200],
+                        cursor: 'pointer'
+                      }}
+                      aria-controls="menu-popular-card"
+                      aria-haspopup="true"
+                      onClick={handleClick}
+                    />
+                  </Tooltip>
                 </>
               </Grid>}
             </Grid>
           </Grid>
+
+          {/* Filters */}
+          <FiltersGridWrap isShowFilters={isShowFilters} />
+
+          {/* Tabs */}
           <Grid item xs={6}>
             <Button
               type="submit"
