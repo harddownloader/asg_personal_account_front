@@ -150,7 +150,6 @@ export class CargosStore {
     isArchive: boolean,
     currentUserCode: string
   }) => {
-    console.log('setCurrentItemsListByStatus', JSON.parse(JSON.stringify(this.cargos.currentItemsList)))
     this.cargos.isCurrentItemsListArchive = isArchive
     const filteredList = this.cargos.items.filter((cargo) => {
       return Boolean(
@@ -160,16 +159,10 @@ export class CargosStore {
       ) && cargo.clientCode === currentUserCode
     })
 
-    // this.filtersOfList.byDate - не изменяется
     const sortedCargos = getSortedCurrentItemsListByDate(
       JSON.parse(JSON.stringify(filteredList)),
       this.filtersOfList.byDate
-    ) // FiltersStore.filtersOfList.byDate
-    console.log({
-      sortedCargos,
-      filteredList: JSON.parse(JSON.stringify(filteredList)),
-      'this.filtersOfList.byDate': this.filtersOfList.byDate
-    })
+    )
     this.cargos.currentItemsList = sortedCargos
   }
 
