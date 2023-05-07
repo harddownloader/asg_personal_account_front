@@ -9,6 +9,8 @@ import {
   Collapse
 } from "@mui/material"
 import EditIcon from '@mui/icons-material/Edit'
+import CheckCircleIcon from '@mui/icons-material/CheckCircle'
+import PanoramaFishEyeIcon from '@mui/icons-material/PanoramaFishEye'
 
 // types
 import type { openEditModalHandlerArgs } from '@/components/CargosBlock/ClientsList/ClientsList'
@@ -52,7 +54,14 @@ export const ClientsListItem = observer(({
       >
         <Grid item className={"pb-2"}>
           <Grid container alignItems="center" justifyContent="space-between">
-            <Grid item>
+            <Grid item className={"flex justify-center"}>
+              <Collapse in={!isCurrentClientSelected && isShown} timeout={200} orientation={'horizontal'}>
+                <PanoramaFishEyeIcon className={'w-[1.5rem] h-[1.5rem] mr-1'} />
+              </Collapse>
+              <Collapse in={isCurrentClientSelected} timeout={200} orientation={'horizontal'}>
+                <CheckCircleIcon className={'w-[1.5rem] h-[1.5rem] mr-1'} />
+              </Collapse>
+
               <Typography className={"font-bold"} variant="subtitle1" color="inherit">
                 { item.name }
               </Typography>
