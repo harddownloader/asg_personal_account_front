@@ -34,7 +34,7 @@ export const CargosInfo = observer(({
 
   // load current cargo
   const currentCargoStr = JSON.stringify(CargosStore.cargos?.currentItem)
-  const currentCargo = useMemo(
+  const currentCargo: ICargoFull | null = useMemo(
     () => {
       const currentItem = JSON.parse(currentCargoStr)
       return currentItem ? {...currentItem} : null
@@ -261,23 +261,23 @@ export const CargosInfo = observer(({
         isLoading={isLoading}
         isScrollable
       >
-          <CargosForm
-            isFull={isFull}
-            isContentVisible={Boolean(CargosStore.cargos.currentItem)}
-            title={title}
-            handleSubmit={handleSaveCargo}
-            formControl={{
-              registerForm,
-              errorsForm,
-              setErrorForm,
-              control,
-              formDefaultValues,
-              reset,
-              getValues,
-            }}
-            currentTmpSpaces={getCurrentTmpSpaces(JSON.parse(notLoadedSpacesSrt))}
-            isItEditForm={true}
-          />
+        <CargosForm
+          isFull={isFull}
+          isContentVisible={Boolean(CargosStore.cargos.currentItem)}
+          title={title}
+          handleSubmit={handleSaveCargo}
+          formControl={{
+            registerForm,
+            errorsForm,
+            setErrorForm,
+            control,
+            formDefaultValues,
+            reset,
+            getValues,
+          }}
+          currentTmpSpaces={getCurrentTmpSpaces(JSON.parse(notLoadedSpacesSrt))}
+          isItEditForm={true}
+        />
       </ScrollableBlock>
     </>
   )
