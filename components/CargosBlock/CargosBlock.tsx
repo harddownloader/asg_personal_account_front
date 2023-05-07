@@ -16,16 +16,12 @@ import { ClientsListProps } from "@/components/CargosBlock/ClientsList/ClientsLi
 
 // utils
 import { GRID_SPACING } from '@/lib/const'
-import { fixMeInTheFuture } from '@/lib/types'
 
 // store
-import CargosStore from '@/stores/cargosStore'
 import ClientsStore from "@/stores/clientsStore"
 import UserStore, { USER_ROLE } from "@/stores/userStore"
 
-export interface CargosBlockProps {
-
-}
+export interface CargosBlockProps {}
 
 export const CargosBlock = observer(({}: CargosBlockProps) => {
   const [isLoading, setLoading] = useState(true)
