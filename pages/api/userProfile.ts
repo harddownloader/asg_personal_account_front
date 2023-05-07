@@ -83,7 +83,7 @@ const UserProfileHandler = async (req: NextApiRequest, res: NextApiResponse) => 
           return userRecord
         }).catch((error) => {
           console.log('Error updating user:', error)
-        });
+        })
 
         const newUserData = {
           ...userDB,
