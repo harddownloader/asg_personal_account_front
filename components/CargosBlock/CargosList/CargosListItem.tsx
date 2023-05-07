@@ -2,9 +2,7 @@ import React, { useMemo, useState } from "react"
 import { observer } from "mobx-react-lite"
 
 // mui
-import { Avatar, Divider, Grid, MenuItem, Typography } from "@mui/material"
-import KeyboardArrowUpOutlinedIcon from "@mui/icons-material/KeyboardArrowUpOutlined"
-import { useTheme } from "@mui/material/styles"
+import { Grid, Typography } from "@mui/material"
 import Collapse from '@mui/material/Collapse'
 
 // store
