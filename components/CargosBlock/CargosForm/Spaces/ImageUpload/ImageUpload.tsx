@@ -50,14 +50,14 @@ export const ImageUpload = observer(({
 
     const img = new Image()
     img.onload = function() {
-      // alert(this.width + " " + this.height);
+      // alert(this.width + " " + this.height)
       // @ts-ignore
       metadata.width = this.width
       // @ts-ignore
       metadata.height = this.height
     }
     img.onerror = function() {
-      alert( "not a valid file: " + file.type);
+      alert( "not a valid file: " + file.type)
     }
 
     return metadata
