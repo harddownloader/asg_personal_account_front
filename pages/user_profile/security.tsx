@@ -123,15 +123,15 @@ function ProfileSecurityPage({
         switch (e.field) {
           case "currentPassword": {
             setErrorForm("currentPassword", { message: e.message! })
-            break;
+            break
           }
           case "newPassword" : {
             setErrorForm("newPassword", { message: e.message! })
-            break;
+            break
           }
           case "repeatNewPassword": {
             setErrorForm("repeatNewPassword", { message: e.message! })
-            break;
+            break
           }
           case "server.firebase": {
             if (e.message === "auth/requires-recent-login") {
@@ -140,7 +140,7 @@ function ProfileSecurityPage({
               setErrorForm("server.firebase", { message: e.message! })
             }
 
-            break;
+            break
           }
           default: {
             console.error("Change profile security data, Error:", e)

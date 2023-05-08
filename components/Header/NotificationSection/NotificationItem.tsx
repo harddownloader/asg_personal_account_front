@@ -1,10 +1,7 @@
-import { useState } from 'react'
-
 // mui
 import {
   Avatar,
-  Button, ButtonBase, Divider,
-  Grid, List,
+  Grid,
   ListItem,
   ListItemAvatar,
   ListItemSecondaryAction,
@@ -14,11 +11,15 @@ import {
 import { styled, useTheme } from "@mui/material/styles"
 
 // assets
-import { IconBrandTelegram, IconMailbox } from "@tabler/icons-react"
+import { IconMailbox } from "@tabler/icons-react"
 
 // store
-import NotificationsStore, { notificationId, contentType, notificationStatus } from "@/stores/notificationsStore"
-import {StyledBadge} from "../../ui-component/StyledBadge/StyledBadge";
+import NotificationsStore, {
+  notificationId,
+  contentType,
+  notificationStatus
+} from "@/stores/notificationsStore"
+import { StyledBadge } from "@/components/ui-component/StyledBadge/StyledBadge"
 
 // styles
 const ListItemWrapper = styled('div')(({ theme }) => ({
@@ -61,7 +62,6 @@ export const NotificationItem = ({
       <ListItemWrapper onMouseEnter={markNotificationAsViewed}>
         <ListItem alignItems="center">
           <ListItemAvatar>
-
             <StyledBadge
               overlap="circular"
               anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
@@ -79,7 +79,6 @@ export const NotificationItem = ({
                 <IconMailbox stroke={1.5} size="1.3rem" />
               </Avatar>
             </StyledBadge>
-
           </ListItemAvatar>
           <ListItemText primary={<Typography variant="subtitle1">{title}</Typography>} />
           <ListItemSecondaryAction>

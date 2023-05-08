@@ -8,27 +8,34 @@ import { observer } from "mobx-react-lite"
 
 // mui
 import AddIcon from '@mui/icons-material/Add'
-import { Button, Divider, Grid, Typography } from "@mui/material"
+import FilterAltIcon from '@mui/icons-material/FilterAlt'
+import {
+  Button,
+  Divider,
+  Grid,
+  Tooltip,
+  Typography
+} from "@mui/material"
 import { useTheme } from "@mui/material/styles"
 
 // project components
 import { CargosListItem } from '@/components/CargosBlock/CargosList/CargosListItem'
 import { AddCargoDialog } from "@/components/CargosBlock/CargosList/AddCargoDialog/AddCargoDialog"
 import { ScrollableBlock } from "@/components/ui-component/ScrollableBlock"
+import { FiltersGridWrap } from "@/components/CargosBlock/CargosList/Filters"
 
 // utils
 import { GRID_SPACING } from "@/lib/const"
 
 // store
 import CargosStore, {
-  CargoInterfaceFull
+  ICargoFull
 } from '@/stores/cargosStore'
 import ClientsStore from "@/stores/clientsStore"
 
 export interface CargosListProps {
   isLoading: boolean
   title?: string
-  items: Array<CargoInterfaceFull>
   isCurrentUserManager: boolean
   isCurrentClientHasClientCode: boolean
   showConfirmToLeave?: Function
@@ -37,19 +44,28 @@ export interface CargosListProps {
 export const CargosList = observer(({
                                       isLoading,
                                       title="Список грузов",
-                                      items,
                                       isCurrentUserManager,
                                       isCurrentClientHasClientCode,
                                       showConfirmToLeave,
                            }: CargosListProps) => {
   const theme = useTheme()
 
-  const cargos: Array<CargoInterfaceFull> = useMemo(
+  const cargos: Array<ICargoFull> = useMemo(
     () => ([...CargosStore.cargos.currentItemsList]),
     [JSON.stringify([CargosStore.cargos.currentItemsList])]
   )
   const isArchive = CargosStore.cargos.isCurrentItemsListArchive
   const [isOpenAddModal, setIsOpenAddModal] = useState<boolean>(false)
+
+  useEffect(() => {
+    if (
+      isCurrentUserManager &&
+      !isCurrentClientHasClientCode &&
+      CargosStore.cargos.currentItemsList.length === 0
+    ) {
+      archiveItemsToggle(false)
+    }
+  }, [])
 
   useEffect(() => {
    if (
@@ -62,14 +78,10 @@ export const CargosList = observer(({
   }, [isCurrentClientHasClientCode])
 
   const archiveItemsToggle = (status: boolean): void => {
-    if (ClientsStore.clients.currentItem?.userCodeId) {
-      // set cargos list if you client
-      CargosStore.setCurrentItemsListByStatus({
-        isArchive: status,
-        currentUserCode: ClientsStore.clients.currentItem.userCodeId
-      })
-    //  set current cargo store
-    }
+    CargosStore.setCurrentItemsListByStatus({
+      isArchive: status,
+      currentUserCode: ClientsStore.clients.currentItem?.userCodeId ? ClientsStore.clients.currentItem.userCodeId : undefined
+    })
   }
 
   const handleClick = () => {
@@ -93,7 +105,7 @@ export const CargosList = observer(({
     return [getToggleBtnClass(!isArchive), getToggleBtnClass(isArchive)]
   }, [isArchive])
 
-  const selectCurrentCargoHandler = (cargo: CargoInterfaceFull) => {
+  const selectCurrentCargoHandler = (cargo: ICargoFull) => {
     const areFilesLoading = Boolean(CargosStore.cargos.notLoadedSpaces.numberOfPhotosCurrentlyBeingUploaded)
     if (areFilesLoading && showConfirmToLeave) {
       showConfirmToLeave(
@@ -107,8 +119,21 @@ export const CargosList = observer(({
     setNewCurrentItem(cargo)
   }
 
-  const setNewCurrentItem = (cargo: CargoInterfaceFull) => {
+  const setNewCurrentItem = (cargo: ICargoFull) => {
+    // if we are here from all cargos list(not by user)
+    if (isCurrentUserManager && (
+      !ClientsStore.clients.currentItem?.id ||
+      cargo.clientCode !== ClientsStore.clients.currentItem.userCodeId
+    )) {
+      const clientOfCargo = ClientsStore.clients.items.find((client) => client.userCodeId === cargo.clientCode)
+      if (clientOfCargo) ClientsStore.setCurrentItem({...clientOfCargo})
+    }
     CargosStore.setCurrentItem({...cargo})
+  }
+
+  const isShowFilters = CargosStore.filtersOfList.isShowFilters
+  const showFiltersHandler = () => {
+    CargosStore.toggleShowingFilters(!isShowFilters)
   }
 
   return (
@@ -139,23 +164,43 @@ export const CargosList = observer(({
               <Grid item>
                 <Typography variant="h4">{title}</Typography>
               </Grid>
-              {isCurrentUserManager && isCurrentClientHasClientCode && <Grid item>
+              {isCurrentUserManager && <Grid item>
                 <>
-                  <AddIcon
-                    fontSize="small"
-                    sx={{
-                      // @ts-ignore
-                      color: theme.palette.primary[200],
-                      cursor: 'pointer'
-                    }}
-                    aria-controls="menu-popular-card"
-                    aria-haspopup="true"
-                    onClick={handleClick}
-                  />
+                  <Tooltip title="Фильтры">
+                    <FilterAltIcon
+                      className={'w-[1.5rem] h-[1.5rem] mx-1'}
+                      sx={{
+                        // @ts-ignore
+                        color: theme.palette.primary[200],
+                        cursor: 'pointer'
+                      }}
+                      aria-controls="menu-popular-card"
+                      aria-haspopup="true"
+                      onClick={showFiltersHandler}
+                    />
+                  </Tooltip>
+                  {isCurrentClientHasClientCode && <Tooltip title="Создать новый груз">
+                    <AddIcon
+                      className={'w-[1.5rem] h-[1.5rem]'}
+                      sx={{
+                        // @ts-ignore
+                        color: theme.palette.primary[200],
+                        cursor: 'pointer'
+                      }}
+                      aria-controls="menu-popular-card"
+                      aria-haspopup="true"
+                      onClick={handleClick}
+                    />
+                  </Tooltip>}
                 </>
               </Grid>}
             </Grid>
           </Grid>
+
+          {/* Filters */}
+          <FiltersGridWrap isShowFilters={isShowFilters} />
+
+          {/* Tabs */}
           <Grid item xs={6}>
             <Button
               type="submit"

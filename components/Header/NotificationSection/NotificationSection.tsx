@@ -1,5 +1,5 @@
 // @ts-nocheck
-import {useState, useRef, useEffect, useMemo} from 'react'
+import React, {useState, useRef, useEffect, useMemo} from 'react'
 
 // mui
 import { useTheme } from '@mui/material/styles'
@@ -16,7 +16,7 @@ import {
   Paper,
   Popper,
   Stack,
-  TextField,
+  TextField, Tooltip,
   Typography,
   useMediaQuery
 } from '@mui/material'
@@ -35,7 +35,7 @@ import { IconBell } from '@tabler/icons-react'
 
 // store
 import NotificationsStore from "@/stores/notificationsStore"
-import {observer} from "mobx-react-lite";
+import { observer } from "mobx-react-lite"
 
 // notification status options
 const status = [
@@ -112,40 +112,40 @@ export const NotificationSection = observer(() => {
           }
         }}
       >
-        <ButtonBase>
-
-          <StyledBadge
-            overlap="circular"
-            anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
-            variant="dot"
-            invisible={!AreThereAnyUnreadNotifications}
-          >
-            <Avatar
-              variant="rounded"
-              sx={{
-                ...theme.typography.commonAvatar,
-                ...theme.typography.mediumAvatar,
-                borderRadius: '4px',
-                transition: 'all .2s ease-in-out',
-                background: theme.palette.common.white,
-                color: theme.palette.primary.main,
-                '&[aria-controls="menu-list-grow"],&:hover': {
-                  background: theme.palette.primary.main,
-                  color: theme.palette.common.white,
-                  border: `1px ${theme.palette.common.white} solid`,
-                }
-              }}
-              ref={anchorRef}
-              aria-controls={open ? 'menu-list-grow' : undefined}
-              aria-haspopup="true"
-              onClick={handleToggle}
-              color="inherit"
+        <Tooltip title={'Уведомления'}>
+          <ButtonBase>
+            <StyledBadge
+              overlap="circular"
+              anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+              variant="dot"
+              invisible={!AreThereAnyUnreadNotifications}
             >
-              <IconBell stroke={1.5} size="1.3rem" />
-            </Avatar>
-          </StyledBadge>
-
-        </ButtonBase>
+              <Avatar
+                variant="rounded"
+                sx={{
+                  ...theme.typography.commonAvatar,
+                  ...theme.typography.mediumAvatar,
+                  borderRadius: '4px',
+                  transition: 'all .2s ease-in-out',
+                  background: theme.palette.common.white,
+                  color: theme.palette.primary.main,
+                  '&[aria-controls="menu-list-grow"],&:hover': {
+                    background: theme.palette.primary.main,
+                    color: theme.palette.common.white,
+                    border: `1px ${theme.palette.common.white} solid`,
+                  }
+                }}
+                ref={anchorRef}
+                aria-controls={open ? 'menu-list-grow' : undefined}
+                aria-haspopup="true"
+                onClick={handleToggle}
+                color="inherit"
+              >
+                <IconBell stroke={1.5} size="1.3rem" />
+              </Avatar>
+            </StyledBadge>
+          </ButtonBase>
+        </Tooltip>
       </Box>
       <Popper
         placement={matchesXs ? 'bottom' : 'bottom-end'}

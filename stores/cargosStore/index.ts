@@ -1,10 +1,10 @@
 import { CargosStore } from './store'
 export type {
-  CargoInterfaceFull,
+  ICargoFull,
   UploadImageType,
   spaceItemIdType,
   spaceItemType,
-  CargoInterfaceForForm,
+  ICargoForForm,
   CargoAddResponse,
   CargoSavingResponse,
   spaceOfDB,

@@ -2,20 +2,18 @@ import React, { useMemo, useState } from "react"
 import { observer } from "mobx-react-lite"
 
 // mui
-import { Avatar, Divider, Grid, MenuItem, Typography } from "@mui/material"
-import KeyboardArrowUpOutlinedIcon from "@mui/icons-material/KeyboardArrowUpOutlined"
-import { useTheme } from "@mui/material/styles"
+import { Grid, Typography } from "@mui/material"
 import Collapse from '@mui/material/Collapse'
 
 // store
 import CargosStore, {
-  CargoInterfaceFull,
+  ICargoFull,
   STATUS_OPTIONS
 } from '@/stores/cargosStore'
 
 export interface CargosListItemProps {
-  item: CargoInterfaceFull
-  selectCurrentCargoHandler: (cargo: CargoInterfaceFull) => void
+  item: ICargoFull
+  selectCurrentCargoHandler: (cargo: ICargoFull) => void
 }
 
 export const CargosListItem = observer(({
