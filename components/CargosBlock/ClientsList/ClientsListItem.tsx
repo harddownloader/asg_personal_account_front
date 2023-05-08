@@ -1,4 +1,8 @@
-import React, { MouseEvent, useMemo, useState } from "react"
+import React, {
+  MouseEvent,
+  useMemo,
+  useState
+} from "react"
 import { observer } from "mobx-react-lite"
 
 // mui
@@ -18,6 +22,7 @@ import type { openEditModalHandlerArgs } from '@/components/CargosBlock/ClientsL
 // store
 import { UserOfDB } from '@/stores/userStore'
 import ClientsStore from "@/stores/clientsStore"
+import CargosStore from '@/stores/cargosStore'
 
 export interface ClientsListItemProps {
   item: UserOfDB,
@@ -30,7 +35,7 @@ export const ClientsListItem = observer(({
                                            openEditModalHandler,
                                            selectCurrentClientHandler,
 }: ClientsListItemProps) => {
-  const [isShown, setIsShown] = useState(false)
+  const [isShown, setIsShown] = useState<boolean>(false)
   const selectedClient = useMemo(
     () => ({...ClientsStore.clients.currentItem}),
     [JSON.stringify(ClientsStore.clients.currentItem)]
@@ -40,6 +45,16 @@ export const ClientsListItem = observer(({
   const clickHandler = (e: MouseEvent<HTMLElement>): void => {
     e.stopPropagation()
     openEditModalHandler({ clientId: item.id })
+  }
+
+  const unselectUserHandler = (e: MouseEvent<SVGSVGElement>): void => {
+    e.stopPropagation()
+    ClientsStore.setCurrentItem(null)
+    CargosStore.setCurrentItem(null)
+
+    CargosStore.setCurrentItemsListByStatus({
+      isArchive: CargosStore.cargos.isCurrentItemsListArchive
+    })
   }
 
   return (
@@ -54,12 +69,23 @@ export const ClientsListItem = observer(({
       >
         <Grid item className={"pb-2"}>
           <Grid container alignItems="center" justifyContent="space-between">
-            <Grid item className={"flex justify-center"}>
-              <Collapse in={!isCurrentClientSelected && isShown} timeout={200} orientation={'horizontal'}>
-                <PanoramaFishEyeIcon className={'w-[1.5rem] h-[1.5rem] mr-1'} />
+            <Grid item className={"flex justify-center items-center"}>
+              <Collapse
+                in={!isCurrentClientSelected && isShown}
+                timeout={200}
+                orientation={'horizontal'}
+              >
+                <PanoramaFishEyeIcon className={'w-[1.7rem] h-[1.7rem] mr-1'} />
               </Collapse>
-              <Collapse in={isCurrentClientSelected} timeout={200} orientation={'horizontal'}>
-                <CheckCircleIcon className={'w-[1.5rem] h-[1.5rem] mr-1'} />
+              <Collapse
+                in={isCurrentClientSelected}
+                timeout={200}
+                orientation={'horizontal'}
+              >
+                <CheckCircleIcon
+                  className={'w-[1.7rem] h-[1.7rem] mr-1'}
+                  onClick={unselectUserHandler}
+                />
               </Collapse>
 
               <Typography className={"font-bold"} variant="subtitle1" color="inherit">

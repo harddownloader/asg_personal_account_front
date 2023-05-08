@@ -58,6 +58,16 @@ export const CargosList = observer(({
   const [isOpenAddModal, setIsOpenAddModal] = useState<boolean>(false)
 
   useEffect(() => {
+    if (
+      isCurrentUserManager &&
+      !isCurrentClientHasClientCode &&
+      CargosStore.cargos.currentItemsList.length === 0
+    ) {
+      archiveItemsToggle(false)
+    }
+  }, [])
+
+  useEffect(() => {
    if (
      !isCurrentUserManager &&
      isCurrentClientHasClientCode &&
@@ -68,14 +78,10 @@ export const CargosList = observer(({
   }, [isCurrentClientHasClientCode])
 
   const archiveItemsToggle = (status: boolean): void => {
-    if (ClientsStore.clients.currentItem?.userCodeId) {
-      // set cargos list if you client
-      CargosStore.setCurrentItemsListByStatus({
-        isArchive: status,
-        currentUserCode: ClientsStore.clients.currentItem.userCodeId
-      })
-    //  set current cargo store
-    }
+    CargosStore.setCurrentItemsListByStatus({
+      isArchive: status,
+      currentUserCode: ClientsStore.clients.currentItem?.userCodeId ? ClientsStore.clients.currentItem.userCodeId : undefined
+    })
   }
 
   const handleClick = () => {
@@ -114,6 +120,14 @@ export const CargosList = observer(({
   }
 
   const setNewCurrentItem = (cargo: ICargoFull) => {
+    // if we are here from all cargos list(not by user)
+    if (isCurrentUserManager && (
+      !ClientsStore.clients.currentItem?.id ||
+      cargo.clientCode !== ClientsStore.clients.currentItem.userCodeId
+    )) {
+      const clientOfCargo = ClientsStore.clients.items.find((client) => client.userCodeId === cargo.clientCode)
+      if (clientOfCargo) ClientsStore.setCurrentItem({...clientOfCargo})
+    }
     CargosStore.setCurrentItem({...cargo})
   }
 
@@ -150,7 +164,7 @@ export const CargosList = observer(({
               <Grid item>
                 <Typography variant="h4">{title}</Typography>
               </Grid>
-              {isCurrentUserManager && isCurrentClientHasClientCode && <Grid item>
+              {isCurrentUserManager && <Grid item>
                 <>
                   <Tooltip title="Фильтры">
                     <FilterAltIcon
@@ -165,7 +179,7 @@ export const CargosList = observer(({
                       onClick={showFiltersHandler}
                     />
                   </Tooltip>
-                  <Tooltip title="Создать новый груз">
+                  {isCurrentClientHasClientCode && <Tooltip title="Создать новый груз">
                     <AddIcon
                       className={'w-[1.5rem] h-[1.5rem]'}
                       sx={{
@@ -177,7 +191,7 @@ export const CargosList = observer(({
                       aria-haspopup="true"
                       onClick={handleClick}
                     />
-                  </Tooltip>
+                  </Tooltip>}
                 </>
               </Grid>}
             </Grid>

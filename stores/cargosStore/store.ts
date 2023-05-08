@@ -148,7 +148,7 @@ export class CargosStore {
                                    currentUserCode,
                                  } : {
     isArchive: boolean,
-    currentUserCode: string
+    currentUserCode?: string
   }) => {
     this.cargos.isCurrentItemsListArchive = isArchive
     const filteredList = this.cargos.items.filter((cargo) => {
@@ -156,7 +156,7 @@ export class CargosStore {
         isArchive
           ? Number(cargo.status) === CARGO_STATUS.CARGO_RECEIVED_BY_CUSTOMER
           : Number(cargo.status) !== CARGO_STATUS.CARGO_RECEIVED_BY_CUSTOMER
-      ) && cargo.clientCode === currentUserCode
+      ) && (currentUserCode ? cargo.clientCode === currentUserCode : true)
     })
 
     const sortedCargos = getSortedCurrentItemsListByDate(
@@ -166,8 +166,8 @@ export class CargosStore {
     this.cargos.currentItemsList = sortedCargos
   }
 
-  setCurrentItem = (currentItem: ICargoFull) => {
-    this.cargos.currentItem = {...currentItem}
+  setCurrentItem = (currentItem: ICargoFull | null) => {
+    this.cargos.currentItem = currentItem ? {...currentItem} : null
   }
 
   add = async ({
@@ -1015,14 +1015,9 @@ export class CargosStore {
   toggleByDate = (status: TByDate) => {
     this.filtersOfList.byDate = status
 
-    if (!ClientsStore.clients.currentItem?.userCodeId) {
-      console.warn('toggleByDate error: ClientsStore.clients.currentItem.userCodeId not found')
-      return
-    }
-
     this.setCurrentItemsListByStatus({
       isArchive: this.cargos.isCurrentItemsListArchive,
-      currentUserCode: ClientsStore.clients.currentItem.userCodeId
+      currentUserCode: ClientsStore.clients.currentItem?.userCodeId ? ClientsStore.clients.currentItem.userCodeId : undefined
     })
   }
 }
