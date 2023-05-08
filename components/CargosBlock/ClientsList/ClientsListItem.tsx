@@ -1,19 +1,28 @@
-import React, {MouseEvent, useMemo, useState} from "react"
+import React, {
+  MouseEvent,
+  useMemo,
+  useState
+} from "react"
 import { observer } from "mobx-react-lite"
 
 // mui
-import { Avatar, Divider, Grid, Typography } from "@mui/material"
+import {
+  Grid,
+  Tooltip,
+  Typography,
+  Collapse
+} from "@mui/material"
 import EditIcon from '@mui/icons-material/Edit'
-import { useTheme } from "@mui/material/styles"
-import Collapse from '@mui/material/Collapse'
+import CheckCircleIcon from '@mui/icons-material/CheckCircle'
+import PanoramaFishEyeIcon from '@mui/icons-material/PanoramaFishEye'
 
 // types
 import type { openEditModalHandlerArgs } from '@/components/CargosBlock/ClientsList/ClientsList'
 
 // store
 import { UserOfDB } from '@/stores/userStore'
-import CargosStore from "@/stores/cargosStore";
 import ClientsStore from "@/stores/clientsStore"
+import CargosStore from '@/stores/cargosStore'
 
 export interface ClientsListItemProps {
   item: UserOfDB,
@@ -26,7 +35,7 @@ export const ClientsListItem = observer(({
                                            openEditModalHandler,
                                            selectCurrentClientHandler,
 }: ClientsListItemProps) => {
-  const [isShown, setIsShown] = useState(false)
+  const [isShown, setIsShown] = useState<boolean>(false)
   const selectedClient = useMemo(
     () => ({...ClientsStore.clients.currentItem}),
     [JSON.stringify(ClientsStore.clients.currentItem)]
@@ -36,6 +45,16 @@ export const ClientsListItem = observer(({
   const clickHandler = (e: MouseEvent<HTMLElement>): void => {
     e.stopPropagation()
     openEditModalHandler({ clientId: item.id })
+  }
+
+  const unselectUserHandler = (e: MouseEvent<SVGSVGElement>): void => {
+    e.stopPropagation()
+    ClientsStore.setCurrentItem(null)
+    CargosStore.setCurrentItem(null)
+
+    CargosStore.setCurrentItemsListByStatus({
+      isArchive: CargosStore.cargos.isCurrentItemsListArchive
+    })
   }
 
   return (
@@ -50,7 +69,25 @@ export const ClientsListItem = observer(({
       >
         <Grid item className={"pb-2"}>
           <Grid container alignItems="center" justifyContent="space-between">
-            <Grid item>
+            <Grid item className={"flex justify-center items-center"}>
+              <Collapse
+                in={!isCurrentClientSelected && isShown}
+                timeout={200}
+                orientation={'horizontal'}
+              >
+                <PanoramaFishEyeIcon className={'w-[1.7rem] h-[1.7rem] mr-1'} />
+              </Collapse>
+              <Collapse
+                in={isCurrentClientSelected}
+                timeout={200}
+                orientation={'horizontal'}
+              >
+                <CheckCircleIcon
+                  className={'w-[1.7rem] h-[1.7rem] mr-1'}
+                  onClick={unselectUserHandler}
+                />
+              </Collapse>
+
               <Typography className={"font-bold"} variant="subtitle1" color="inherit">
                 { item.name }
               </Typography>
@@ -68,11 +105,12 @@ export const ClientsListItem = observer(({
                       className={'flex items-center justify-center w-8 h-8 p-1 rounded cursor-pointer ml-4 border border-brand bg-white text-brand hover:text-white hover:bg-brand'}
                       onClick={clickHandler}
                     >
-                      <EditIcon
-                        // fontSize="small"
-                        color="inherit"
-                        className={'w-[1.5rem] h-[1.5rem]'}
-                      />
+                      <Tooltip title="Редактировать клиента">
+                        <EditIcon
+                          color="inherit"
+                          className={'w-[1.5rem] h-[1.5rem]'}
+                        />
+                      </Tooltip>
                     </div>
                   </Collapse>
                 </Grid>

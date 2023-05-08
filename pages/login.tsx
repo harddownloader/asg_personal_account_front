@@ -22,8 +22,8 @@ import { firebaseAdmin } from "@/lib/firebase/firebaseAdmin"
 import UserStore from "@/stores/userStore"
 
 export interface LoginFormData {
-  email: string;
-  password: string;
+  email: string
+  password: string
 }
 
 export const getServerSideProps = async (ctx: GetServerSidePropsContext) => {
@@ -55,7 +55,7 @@ export function LoginPage(props: InferGetServerSidePropsType<typeof getServerSid
     handleSubmit: handleSubmitForm,
     formState: { errors: errorsForm },
     setError: setErrorForm,
-  } = useForm<LoginFormData>({});
+  } = useForm<LoginFormData>({})
 
   const handleLogin = handleSubmitForm(async (formData: LoginFormData):Promise<void> => {
     const { data } = await UserStore.login({
@@ -149,7 +149,7 @@ export function LoginPage(props: InferGetServerSidePropsType<typeof getServerSid
         </div>
       </div>
     </>
-  );
+  )
 }
 
 LoginPage.getLayout = function getLayout(page: ReactElement) {

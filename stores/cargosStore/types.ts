@@ -52,7 +52,7 @@ export type CargoTariffType = string // Дата отгрузки
 export type CargoVolumeType = number // Объем
 export type CargoWeightType = number // Вес
 
-export interface CargoInterface {
+export interface ICargo {
   status: CargoStatusType
   costOfDelivery: CargoCostOfDeliveryType
   cargoName: CargoNameType
@@ -63,39 +63,47 @@ export interface CargoInterface {
   weight: CargoWeightType
 }
 
-export interface CargoInterfaceLocalFormat extends CargoInterface {
+export interface ICargoDateTime {
+  createdAt: Date | string
+  updatedAt: Date | string
+}
+
+export interface ICargoLocalFormat extends ICargo {
   spaces: Array<spaceItemType>
 }
 
-export interface CargoInterfaceDBFormat extends CargoInterface {
-  spaces: Array<spaceOfDB>
-  cargoId: CargoCustomIdentify // Номер отправки
-  clientCode: CargoClientCodeType // Код клиента
-  id: CargoID // index in DB
-}
-
-export interface CargoInterfaceForForm extends CargoInterfaceLocalFormat {
-  cargoId: CargoCustomIdentify // Номер отправки
-  clientCode: CargoClientCodeType // Код клиента
-}
-
-export interface CargoInterfaceFull extends CargoInterfaceForForm {
-  id: CargoID // index in DB
-}
-
-export interface AddCargoInterface extends CargoInterface {
+export interface ICargoDBFormatWithoutId extends ICargo, ICargoDateTime {
   spaces: Array<spaceOfDB>
   cargoId: CargoCustomIdentify // Номер отправки
   clientCode: CargoClientCodeType // Код клиента
 }
 
-export type CargosItems = Array<CargoInterfaceFull>
+export interface ICargoDBFormat extends ICargoDBFormatWithoutId {
+  id: CargoID // index in DB
+}
+
+export interface ICargoForForm extends ICargoLocalFormat {
+  cargoId: CargoCustomIdentify // Номер отправки
+  clientCode: CargoClientCodeType // Код клиента
+}
+
+export interface ICargoFull extends ICargoForForm, ICargoDateTime {
+  id: CargoID // index in DB
+}
+
+export interface IAddCargo extends ICargo, ICargoDateTime {
+  spaces: Array<spaceOfDB>
+  cargoId: CargoCustomIdentify // Номер отправки
+  clientCode: CargoClientCodeType // Код клиента
+}
+
+export type CargosItems = Array<ICargoFull>
 
 export interface CargoSavingResponse {
   data: {
     cargoSaving: {
       errors: responseFieldErrorsArray
-      currentCargo?: CargoInterfaceFull
+      currentCargo?: ICargoFull
     }
   }
 }
@@ -104,7 +112,7 @@ export interface CargoAddResponse {
   data: {
     addingCargo: {
       errors: responseFieldErrorsArray
-      currentCargo?: CargoInterfaceFull
+      currentCargo?: ICargoFull
     }
   }
 }
@@ -134,7 +142,7 @@ export type NotUploadedSpaces = {
 export type CargosState = {
   items: CargosItems
   currentItemsList: CargosItems
-  currentItem: CargoInterfaceFull | null
+  currentItem: ICargoFull | null
   isCurrentItemsListArchive: boolean
   isLoading: boolean
   notLoadedSpaces: NotUploadedSpaces

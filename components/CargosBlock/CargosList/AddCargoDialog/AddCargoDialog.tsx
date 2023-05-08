@@ -8,8 +8,8 @@ import { DialogHOC } from '@/components/Dialog/Modal/DialogHOC'
 
 // store
 import CargosStore, {
-  CargoInterfaceForForm,
-  CargoInterfaceFull,
+  ICargoForForm,
+  ICargoFull,
   CargoAddResponse,
   spaceItemType,
 } from "@/stores/cargosStore"
@@ -37,7 +37,7 @@ export const AddCargoDialog = observer(({
     reset,
     control,
     getValues,
-  } = useForm<CargoInterfaceFull>({})
+  } = useForm<ICargoFull>({})
 
   useEffect(() => {
     if (clientCode) reset({ clientCode: clientCode })
@@ -75,7 +75,7 @@ export const AddCargoDialog = observer(({
                                                    tariff,
                                                     volume,
                                                     weight,
-                                                  }: CargoInterfaceForForm): Promise<void> => {
+                                                  }: ICargoForForm): Promise<void> => {
 
     // const currentTmpSpaces = getCurrentNewTmpSpaces(JSON.parse(notLoadedSpacesSrt))
 

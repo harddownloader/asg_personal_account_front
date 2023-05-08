@@ -1,4 +1,4 @@
-import { CargoInterfaceFull } from "@/stores/cargosStore"
+import { ICargoFull } from "@/stores/cargosStore"
 import { fixMeInTheFuture } from "@/lib/types"
 
 export type getAllCargos = {
@@ -7,10 +7,10 @@ export type getAllCargos = {
 
 export const getAllCargos = async ({
                                cargosRef
-                             }: getAllCargos): Promise<Array<CargoInterfaceFull>> => {
+                             }: getAllCargos): Promise<Array<ICargoFull>> => {
   return await cargosRef.get()
     .then((cargos: fixMeInTheFuture) => {
-      const cargosList: Array<CargoInterfaceFull> = []
+      const cargosList: Array<ICargoFull> = []
       cargos.forEach((cargo: fixMeInTheFuture) => {
         const cargoDecode = {...cargo.data()}
         const cargoData = {
@@ -25,36 +25,14 @@ export const getAllCargos = async ({
           volume: cargoDecode.volume,
           weight: cargoDecode.weight,
           spaces: cargoDecode.spaces,
-          // updatedAt: String(new Date(cargoDecode.lastUpdateDocDate*1000)),
-          // createdAt: cargoDecode.createdDocDate,
+          updatedAt: String(new Date(cargoDecode.updatedAt._seconds * 1000)),
+          createdAt: String(new Date(cargoDecode.createdAt._seconds * 1000))
         }
+
         cargosList.push({
           id: cargo.id,
           ...cargoData
         })
-
-      //   await console.log({
-      //     cargoDecode: {
-      //       id: cargo.id,
-      //       ...cargoDecode,
-      //     }
-      //   })
-      //
-      //
-      //   await setTimeout(async () => {
-      //     function getRandomInt(max) {
-      //       return Math.floor(Math.random() * max);
-      //     }
-      //     const minusTime = 1000 + getRandomInt(1000)
-      //     const aMinuteAgo = new Date( Date.now() - minusTime * 60 );
-      //
-      //     // await cargosRef.doc(cargo.id).set({
-      //     //   ...cargoData,
-      //     //   // tariff: '0',
-      //     //   createdAt: new Date(),
-      //     //   updatedAt: aMinuteAgo,
-      //     // })
-      //   }, 1000)
       })
 
       return cargosList

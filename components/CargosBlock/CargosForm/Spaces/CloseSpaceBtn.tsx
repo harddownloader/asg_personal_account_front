@@ -22,7 +22,7 @@ export const CloseSpaceBtn = ({
         />
       </Button>}
     </>
-  );
+  )
 }
 
-export default CloseSpaceBtn;
+export default CloseSpaceBtn
