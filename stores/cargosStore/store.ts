@@ -166,8 +166,8 @@ export class CargosStore {
     this.cargos.currentItemsList = sortedCargos
   }
 
-  setCurrentItem = (currentItem: ICargoFull | null) => {
-    this.cargos.currentItem = currentItem ? {...currentItem} : null
+  setCurrentItem = (currentItem: ICargoFull) => {
+    this.cargos.currentItem = {...currentItem}
   }
 
   add = async ({
