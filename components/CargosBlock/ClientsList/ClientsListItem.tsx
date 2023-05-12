@@ -49,8 +49,8 @@ export const ClientsListItem = observer(({
 
   const unselectUserHandler = (e: MouseEvent<SVGSVGElement>): void => {
     e.stopPropagation()
-    ClientsStore.setCurrentItem(null)
-    CargosStore.setCurrentItem(null)
+    ClientsStore.clearCurrentItem()
+    CargosStore.clearCurrentItem()
 
     CargosStore.setCurrentItemsListByStatus({
       isArchive: CargosStore.cargos.isCurrentItemsListArchive
