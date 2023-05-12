@@ -28,8 +28,12 @@ class ClientsStore {
     makeAutoObservable(this)
   }
 
-  setCurrentItem = (currentItem: UserOfDB | null) => {
-    this.clients.currentItem = currentItem ? {...currentItem} : null
+  setCurrentItem = (currentItem: UserOfDB) => {
+    this.clients.currentItem = {...currentItem}
+  }
+
+  clearCurrentItem = () => {
+    this.clients.currentItem = null
   }
 
   setList = (clientsList: Array<UserOfDB>) => {
