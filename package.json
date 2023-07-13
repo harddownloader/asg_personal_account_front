@@ -39,6 +39,7 @@
     "react-dom": "18.2.0",
     "react-dropzone": "^14.2.3",
     "react-hook-form": "^7.43.0",
+    "react-phone-number-input": "^3.2.23",
     "sass": "^1.57.1",
     "sharp": "^0.31.3",
     "socket.io": "^4.6.0",
