@@ -58,16 +58,6 @@ export interface ISpaceProps {
   updateCostOfDeliveryValue: () => void
 }
 
-const weightField = {
-  name: 'weight',
-  defaultValue: '0'
-}
-
-const piecesInPlaceField = {
-  name: 'piecesInPlace',
-  defaultValue: '0'
-}
-
 export const Spaces = observer(({
                                   currentTmpSpaces,
                                   isDisabled,
@@ -134,7 +124,7 @@ export const Spaces = observer(({
   }: {
     spacesOfCargoTmp: TSpaceItem[]
     totalFieldName: 'volume' | 'weight'
-    spacePropName: 'piecesInPlace' | 'weight'
+    spacePropName: 'volume' | 'weight'
     updatedSpaceRightNow?: {
       spaceID: string
       currentFieldValue: number
@@ -158,7 +148,7 @@ export const Spaces = observer(({
     calculateValueOfTotalField({
       spacesOfCargoTmp,
       totalFieldName: 'volume',
-      spacePropName: 'piecesInPlace'
+      spacePropName: 'volume'
     })
   }
 
@@ -189,8 +179,10 @@ export const Spaces = observer(({
     CargosStore.addSpace(addSpaceArgs)
 
     append({
-      [`${weightField.name}`]: weightField.defaultValue,
-      [`${piecesInPlaceField.name}`]: weightField.defaultValue,
+      [`${CARGO_FIELD_NAMES.SPACE_WEIGHT.value}`]: CARGO_FIELD_NAMES.SPACE_WEIGHT.defaultValue,
+      [`${CARGO_FIELD_NAMES.PIECES_IN_PLACE.value}`]: CARGO_FIELD_NAMES.PIECES_IN_PLACE.defaultValue,
+      [`${CARGO_FIELD_NAMES.SPACE_VOLUME.value}`]: CARGO_FIELD_NAMES.SPACE_VOLUME.defaultValue,
+      [`${CARGO_FIELD_NAMES.CARGO_NAME.value}`]: CARGO_FIELD_NAMES.CARGO_NAME.defaultValue,
     })
 
     recalculateTotalFields(JSON.stringify(CargosStore.cargos.notLoadedSpaces.list))
@@ -281,74 +273,92 @@ export const Spaces = observer(({
                            e,
                            onChangeCallback,
                            spaceID,
-                           isWeight,
-                           isPiecesInPlace
+                           fieldName,
   }: {
     e: ChangeEvent<HTMLInputElement>
     onChangeCallback: Function
     spaceID: string
-    isWeight?: boolean
-    isPiecesInPlace?: boolean
+    fieldName: 'weight' | 'piecesInPlace' | 'cargoName' | 'volume'
   }) => {
-    const value = e?.target?.value
-    const valueNumber = Number(value)
-    if (
-      !value || isNaN(valueNumber)
-    ) {
-      console.warn('onChangeProxy e.target.value or it\'s is NaN')
-      return
-    }
-    if (
-
-      (!isWeight && !isPiecesInPlace)
-    ) {
-      console.warn('onChangeProxy not found args')
-      return
-    }
-
+    const valueStr = e?.target?.value
     const updateSpaceArgs: {
       id: string
       weight?: number | undefined
+      volume?: number | undefined
       piecesInPlace?: number | undefined
+      cargoName?: string
     } = {
       id: spaceID
     }
 
+    let valueNumber
     const spacesOfCargoTmp = getSpacesOfCargo(notLoadedSpacesSrt)
-    if (isWeight) {
-      updateSpaceArgs.weight = valueNumber
-      calculateValueOfTotalField({
-        spacesOfCargoTmp,
-        totalFieldName: 'weight',
-        spacePropName: 'weight',
-        updatedSpaceRightNow: {
-          spaceID,
-          currentFieldValue: valueNumber,
-        },
-      })
-      updateCostOfDeliveryValue()
-    }
-    else if (isPiecesInPlace) {
-      updateSpaceArgs.piecesInPlace = valueNumber
+    switch (fieldName) {
+      case 'weight':
+        valueNumber = Number(valueStr)
+        if (!valueStr || isNaN(valueNumber)) {
+          console.warn('Spaces.onChangeProxy: we cannt convert e.target.value(weight) to number')
+          return
+        }
 
-      calculateValueOfTotalField({
-        spacesOfCargoTmp,
-        totalFieldName: 'volume',
-        spacePropName: 'piecesInPlace',
-        updatedSpaceRightNow: {
-          spaceID,
-          currentFieldValue: valueNumber,
-        },
-      })
+        updateSpaceArgs.weight = valueNumber
+        calculateValueOfTotalField({
+          spacesOfCargoTmp,
+          totalFieldName: 'weight',
+          spacePropName: 'weight',
+          updatedSpaceRightNow: {
+            spaceID,
+            currentFieldValue: valueNumber,
+          },
+        })
+        updateCostOfDeliveryValue()
+        break
+      case 'volume':
+        valueNumber = Number(valueStr)
+        if (!valueStr || isNaN(valueNumber)) {
+          console.warn('Spaces.onChangeProxy: we cannt convert e.target.value(piecesInPlace) to number')
+          return
+        }
+
+        updateSpaceArgs.volume = valueNumber
+
+        calculateValueOfTotalField({
+          spacesOfCargoTmp,
+          totalFieldName: 'volume',
+          spacePropName: 'volume',
+          updatedSpaceRightNow: {
+            spaceID,
+            currentFieldValue: valueNumber,
+          },
+        })
+        break
+      case 'piecesInPlace':
+        valueNumber = Number(valueStr)
+        if (!valueStr || isNaN(valueNumber)) {
+          console.warn('Spaces.onChangeProxy: we cannt convert e.target.value(volume) to number')
+          return
+        }
+
+        updateSpaceArgs.piecesInPlace = valueNumber
+        break
+      case 'cargoName':
+        updateSpaceArgs.cargoName = valueStr
+        break
+
+      default:
+        console.warn('onChangeProxy not found args')
+        return
     }
+
     CargosStore.updateSpace(updateSpaceArgs)
 
     onChangeCallback(e)
   }
 
   const getWeightField = (spaceID: string, index: number) => {
-    const { onChange, onBlur, name, ref } = registerForm(`spaces.${index}.${weightField.name}` as const, {
+    const { onChange, onBlur, name, ref } = registerForm(`spaces.${index}.${CARGO_FIELD_NAMES.SPACE_WEIGHT.value}` as const, {
       required: true,
+      valueAsNumber: true,
     })
 
     return (
@@ -368,7 +378,7 @@ export const Spaces = observer(({
             e,
             spaceID,
             onChangeCallback: onChange,
-            isWeight: true
+            fieldName: 'weight',
           })}
           onBlur={onBlur}
           name={name}
@@ -381,44 +391,46 @@ export const Spaces = observer(({
     )
   }
 
-  // const getVolume = (spaceID: string, index: number) => {
-  //   const { onChange, onBlur, name, ref } = registerForm(`spaces.${index}.${piecesInPlaceField.name}` as const, {
-  //     required: true,
-  //   })
-  //
-  //   return (
-  //     <>
-  //       <TextField
-  //         margin="normal"
-  //         required
-  //         fullWidth
-  //         id={CARGO_FIELD_NAMES.VOLUME.value}
-  //         placeholder={CARGO_FIELD_NAMES.VOLUME.label}
-  //         label={CARGO_FIELD_NAMES.VOLUME.label}
-  //         className={"bg-white rounded"}
-  //         disabled={isDisabled}
-  //         type="number"
-  //         inputProps={volumeFieldInputProps}
-  //         onChange={(e: ChangeEvent<HTMLInputElement>) => onChangeProxy({
-  //           e,
-  //           spaceID,
-  //           onChangeCallback: onChange,
-  //           isPiecesInPlace: true
-  //         })}
-  //         onBlur={onBlur}
-  //         name={name}
-  //         ref={ref}
-  //       />
-  //       {!!errorsForm.volume && (
-  //         <p className="text-sm text-red-500 pt-2">{errorsForm.volume?.message}</p>
-  //       )}
-  //     </>
-  //   )
-  // }
+  const getVolume = (spaceID: string, index: number) => {
+    const { onChange, onBlur, name, ref } = registerForm(`spaces.${index}.${CARGO_FIELD_NAMES.SPACE_VOLUME.value}` as const, {
+      required: true,
+      valueAsNumber: true,
+    })
+
+    return (
+      <>
+        <TextField
+          margin="normal"
+          required
+          fullWidth
+          id={CARGO_FIELD_NAMES.SPACE_VOLUME.value}
+          placeholder={CARGO_FIELD_NAMES.SPACE_VOLUME.label}
+          label={CARGO_FIELD_NAMES.SPACE_VOLUME.label}
+          className={"bg-white rounded"}
+          disabled={isDisabled}
+          type="number"
+          inputProps={volumeFieldInputProps}
+          onChange={(e: ChangeEvent<HTMLInputElement>) => onChangeProxy({
+            e,
+            spaceID,
+            onChangeCallback: onChange,
+            fieldName: 'volume',
+          })}
+          onBlur={onBlur}
+          name={name}
+          ref={ref}
+        />
+        {!!errorsForm.volume && (
+          <p className="text-sm text-red-500 pt-2">{errorsForm.volume?.message}</p>
+        )}
+      </>
+    )
+  }
 
   const getPiecesInPlaceField = (spaceID: string, index: number) => {
-    const { onChange, onBlur, name, ref } = registerForm(`spaces.${index}.${piecesInPlaceField.name}` as const, {
+    const { onChange, onBlur, name, ref } = registerForm(`spaces.${index}.${CARGO_FIELD_NAMES.PIECES_IN_PLACE.value}` as const, {
       required: true,
+      valueAsNumber: true,
     })
 
     return (
@@ -438,7 +450,7 @@ export const Spaces = observer(({
             e,
             spaceID,
             onChangeCallback: onChange,
-            isPiecesInPlace: true
+            fieldName: 'piecesInPlace',
           })}
           onBlur={onBlur}
           name={name}
@@ -451,30 +463,39 @@ export const Spaces = observer(({
     )
   }
 
-  // const getSpaceCargoName = () => {
-  //   const CargoNameField = (
-  //     <>
-  //       <TextField
-  //         margin="normal"
-  //         required
-  //         fullWidth
-  //         id={CARGO_FIELD_NAMES.CARGO_NAME.value}
-  //         placeholder={CARGO_FIELD_NAMES.CARGO_NAME.label}
-  //         label={CARGO_FIELD_NAMES.CARGO_NAME.label}
-  //         className={"bg-white rounded"}
-  //         disabled={isDisabled}
-  //         {...registerForm("cargoName", {
-  //           required: true,
-  //         })}
-  //       />
-  //       {!!errorsForm.cargoName && (
-  //         <p className="text-sm text-red-500 pt-2">{errorsForm.cargoName?.message}</p>
-  //       )}
-  //     </>
-  //   )
-  //
-  //   return CargoNameField
-  // }
+  const getSpaceCargoName = (spaceID: string, index: number) => {
+    const { onChange, onBlur, name, ref } = registerForm(`spaces.${index}.${CARGO_FIELD_NAMES.CARGO_NAME.value}` as const, {
+      required: false,
+    })
+
+    const CargoNameField = (
+      <>
+        <TextField
+          margin="normal"
+          fullWidth
+          id={CARGO_FIELD_NAMES.CARGO_NAME.value}
+          placeholder={CARGO_FIELD_NAMES.CARGO_NAME.label}
+          label={CARGO_FIELD_NAMES.CARGO_NAME.label}
+          className={"bg-white rounded"}
+          disabled={isDisabled}
+          onChange={(e: ChangeEvent<HTMLInputElement>) => onChangeProxy({
+            e,
+            spaceID,
+            onChangeCallback: onChange,
+            fieldName: 'cargoName',
+          })}
+          onBlur={onBlur}
+          name={name}
+          ref={ref}
+        />
+        {!!errorsForm.cargoName && (
+          <p className="text-sm text-red-500 pt-2">{errorsForm.cargoName?.message}</p>
+        )}
+      </>
+    )
+
+    return CargoNameField
+  }
 
   const getCurrentUploadingFiles = (photos: TUploadImage[], index: number) => {
     return photos.filter((photo) => photo.spaceIndex === index)
@@ -508,17 +529,15 @@ export const Spaces = observer(({
               <Grid item lg={6} md={6} sm={6} xs={12}>
                 {getWeightField(spaceID, index)}
               </Grid>
-              {/*<Grid item lg={6} md={6} sm={6} xs={12}>*/}
-              {/*  {getVolume(spaceID, index)}*/}
-              {/*</Grid>*/}
+              <Grid item lg={6} md={6} sm={6} xs={12}>
+                {getVolume(spaceID, index)}
+              </Grid>
               <Grid item lg={6} md={6} sm={6} xs={12}>
                 {getPiecesInPlaceField(spaceID, index)}
               </Grid>
-              {/*<Grid item lg={6} md={6} sm={6} xs={12}>*/}
-              {/*  {getSpaceCargoName(*/}
-              {/*    // spaceID, index*/}
-              {/*  )}*/}
-              {/*</Grid>*/}
+              <Grid item lg={6} md={6} sm={6} xs={12}>
+                {getSpaceCargoName(spaceID, index)}
+              </Grid>
               <Grid item lg={12} md={12} sm={12} xs={12}>
                 <ImagesSlider
                   handlerDelete={removePhotoHandler.call(this, index)}
@@ -556,3 +575,5 @@ export const Spaces = observer(({
     </>
   )
 })
+
+Spaces.displayName = 'Spaces'

@@ -36,12 +36,12 @@ export interface ICargoContentProps {
 /*
 * Edit cargo data component
 * */
-export const CargoContent = observer(({
+export const CargoContent = observer(function CargoContent({
                                isFull,
                                title,
                                currentCargo,
                                currentClient,
-                             }: ICargoContentProps) => {
+                             }: ICargoContentProps) {
   // load spaces tmp storage
   const notLoadedSpacesSrt = JSON.stringify([...CargosStore.cargos.notLoadedSpaces.list])
 
@@ -120,7 +120,8 @@ export const CargoContent = observer(({
     }
   }
 
-  const handleSaveCargo = handleSubmitForm(async ({
+  const onInvalid = (errors: any) => console.error(errors)
+  const handleSaveCargo = async ({
                                                     cargoId,
                                                     clientCode,
                                                     status,
@@ -186,7 +187,7 @@ export const CargoContent = observer(({
     CargosStore.initNotLoadedSpaces(currentTmpSpaces)
 
     return
-  })
+  }
 
   return (
     <>
@@ -194,7 +195,7 @@ export const CargoContent = observer(({
         isFull={isFull}
         isContentVisible={true}
         title={title}
-        handleSubmit={handleSaveCargo}
+        handleSubmit={handleSubmitForm(handleSaveCargo, onInvalid)}
         formControl={{
           registerForm,
           errorsForm,

@@ -7,7 +7,7 @@ import { CargosForm } from "@/widgets/CargosBlock/CargosForm"
 import { DialogHOC } from '@/widgets/Dialog/Modal/DialogHOC'
 
 // store
-import { CargosStore } from "@/entities/Cargo"
+import { CargosStore, CARGO_FIELD_NAMES } from "@/entities/Cargo"
 import type {
   ICargoForForm,
   ICargoFull,
@@ -51,7 +51,10 @@ export const AddCargoDialog = observer(({
       return []
     }
 
-    const currentSpacesTmp = getSpacesOfUnsavedCargo({spaces: notLoadedSpaces, clientId})
+    const currentSpacesTmp = getSpacesOfUnsavedCargo({
+      spaces: notLoadedSpaces,
+      clientId
+    })
 
     console.log('AddCargoDialog getCurrentNewTmpSpaces', {
       currentSpacesTmp,
@@ -86,7 +89,6 @@ export const AddCargoDialog = observer(({
       clientCode,
       status,
       costOfDelivery,
-      // cargoName,
       insurance,
       cost,
       tariff,
@@ -173,10 +175,10 @@ export const AddCargoDialog = observer(({
           setErrorForm,
           control,
           formDefaultValues: {
-            status: 0,
-            volume: 0.000,
-            weight: 0.0,
-            costOfDelivery: 0,
+            status: CARGO_FIELD_NAMES.STATUS.defaultValue,
+            volume: CARGO_FIELD_NAMES.VOLUME.defaultValue,
+            weight: CARGO_FIELD_NAMES.WEIGHT.defaultValue,
+            costOfDelivery: CARGO_FIELD_NAMES.COST_OF_DELIVERY.defaultValue,
           },
           reset,
           getValues,
@@ -189,4 +191,4 @@ export const AddCargoDialog = observer(({
   )
 })
 
-export default AddCargoDialog
+AddCargoDialog.displayName = 'AddCargoDialog'

@@ -108,7 +108,7 @@ export class CargosService {
           }))
         }))]
       })
-      .then(() => cargo)
+      .then(() => ({...cargo, id: id}))
       .catch((error) => {
         console.error(error)
       })

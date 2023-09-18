@@ -19,6 +19,8 @@ export const mapCargoSpacesDataFromApi = ({
       id: string
       photos: Array<TUploadImage>
       weight: number
+      volume: number
+      cargoName: string
       piecesInPlace: number
     } = {
       id: space.id,
@@ -26,6 +28,8 @@ export const mapCargoSpacesDataFromApi = ({
       cargoId: cargoId,
       photos: space.photos,
       weight: space.weight,
+      volume: space.volume,
+      cargoName: space.cargoName,
       piecesInPlace: space.piecesInPlace,
     }
     const spaceItem = CargosStore.generateSpaceItem(generateItemArgs)

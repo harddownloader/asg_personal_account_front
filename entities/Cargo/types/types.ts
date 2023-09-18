@@ -26,6 +26,8 @@ export type TSpaceOfDB = {
   id: string
   weight: number
   piecesInPlace: number
+  volume: number
+  cargoName: string
   photos: Array<TSpacePhotosOfDB>
 }
 
@@ -37,6 +39,8 @@ export type TSpaceItem = {
   clientId: TClientId
   cargoId?: string
   weight: number
+  volume: number
+  cargoName: string
   piecesInPlace: number
   photos: Array<TUploadImage>
 }

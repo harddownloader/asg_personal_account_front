@@ -1,4 +1,4 @@
-import { ChangeEvent, ReactElement, useMemo } from "react"
+import React, { ChangeEvent, ReactElement, useMemo } from "react"
 import { Controller } from "react-hook-form"
 
 // mui
@@ -6,7 +6,8 @@ import Box from "@mui/material/Box"
 import TextField from "@mui/material/TextField"
 import {
   FormControl,
-  Grid, MenuItem,
+  Grid,
+  MenuItem,
   Typography
 } from "@mui/material"
 import InputLabel from '@mui/material/InputLabel'
@@ -33,8 +34,10 @@ import type { TSpaceItem } from '@/entities/Cargo'
 import { TTitle } from "@/widgets/CargosBlock/CargosInfo/CargoInfo"
 import { volumeFieldInputProps } from "@/widgets/CargosBlock/CargosForm/helpers/VolumeFieldInputProps"
 import { weightFieldInputProps } from "./helpers/WeightFieldInputProps"
+import {tariffFieldInputProps} from "@/widgets/CargosBlock/CargosForm/helpers/TariffFieldInputProps";
+import { insuranceFieldInputProps } from "./helpers/InsuranceFieldInputProps"
 
-export interface CargoInfoFormControl {
+export interface ICargoInfoFormControl {
   registerForm: TFixMeInTheFuture,
   errorsForm: TFixMeInTheFuture,
   setErrorForm: TFixMeInTheFuture,
@@ -45,19 +48,15 @@ export interface CargoInfoFormControl {
   setValue: TFixMeInTheFuture
 }
 
-export interface CargoInfoFormProps {
+export interface ICargoInfoFormProps {
   title?: TTitle,
   handleSubmit: () => void,
-  formControl: CargoInfoFormControl,
+  formControl: ICargoInfoFormControl,
   isFull: boolean,
   isContentVisible: boolean,
   isItEditForm: boolean,
   currentTmpSpaces: Array<TSpaceItem>
 }
-
-const weightRegName = 'weight' as const
-const tariffRegName = 'tariff' as const
-const costOfDeliveryRegName = 'costOfDelivery' as const
 
 export const CargosForm = ({
                                 title,
@@ -75,7 +74,7 @@ export const CargosForm = ({
                                 isContentVisible,
                                 isItEditForm,
                                 currentTmpSpaces,
-                              }: CargoInfoFormProps) => {
+                              }: ICargoInfoFormProps) => {
   const lgColValue = isFull ? 4 : 6
   const isCurrentUserManager = !isFull
   const isDisabled = isFull
@@ -176,7 +175,7 @@ export const CargosForm = ({
         type="number"
         inputProps={{ min: 0, max: 100000000, step: 1 }}
         defaultValue={formDefaultValues?.costOfDelivery}
-        {...registerForm(costOfDeliveryRegName, {
+        {...registerForm(CARGO_FIELD_NAMES.COST_OF_DELIVERY.value, {
           valueAsNumber: true,
           required: true,
         })}
@@ -199,7 +198,7 @@ export const CargosForm = ({
         className={"bg-white rounded"}
         disabled={isDisabled}
         type="number"
-        inputProps={{ min: "0.00", max: "100000000.00", step: "0.01" }}
+        inputProps={insuranceFieldInputProps}
         {...registerForm("insurance", {
           valueAsNumber: true,
           required: true,
@@ -236,14 +235,13 @@ export const CargosForm = ({
   )
 
   const updateCostOfDeliveryValue = () => {
-    const tariffValue = getValues(tariffRegName)
-    const weightValue = getValues(weightRegName)
-    setValue(costOfDeliveryRegName, Math.ceil(tariffValue * weightValue))
+    const tariffValue = getValues(CARGO_FIELD_NAMES.TARIFF.value)
+    const weightValue = getValues(CARGO_FIELD_NAMES.WEIGHT.value)
+    setValue(CARGO_FIELD_NAMES.COST_OF_DELIVERY.value, Math.ceil(tariffValue * weightValue))
   }
 
   const getTariffField = () => {
-
-    const { onChange, onBlur, name, ref } = registerForm(tariffRegName, {
+    const { onChange, onBlur, name, ref } = registerForm(CARGO_FIELD_NAMES.TARIFF.value, {
       required: true,
     })
 
@@ -259,14 +257,13 @@ export const CargosForm = ({
           className={"bg-white rounded"}
           disabled={isDisabled}
           type="number"
-          inputProps={{ min: "0.0", max: "100000000.0", step: "0.1" }}
-          {...registerForm(tariffRegName, {
+          inputProps={tariffFieldInputProps}
+          {...registerForm(CARGO_FIELD_NAMES.TARIFF.value, {
             valueAsNumber: true,
             required: true,
           })}
           onChange={(e: ChangeEvent<HTMLInputElement>) => {
             onChange(e)
-
             updateCostOfDeliveryValue()
           }}
           onBlur={onBlur}
@@ -321,7 +318,7 @@ export const CargosForm = ({
         type="number"
         inputProps={weightFieldInputProps}
         defaultValue={formDefaultValues?.weight}
-        {...registerForm(weightRegName, {
+        {...registerForm(CARGO_FIELD_NAMES.WEIGHT.value, {
           valueAsNumber: true,
           required: true,
         })}
@@ -363,7 +360,6 @@ export const CargosForm = ({
                   <Grid item lg={lgColValue} md={6} sm={6} xs={12}>
                     {CostOfDeliveryField}
                   </Grid>
-
                   <Grid item lg={lgColValue} md={6} sm={6} xs={12}>
                     {InsuranceField}
                   </Grid>

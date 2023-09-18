@@ -1,1 +1,1 @@
-export const piecesInPlaceFieldInputProps = { min: 0.000, max: 100000000.000, step: 0.001 }
+export const piecesInPlaceFieldInputProps = { min: 0, max: 100000000, step: 1 }

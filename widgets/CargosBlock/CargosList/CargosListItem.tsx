@@ -91,4 +91,4 @@ export const CargosListItem = observer(({
   )
 })
 
-export default CargosListItem
+CargosListItem.displayName = 'CargosListItem'

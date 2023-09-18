@@ -73,7 +73,7 @@ import { createCargo, getAllCargos, getCargosByUserId, mapCargoDataFromApi, upda
 import type { TDecodedAccessToken } from "@/entities/User"
 import { parseJwtOnServer } from "@/shared/lib/token"
 import { splitArrayIntoSubArrays } from "@/shared/lib/arrays/splitArrayIntoSubArrays"
-import { CargosListView, CargosStore } from "@/entities/Cargo"
+
 
 export class _CargosStore {
   cargos: TCargosState = {
@@ -326,7 +326,8 @@ export class _CargosStore {
     if (spaces.length && cargoId.length >= 2) {
       enum spacePropertiesEnum {
         weight='weight',
-        piecesInPlace='piecesInPlace'
+        piecesInPlace='piecesInPlace',
+        volume='volume'
       }
       const checkSpaceFieldIsValid = (spaces: Array<TSpaceOfDB>, property: spacePropertiesEnum): {
         isPropertyValid: boolean,
@@ -348,9 +349,10 @@ export class _CargosStore {
 
       const weightChecks = checkSpaceFieldIsValid(spaces, spacePropertiesEnum['weight'])
       const piecesInPlaceChecks = checkSpaceFieldIsValid(spaces, spacePropertiesEnum['piecesInPlace'])
+      const volumeChecks = checkSpaceFieldIsValid(spaces, spacePropertiesEnum['volume'])
       if (weightChecks.isPropertyValid) {
         response.data.cargoSaving.errors.push({
-          field: `spaces.${weightChecks.spaceIndex}.${CARGO_FIELD_NAMES.WEIGHT.value}`,
+          field: `spaces.${weightChecks.spaceIndex}.${CARGO_FIELD_NAMES.SPACE_WEIGHT.value}`,
           message: `Не корректный вес места`
         })
       }
@@ -359,6 +361,13 @@ export class _CargosStore {
         response.data.cargoSaving.errors.push({
           field: `spaces.${piecesInPlaceChecks.spaceIndex}.${CARGO_FIELD_NAMES.PIECES_IN_PLACE.value}`,
           message: `Не корректное количество шт. в месте`
+        })
+      }
+
+      if (volumeChecks.isPropertyValid) {
+        response.data.cargoSaving.errors.push({
+          field: `spaces.${volumeChecks.spaceIndex}.${CARGO_FIELD_NAMES.SPACE_VOLUME.value}`,
+          message: `Не корректный объём в месте`
         })
       }
     }
@@ -447,18 +456,22 @@ export class _CargosStore {
   }
 
   // SPACES
-  generateSpaceItem = ({ clientId, cargoId, photos, id, weight, piecesInPlace }: {
+  generateSpaceItem = ({ clientId, cargoId, photos, id, weight, piecesInPlace, cargoName, volume }: {
     clientId: string
     cargoId?: string
     id?: string
     photos?: Array<TUploadImage>
     weight?: number
+    volume?: number
+    cargoName?: string
     piecesInPlace?: number
   }): TSpaceItem => {
     const newSpace: TSpaceItem = {
       id: id ? id : uuidv4(),
       clientId,
       weight: typeof weight === 'number' ? weight : Number(CARGO_FIELD_NAMES.WEIGHT.defaultValue),
+      volume: typeof volume === 'number' ? volume : Number(CARGO_FIELD_NAMES.VOLUME.defaultValue),
+      cargoName: cargoName ? cargoName : '',
       piecesInPlace: typeof piecesInPlace === 'number' ? piecesInPlace : Number(CARGO_FIELD_NAMES.PIECES_IN_PLACE.defaultValue),
       photos: (Array.isArray(photos) && photos.length) ? photos : [],
     }
@@ -508,16 +521,21 @@ export class _CargosStore {
     this.cargos.notLoadedSpaces.list = tmpSpaces
   }
 
-  updateSpace = ({ id, weight, piecesInPlace }: {
+  updateSpace = ({ id, weight, piecesInPlace, volume, cargoName }: {
     id: string
     weight?: number
     piecesInPlace?: number
+    volume?: number
+    cargoName?: string
   }) => {
     const spacesTmp = JSON.parse(JSON.stringify(this.cargos.notLoadedSpaces.list))
     const indexOfSpace = spacesTmp.findIndex((space: TSpaceItem) => space.id === id)
     const currentSpace = spacesTmp[indexOfSpace]
-    if (weight) currentSpace.weight = weight
-    else if (piecesInPlace) currentSpace.piecesInPlace = piecesInPlace
+    if (typeof weight === 'number' && weight >= 0) currentSpace.weight = weight
+    else if (typeof piecesInPlace === 'number' && piecesInPlace >= 0) currentSpace.piecesInPlace = piecesInPlace
+    else if (typeof volume === 'number' && volume >= 0) currentSpace.volume = volume
+    else if (typeof cargoName === 'string') currentSpace.cargoName = cargoName
+
     this.cargos.notLoadedSpaces.list = [...spacesTmp]
   }
 
@@ -847,7 +865,9 @@ export class _CargosStore {
         id: uuidv4(),
         clientId,
         weight: Number(CARGO_FIELD_NAMES.WEIGHT.defaultValue),
+        volume: Number(CARGO_FIELD_NAMES.VOLUME.defaultValue),
         piecesInPlace: Number(CARGO_FIELD_NAMES.PIECES_IN_PLACE.defaultValue),
+        cargoName: CARGO_FIELD_NAMES.CARGO_NAME.defaultValue as string,
         photos: [newUploadImage]
       }
       if (isItEditForm) newTmpSpaceItem.cargoId = cargoId

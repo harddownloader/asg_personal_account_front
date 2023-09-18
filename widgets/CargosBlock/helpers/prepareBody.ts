@@ -22,7 +22,9 @@ export const prepareSpaces = (spaces: Array<TSpaceItem>): Array<TSpaceOfDB> => {
     return {
       id: space.id,
       weight: Number(space.weight),
+      volume: Number(space.volume),
       piecesInPlace: Number(space.piecesInPlace),
+      cargoName: space.cargoName,
       photos: photos,
     }
   })

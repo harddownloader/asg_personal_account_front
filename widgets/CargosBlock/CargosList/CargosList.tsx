@@ -200,3 +200,5 @@ export const CargosList = observer(({
     </>
   )
 })
+
+CargosList.displayName = 'CargosList'

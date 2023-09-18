@@ -143,3 +143,5 @@ export const ClientsList = observer(({
     </>
   )
 })
+
+ClientsList.displayName = 'ClientsList'

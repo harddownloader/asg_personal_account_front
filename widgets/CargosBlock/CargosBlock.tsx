@@ -39,7 +39,7 @@ import {
 * 3. Wraps components in a hook that warns about file download interruptions, if any
 * 4. Pooling new cargos
 * */
-export const CargosBlock = observer(function CargosBlock() {
+export const CargosBlock = observer(() => {
   const currentClient: IUserOfDB | null = ClientsStore.clients?.currentItem
   const isUserEmployee = Boolean(UserStore.user.currentUser?.role > USER_ROLE.CLIENT)
   const isCurrentClientHasClientCode = Boolean(currentClient?.userCodeId)
@@ -123,3 +123,5 @@ export const CargosBlock = observer(function CargosBlock() {
     </>
   )
 })
+
+CargosBlock.displayName = 'CargosBlock'

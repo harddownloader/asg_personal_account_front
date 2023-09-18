@@ -55,6 +55,7 @@ export const CARGO_FIELD_NAMES: TCargoFieldNames<string | number> = {
   STATUS: {
     label: 'Статус',
     value: 'status',
+    defaultValue: 0
   },
   CARGO_PHOTO: {
     label: 'Фото',
@@ -63,19 +64,11 @@ export const CARGO_FIELD_NAMES: TCargoFieldNames<string | number> = {
   COST_OF_DELIVERY: {
     label: 'Стоимость доставки($)',
     value: 'costOfDelivery',
+    defaultValue: 0
   },
   INSURANCE: {
     label: 'Страховка',
     value: 'insurance',
-  },
-  PIECES_IN_PLACE: {
-    label: 'Шт в месте(шт.)',
-    value: 'piecesInPlace',
-    defaultValue: 0,
-  },
-  CARGO_NAME: {
-    label: 'Название груза',
-    value: 'cargoName',
   },
   COST: {
     label: 'Стоимость груза',
@@ -88,8 +81,31 @@ export const CARGO_FIELD_NAMES: TCargoFieldNames<string | number> = {
   VOLUME: {
     label: 'Объем',
     value: 'volume',
+    defaultValue: 0.000
   },
   WEIGHT: {
+    label: 'Вес(кг.)',
+    value: 'weight',
+    defaultValue: 0.0,
+  },
+
+  // spaces
+  CARGO_NAME: {
+    label: 'Название груза',
+    value: 'cargoName',
+    defaultValue: ''
+  },
+  PIECES_IN_PLACE: {
+    label: 'Шт в месте(шт.)',
+    value: 'piecesInPlace',
+    defaultValue: 0,
+  },
+  SPACE_VOLUME: {
+    label: 'Объем',
+    value: 'volume',
+    defaultValue: 0
+  },
+  SPACE_WEIGHT: {
     label: 'Вес(кг.)',
     value: 'weight',
     defaultValue: 0,
