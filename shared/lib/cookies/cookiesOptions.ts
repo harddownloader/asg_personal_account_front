@@ -5,7 +5,7 @@ export const cookiesOptions: {
 } = {
   accessToken: {
     path: '/',
-    httpOnly: Boolean(process.env.NODE_ENV === "production"),
+    // httpOnly: Boolean(process.env.NODE_ENV === "production"),
     secure: true,
     sameSite: 'strict',
   }
