@@ -46,10 +46,41 @@ const nextConfig = {
   },
 }
 
-module.exports = nextConfig
+// module.exports = nextConfig
+
+const sentryConfig = {
+
+}
+
+const sentryWebpackPluginOptions = {
+  // Additional config options for the Sentry webpack plugin. Keep in mind that
+  // the following options are set automatically, and overriding them is not
+  // recommended:
+  //   release, url, configFile, stripPrefix, urlPrefix, include, ignore
+
+  org: "zoo-activist",
+  project: "asg-personal-account-nextjs",
+
+  // An auth token is required for uploading source maps.
+  authToken: process.env.NEXT_PUBLIC_SENTRY_AUTH_TOKEN,
+
+  silent: true, // Suppresses all logs
+
+  // For all available options, see:
+  // https://github.com/getsentry/sentry-webpack-plugin#options.
+};
 
 module.exports = withSentryConfig(
-  module.exports,
-  { silent: true },
-  { hideSourcemaps: true },
+  // module.exports,
+  {
+    ...nextConfig,
+    sentry: {
+      // widenClientFileUpload: true,
+      // hideSourceMaps: true,
+      disableServerWebpackPlugin: true,
+      disableClientWebpackPlugin: true,
+    }
+  },
+  sentryWebpackPluginOptions,
+  {},
 )
