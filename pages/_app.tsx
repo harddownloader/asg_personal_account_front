@@ -1,17 +1,24 @@
-import '@/styles/globals.scss'
-import React, { ReactElement, ReactNode } from "react"
+import { ReactElement, ReactNode } from "react"
 import { NextPage } from "next"
 import type { AppProps } from 'next/app'
+
+// mui
 import {
   StyledEngineProvider,
   ThemeProvider
 } from '@mui/material/styles'
-import { theme, customization } from '@/lib/themes'
-import { AudioProvider } from "@/lib/audio"
+
+// shared
+import { theme, customization } from '@/shared/lib/themes'
+import { AudioProvider } from "@/shared/lib/audio"
 
 // providers
-import { AuthProvider } from '@/lib/providers/auth'
-import { NotificationProvider } from '@/lib/providers/notification'
+import { AuthProvider } from '@/shared/lib/providers/auth'
+import { NotificationProvider } from '@/entities/Notification'
+import { RegionProvider } from '@/shared/lib/providers/region'
+
+// assets
+import '@/shared/styles/globals.scss'
 
 type NextPageWithLayout = NextPage & {
   getLayout?: (page: ReactElement) => ReactNode
@@ -31,13 +38,15 @@ export default function App({ Component, pageProps }: AppPropsWithLayout) {
   return (
     <StyledEngineProvider injectFirst>
       <ThemeProvider theme={theme(customization)}>
-        <AuthProvider>
-          <AudioProvider>
-            <NotificationProvider>
-              {getLayout(<Component {...pageProps} />)}
-            </NotificationProvider>
-          </AudioProvider>
-        </AuthProvider>
+        {/*<RegionProvider>*/}
+          <AuthProvider>
+            <AudioProvider>
+              <NotificationProvider>
+                {getLayout(<Component {...pageProps} />)}
+              </NotificationProvider>
+            </AudioProvider>
+          </AuthProvider>
+        {/*</RegionProvider>*/}
       </ThemeProvider>
     </StyledEngineProvider>
   )

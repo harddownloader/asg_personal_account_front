@@ -1,41 +1,48 @@
-import React, { ReactElement } from "react"
+import { ReactElement, useEffect } from "react"
 import { GetServerSidePropsContext, InferGetServerSidePropsType } from "next"
-import Link from "next/link"
-import { useRouter } from "next/router"
 import nookies from "nookies"
-import { useForm } from "react-hook-form"
+import * as Sentry from "@sentry/nextjs"
 
-// mui
-import Container from "@mui/material/Container"
-import TextField from '@mui/material/TextField'
+// widgets
+import { AuthLayout } from "@/widgets/Layout/AuthLayout/AuthLayout"
+import { FooterMemoized } from "@/widgets/Footer"
+import { LoginSection } from "@/widgets/LoginSection"
 
-// project components
-import { AuthForm } from '@/components/Form'
-import { AuthLayout } from "@/components/Layout/AuthLayout/AuthLayout"
-import { FooterMemoized } from "@/components/Footer"
-import { PasswordField as PasswordFieldComponent } from '@/components/ui-component/fields/PasswordField'
-
-// utils
-import { firebaseAdmin } from "@/lib/firebase/firebaseAdmin"
+// shared
+import { ACCESS_TOKEN_KEY } from "@/shared/lib/providers/auth"
+import { isTokenExpire, parseJwtOnServer } from "@/shared/lib/token"
+import { pagesPath } from "@/shared/lib/$path"
+import { destroyAccessToken } from "@/shared/lib/cookies"
 
 // store
-import UserStore from "@/stores/userStore"
+import { UserStore } from "@/entities/User"
+import type { IUserOfDB } from '@/entities/User'
 
-export interface LoginFormData {
-  email: string
-  password: string
-}
+// entities
+import { getMe } from "@/entities/User"
 
 export const getServerSideProps = async (ctx: GetServerSidePropsContext) => {
   try {
     const cookies = nookies.get(ctx)
-    // console.log(JSON.stringify(cookies, null, 2))
-    const currentFirebaseUser = await firebaseAdmin.auth().verifyIdToken(cookies.token)
+
+    const accessToken = cookies[ACCESS_TOKEN_KEY]
+    const decodedJwt = await parseJwtOnServer(accessToken)
+    if (isTokenExpire(decodedJwt)) return {
+      props: {} as never,
+    }
+
+    const countryByToken = decodedJwt.claims.country
+    const userIdByToken = decodedJwt.claims.id
+    const currentUser: IUserOfDB | null = await getMe({
+      userId: userIdByToken,
+      country: countryByToken,
+      token: accessToken
+    })
 
     return {
       redirect: {
         permanent: false,
-        destination: "/",
+        destination: pagesPath.home.$url().pathname,
       },
       // `as never` is required for correct type inference
       // by InferGetServerSidePropsType below
@@ -49,61 +56,14 @@ export const getServerSideProps = async (ctx: GetServerSidePropsContext) => {
 }
 
 export function LoginPage(props: InferGetServerSidePropsType<typeof getServerSideProps>) {
-  const router = useRouter()
-  const {
-    register: registerForm,
-    handleSubmit: handleSubmitForm,
-    formState: { errors: errorsForm },
-    setError: setErrorForm,
-  } = useForm<LoginFormData>({})
+  useEffect(() => {
+    clearPrevSession()
+  }, [])
 
-  const handleLogin = handleSubmitForm(async (formData: LoginFormData):Promise<void> => {
-    const { data } = await UserStore.login({
-      email: formData.email,
-      password: formData.password,
-    })
-
-    if (data?.tokenCreate?.errors[0]) {
-      // Unable to sign in.
-      setErrorForm("email", { message: "Не валидные данные входа" })
-
-      return
-    }
-
-    await router.push("/")
-
-    return
-  })
-
-  const LoginField: ReactElement = (
-    <TextField
-      margin="normal"
-      required
-      fullWidth
-      id="email"
-      placeholder="Логин"
-      autoComplete="email"
-      autoFocus
-      className={"bg-white rounded"}
-      {...registerForm("email", {
-        required: true,
-      })}
-    />
-  )
-
-  const PasswordField: ReactElement = (
-    <>
-      <PasswordFieldComponent
-        placeholder="Пароль"
-        id="password"
-        label={null}
-        registerFormFunc={registerForm("password",{
-          required: true,
-        })}
-        errorsFormJSX={null}
-      />
-    </>
-  )
+  const clearPrevSession = async () => {
+    destroyAccessToken()
+    await UserStore.logout()
+  }
 
   return (
     <>
@@ -113,37 +73,7 @@ export function LoginPage(props: InferGetServerSidePropsType<typeof getServerSid
             <div></div>
           </div>
 
-          <div className={"flex-1 flex items-center"}>
-            <div>
-              <AuthForm
-                submitBtnText={"Войти"}
-                handleSubmit={handleLogin}
-                fields={[
-                  LoginField,
-                  PasswordField
-                ]}
-                UnderTheButton={
-                  <>
-                    {!!errorsForm.email && (
-                      <p className="text-sm text-red-500 pt-2">{errorsForm.email?.message}</p>
-                    )}
-                  </>
-                }
-              />
-              <Container maxWidth="xs" className={"my-4 flex justify-between"}>
-                <div>
-                  {/*<Link href="#" className={'text-brand underline'}>*/}
-                  {/*  {"Забыл пароль"}*/}
-                  {/*</Link>*/}
-                </div>
-                <div>
-                  <Link href="/registration" className={'text-brand underline'}>
-                    {"Зарегистрироваться"}
-                  </Link>
-                </div>
-              </Container>
-            </div>
-          </div>
+          <LoginSection />
 
           <FooterMemoized />
         </div>

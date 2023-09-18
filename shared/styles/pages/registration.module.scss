@@ -1,0 +1,17 @@
+
+.phoneNumberTextField {
+  @apply bg-white rounded;
+
+  & :global(.MuiInputBase-root.MuiOutlinedInput-root) {
+    padding-left: 0;
+  }
+
+  .countryFlagSelect {
+    @apply mr-3 ;
+
+    & :global(.MuiSelect-select#country-flag) {
+      @apply flex items-center;
+    }
+  }
+}
+

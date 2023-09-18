@@ -1,26 +1,28 @@
 import { Server } from 'socket.io'
+import * as Sentry from "@sentry/nextjs"
 import type { Server as IOServer } from 'socket.io'
 import type { Server as HTTPServer } from 'http'
 import type { NextApiRequest, NextApiResponse } from 'next'
 import type { Socket as NetSocket } from 'net'
-import { createNotification } from '@/lib/ssr/requests/notifications/createNotification'
-import { getAllManagers } from '@/lib/ssr/requests/getUsers'
-import { UserOfDB } from "@/stores/userStore"
-import { Notification } from '@/stores/notificationsStore'
+import type { IUserOfDB } from "@/entities/User"
+import type { INotification } from '@/entities/Notification'
+import { UserService } from './users/[[...params]]'
+import { API_URI } from '@/shared/const'
+import { AUTHORIZATION_HEADER_KEY } from "@/shared/lib/providers/auth"
 
-interface SocketServer extends HTTPServer {
+interface ISocketServer extends HTTPServer {
   io?: IOServer | undefined
 }
 
-interface SocketWithIO extends NetSocket {
-  server: SocketServer
+interface ISocketWithIO extends NetSocket {
+  server: ISocketServer
 }
 
-interface NextApiResponseWithSocket extends NextApiResponse {
-  socket: SocketWithIO
+interface INextApiResponseWithSocket extends NextApiResponse {
+  socket: ISocketWithIO
 }
 
-const SocketHandler = (req: NextApiRequest, res: NextApiResponseWithSocket) => {
+const SocketHandler = (req: NextApiRequest, res: INextApiResponseWithSocket) => {
   // let io
   if (res.socket.server.io) {
     console.log('Socket is already running')
@@ -32,21 +34,21 @@ const SocketHandler = (req: NextApiRequest, res: NextApiResponseWithSocket) => {
 
     io.on('connection', socket => {
       console.log('socket id', socket.id)
-      // socket.broadcast.emit("user connected", {
+      // socket.broadcast.emit("users connected", {
       //   userID: socket.id,
       //   username: socket.username,
       // })
 
       socket.on('disconnect', () => {
-        console.log('user disconnected')
+        console.log('users disconnected')
       })
 
-      socket.on('connect user', async ({ socketId, userId }) => {
-        /* TODO: then user was connected to ws - we need to add him to our WS onlineUsersList */
+      socket.on('connect users', async ({ socketId, userId }) => {
+        /* TODO: then users was connected to ws - we need to add him to our WS onlineUsersList */
       })
 
       // setTimeout(async () => {
-      //   console.log('new user timeout')
+      //   console.log('new users timeout')
       //   const msg = 'test notification text.'
       //   const notifications = await createNotificationsForAllManagers(msg)
       //   await socket.broadcast.emit('newUser', [...notifications])
@@ -55,7 +57,8 @@ const SocketHandler = (req: NextApiRequest, res: NextApiResponseWithSocket) => {
       socket.on('newUser', async (msg) => {
         /* TODO: on newUser event: we need ???? */
         console.log('next.js newUser', msg)
-        const notifications = await createNotificationsForAllManagers(msg)
+        const country = "us"
+        const notifications = await createNotificationsForAllManagers(country, msg)
 
         /*
         * we need to send a private notification to every manager on the network.
@@ -66,29 +69,50 @@ const SocketHandler = (req: NextApiRequest, res: NextApiResponseWithSocket) => {
     })
 
     /* TODO: we create disconnect event  */
-    /* TODO: on disconnect event we need rm user from our onlineUsersList */
+    /* TODO: on disconnect event we need rm users from our onlineUsersList */
   }
 
   res.end()
 }
 
-async function createNotificationsForAllManagers (msg: string): Promise<Array<Notification>> {
-  const allManagers: Array<UserOfDB> = await getAllManagers()
-  const allManagesIds: Array<string> = await allManagers.map((manager: UserOfDB) => manager.id)
+async function createNotificationsForAllManagers (country: string, msg: string): Promise<Array<INotification>> {
+  // const allManagers: Array<IUserOfDB> = await getAllManagers()
+  const allManagers: Array<IUserOfDB> = await new UserService().getAllManagersOfRegion(country)
+  const allManagesIds: Array<string> = await allManagers.map((manager: IUserOfDB) => manager.id)
 
   const promises = await allManagesIds.map((managerId) => {
     return new Promise(async (resolve, reject) => {
-      const notification = await createNotification({
-        recipientUserId: managerId,
-        text: msg
+      // const notification = await createNotification({
+      //   recipientUserId: managerId,
+      //   text: msg
+      // })
+
+      /*
+      *  !!! IT IS WAITING FOR ADDING JWT TOKEN FOR PROTECTION SOCKETS !!!
+      * */
+      const notification = await fetch(`${API_URI}notifications/`, {
+        method: 'GET',
+        headers: new Headers({
+          'Content-Type': 'application/json',
+          // [`${AUTHORIZATION_HEADER_KEY}`]: `Bearer ${accessToken}`
+        }),
+        credentials: "same-origin",
       })
+        .then((res) => res.json())
+        .catch((error) => {
+          console.error('creation of new notification failed', error)
+          Sentry.captureException(error)
+
+          return null
+        })
+
       if (notification !== null) resolve(notification)
       else reject(notification)
     })
   })
   const createdNotificationsRes = await Promise.allSettled(promises)
 
-  const notifications: Array<Notification> = await createdNotificationsRes.filter((notificationPromiseRes) => {
+  const notifications: Array<INotification> = await createdNotificationsRes.filter((notificationPromiseRes) => {
     return notificationPromiseRes.status !== "rejected"
     // @ts-ignore
   }).map(notificationPromiseRes => notificationPromiseRes?.value)
