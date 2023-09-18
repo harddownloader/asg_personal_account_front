@@ -1,3 +1,4 @@
+/* eslint react-hooks/exhaustive-deps: 0 */
 import { ReactElement, useEffect } from "react"
 import { InferGetServerSidePropsType, GetServerSidePropsContext } from "next"
 import nookies from "nookies"
