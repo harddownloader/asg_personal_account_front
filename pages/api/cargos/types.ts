@@ -27,7 +27,7 @@ export type TSpaceDB = TSpace & {
 }
 
 
-export type TCargoId = string;
+export type TCargoToneId = string;
 export type TClientCode = string;
 export type TClientId = string; // Types.ObjectId
 export type TCargoStatus = typeof CARGO_STATUS[keyof typeof CARGO_STATUS]; // Статус
@@ -43,7 +43,7 @@ export type TSpaces = Array<TSpace>;
 
 export interface ICargo {
   _id: string;
-  cargoId: TCargoId;
+  toneId: TCargoToneId;
   clientCode: TClientCode;
   clientId: TClientId;
   status: TCargoStatus;
