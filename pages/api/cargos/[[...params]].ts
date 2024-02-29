@@ -71,7 +71,7 @@ export class CargosService {
           cargosList.push(mapCargoDataFromApi({
             id: cargo.id,
             ...cargoDecode,
-            tones: allTones.find((tone) => tone.id === cargoDecode.toneId)
+            tone: allTones.find((tone) => tone.id === cargoDecode.toneId)
           }))
         })
 
@@ -113,7 +113,7 @@ export class CargosService {
           return mapCargoDataFromApi({
             id: cargo.id,
             ...cargoDecode,
-            tones: allTones.find((tone) => tone.id === cargoDecode.toneId)
+            tone: allTones.find((tone) => tone.id === cargoDecode.toneId)
           })
         })
       })
