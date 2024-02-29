@@ -5,6 +5,7 @@ import {
 } from "@/entities/Cargo"
 import { TResponseFieldErrorsArray } from "@/shared/types/types"
 import type { TUserId } from "@/entities/User"
+import { ITone } from "@/entities/Tone";
 
 export type TCargoFieldNames<Type> = {
   [key: string]: {
@@ -60,6 +61,7 @@ export type TCargoToneId = string // foreign key to Tones collection
 
 export interface ICargo {
   toneId: TCargoToneId
+  tone: ITone
   status: TCargoStatus
   costOfDelivery: TCargoCostOfDelivery
   // cargoName: CargoNameType

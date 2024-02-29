@@ -1,5 +1,6 @@
 import * as Sentry from "@sentry/nextjs"
 import { ICargoFull } from "@/entities/Cargo"
+import {ITone} from "@/entities/Tone";
 
 type TCreateAtProp = 'createdAt'
 type TUpdateAtProp = 'updatedAt'
@@ -9,11 +10,16 @@ const UPDATE_AT: TUpdateAtProp = 'updatedAt' as const
 /*
 * convert cargo data from backend to frontend entity format
 * */
+interface ICargoFullMap extends Omit<ICargoFull, 'tone'> {
+  tone: ITone | null
+}
+
 export const mapCargoDataFromApi = (cargoDB: Object) => {
-  const cargo: ICargoFull = {
+  const cargo: ICargoFullMap = {
     id: '',
     cargoId: '',
     toneId: '',
+    tone: null,
     clientCode: '',
     clientId: '',
     status: 0,
@@ -47,5 +53,5 @@ export const mapCargoDataFromApi = (cargoDB: Object) => {
     }
   }
 
-  return cargo
+  return cargo as ICargoFull
 }

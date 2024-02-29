@@ -18,6 +18,7 @@ import { getFirestoreAdmin } from "@/shared/lib/firebase/firebaseAdmin"
 import { getUserByCustomToken } from "../_lib/getUserByCustomToken"
 import { mapCargoDataFromApi, CARGOS_DB_COLLECTION_NAME } from "@/entities/Cargo"
 import type { ICargoFull } from "@/entities/Cargo"
+import { ITone, mapToneDataFromApi, TONES_DB_COLLECTION_NAME } from "@/entities/Tone";
 
 export class CargosService {
   async create(country: string, createCargoDto: CreateCargoDto) {
@@ -46,6 +47,21 @@ export class CargosService {
   async findAll(country: string): Promise<Array<ICargoFull> | null> {
     const db = getFirestoreAdmin(country).firestore()
     const cargosRef = await db.collection(CARGOS_DB_COLLECTION_NAME)
+    const tonesRef = await db.collection(TONES_DB_COLLECTION_NAME)
+
+    const allTones = await tonesRef.get().then((tones) => {
+      const tonesList: ITone[] = []
+      tones.forEach((tone) => {
+        const toneDecode = {...tone.data()}
+        tonesList.push(mapToneDataFromApi({
+          id: tone.id,
+          ...toneDecode
+        }))
+      })
+
+      return tonesList
+    })
+
     return await cargosRef.get()
       .then((cargos: TFixMeInTheFuture) => {
         const cargosList: Array<ICargoFull> = []
@@ -54,7 +70,8 @@ export class CargosService {
 
           cargosList.push(mapCargoDataFromApi({
             id: cargo.id,
-            ...cargoDecode
+            ...cargoDecode,
+            tones: allTones.find((tone) => tone.id === cargoDecode.toneId)
           }))
         })
 
@@ -71,6 +88,21 @@ export class CargosService {
   async findByUserId(country: string, userId: string) {
     const db = getFirestoreAdmin(country).firestore()
     const cargosRef = await db.collection(CARGOS_DB_COLLECTION_NAME)
+    const tonesRef = await db.collection(TONES_DB_COLLECTION_NAME)
+
+    const allTones = await tonesRef.get().then((tones) => {
+      const tonesList: ITone[] = []
+      tones.forEach((tone) => {
+        const toneDecode = {...tone.data()}
+        tonesList.push(mapToneDataFromApi({
+          id: tone.id,
+          ...toneDecode
+        }))
+      })
+
+      return tonesList
+    })
+
     return await cargosRef
       .where("clientId", "==", userId)
       .get()
@@ -80,7 +112,8 @@ export class CargosService {
 
           return mapCargoDataFromApi({
             id: cargo.id,
-            ...cargoDecode
+            ...cargoDecode,
+            tones: allTones.find((tone) => tone.id === cargoDecode.toneId)
           })
         })
       })
