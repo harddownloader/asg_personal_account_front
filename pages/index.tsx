@@ -161,6 +161,7 @@ function Home ({
                  tones,
                }: InferGetServerSidePropsType<typeof getServerSideProps>) {
   useEffect(() => {
+    console.log('index', {cargos})
     if (cargos?.length) CargosStore.setList(cargos)
 
     if (!UserStore.user.currentUser.id) UserStore.saveUserToStore(mapUserDataFromApi({...currentUser}))
