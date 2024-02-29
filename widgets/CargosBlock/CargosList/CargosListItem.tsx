@@ -48,7 +48,7 @@ export const CargosListItem = observer(({
                 className={"font-bold"}
               >
                 {/* Номер отправки: */}
-                { item.cargoId }
+                { item.toneId }
               </Typography>
             </Grid>
             <Grid item>

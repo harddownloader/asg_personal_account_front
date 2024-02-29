@@ -1,31 +1,29 @@
-import {
-  action,
-  makeObservable,
-  observable
-} from 'mobx'
-import * as Sentry from "@sentry/nextjs"
+import { action, makeObservable, observable } from 'mobx'
+import * as Sentry from '@sentry/nextjs'
 
 // shared
 import { getSortedCurrentItemsListByDate } from '@/shared/lib/arrays/sorting'
-import { getCookies } from "@/shared/lib/cookies"
-import { ACCESS_TOKEN_KEY } from "@/shared/lib/providers/auth"
+import { getCookies } from '@/shared/lib/cookies'
+import { ACCESS_TOKEN_KEY } from '@/shared/lib/providers/auth'
 
 // entities
-import { addTone, mapToneDataFromApi, TONE_API_ERRORS } from "@/entities/Tone"
+import { addTone, mapToneDataFromApi, TONE_API_ERRORS } from '@/entities/Tone'
 import type { IToneAddResponse, TToneLabel, ITone } from '@/entities/Tone'
-import { checkAddTone } from "@/entities/Tone/model/helpers/validation"
-import { ClientsStore } from "@/entities/User"
-import { CARGO_FIELD_NAMES } from "@/entities/Cargo"
+import { checkAddTone } from '@/entities/Tone/model/helpers/validation'
+import { ClientsStore } from '@/entities/User'
+import { CARGO_FIELD_NAMES, CargosStore } from '@/entities/Cargo'
 
 type TToneStore = {
   items: ITone[]
   isLoading: boolean
+  currentToneId: string
 }
 
 export class _ToneStore {
   tones: TToneStore = {
     items: [],
     isLoading: false,
+    currentToneId: ''
   }
 
   constructor() {
@@ -33,11 +31,13 @@ export class _ToneStore {
       tones: observable,
       setList: action,
       clearList: action,
+      setCurrentToneId: action,
+      clearCurrentToneId: action
     })
   }
 
   setList = (tones: ITone[]) => {
-    const mappedTones = tones.map((tone) => mapToneDataFromApi(tone))
+    const mappedTones = tones.map(tone => mapToneDataFromApi(tone))
     const tonesSortedByDate = getSortedCurrentItemsListByDate<ITone[]>(mappedTones, 'desc')
     this.tones.items = [...tonesSortedByDate]
   }
@@ -59,9 +59,9 @@ export class _ToneStore {
     const userOfCargo = await checkAddTone({
       toneLabel: toneName,
       responseErrorsArray: response.data.addingTone.errors,
-      userId: (ClientsStore.clients.currentItem?.id || "" ) as string,
-      country: (ClientsStore.clients.currentItem?.country) as string,
-      token,
+      userId: (ClientsStore.clients.currentItem?.id || '') as string,
+      country: ClientsStore.clients.currentItem?.country as string,
+      token
     })
 
     if (response.data.addingTone.errors.length) {
@@ -69,13 +69,13 @@ export class _ToneStore {
       return response
     }
 
-    if (
-      !userOfCargo?.id ||
-      !userOfCargo?.country ||
-      !token
-    ) {
-      Sentry.captureMessage(`toneStore.add: Something wrong with - userOfCargo?.id:${userOfCargo?.id}, userOfCargo?.country:${userOfCargo?.country}, token:${token}`)
-      console.log(`Sentry.captureMessage(\`toneStore.add: Something wrong... userOfCargo?.id:${userOfCargo?.id}, userOfCargo?.country:${userOfCargo?.country}, token:${token}`)
+    if (!userOfCargo?.id || !userOfCargo?.country || !token) {
+      Sentry.captureMessage(
+        `toneStore.add: Something wrong with - userOfCargo?.id:${userOfCargo?.id}, userOfCargo?.country:${userOfCargo?.country}, token:${token}`
+      )
+      console.log(
+        `Sentry.captureMessage(\`toneStore.add: Something wrong... userOfCargo?.id:${userOfCargo?.id}, userOfCargo?.country:${userOfCargo?.country}, token:${token}`
+      )
       return response
     }
 
@@ -87,38 +87,53 @@ export class _ToneStore {
       body: {
         label: toneName,
         updatedAt: newUpdatedAndCreatedAt,
-        createdAt: newUpdatedAndCreatedAt,
-      },
-    }).then((newToneRecord) => {
-      console.log({newToneRecord})
-      this.tones.items = [
-        ...this.tones.items,
-        newToneRecord,
-      ]
-
-      response.data.addingTone.newTone = newToneRecord
-    })
-    .catch((error) => {
-      /* Error handling */
-      console.log('Tone store catch', error)
-      switch (error.message) {
-        case TONE_API_ERRORS.ALREADY_EXISTS:
-          response.data.addingTone.errors.push({
-            field: CARGO_FIELD_NAMES.TONE.value as string,
-            message: `Тонна с таким названием уже существует`
-          })
-          break
-        default:
-          response.data.addingTone.errors.push({
-            field: CARGO_FIELD_NAMES.TONE.value as string,
-            message: `${error.message}`
-          })
+        createdAt: newUpdatedAndCreatedAt
       }
     })
-    .finally(() => {
-      this.tones.isLoading = false
-    })
+      .then(newToneRecord => {
+        console.log({ newToneRecord })
+        this.tones.items = [...this.tones.items, newToneRecord]
+
+        response.data.addingTone.newTone = newToneRecord
+      })
+      .catch(error => {
+        /* Error handling */
+        console.log('Tone store catch', error)
+        switch (error.message) {
+          case TONE_API_ERRORS.ALREADY_EXISTS:
+            response.data.addingTone.errors.push({
+              field: CARGO_FIELD_NAMES.TONE.value as string,
+              message: `Тонна с таким названием уже существует`
+            })
+            break
+          default:
+            response.data.addingTone.errors.push({
+              field: CARGO_FIELD_NAMES.TONE.value as string,
+              message: `${error.message}`
+            })
+        }
+      })
+      .finally(() => {
+        this.tones.isLoading = false
+      })
 
     return response
+  }
+
+  setCurrentToneId = (toneId: string) => {
+    this.tones.currentToneId = toneId
+
+    ClientsStore.clearCurrentItem()
+    CargosStore.clearCurrentItem()
+
+    CargosStore.setCurrentItemsListByStatus({
+      isArchive: CargosStore.cargos.isCurrentItemsListArchive
+    })
+
+    CargosStore.setCurrentItemsListByToneId(toneId)
+  }
+
+  clearCurrentToneId = () => {
+    this.tones.currentToneId = ''
   }
 }

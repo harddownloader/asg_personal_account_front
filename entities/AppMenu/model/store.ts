@@ -3,11 +3,12 @@ import { makePersistable } from 'mobx-persist-store'
 import type {
   IMenuState
 } from '@/entities/AppMenu'
+import { PAGES_IDS } from '@/shared/lib/menu/pages'
 
 export class _MenuStore {
   menu: IMenuState = {
     opened: true,
-    openedIds: [], // for active default menu
+    openedIds: [PAGES_IDS.CARGOS] // for active default menu
   }
 
   constructor() {

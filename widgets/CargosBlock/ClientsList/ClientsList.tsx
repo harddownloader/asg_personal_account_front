@@ -16,6 +16,7 @@ import { GRID_SPACING } from '@/shared/const'
 import type { IUserOfDB } from '@/entities/User'
 import { ClientsStore } from "@/entities/User"
 import { CargosStore } from "@/entities/Cargo"
+import { ToneStore } from '@/entities/Tone'
 
 export interface ClientsListProps {
   isLoading: boolean
@@ -62,6 +63,7 @@ export const ClientsList = observer(({
     }
 
     setNewCurrentItem(client)
+    ToneStore.clearCurrentToneId()
 
     //  set cargos list && set filtering cargos list by "currents"
     if (client.userCodeId) {

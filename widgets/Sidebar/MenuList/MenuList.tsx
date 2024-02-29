@@ -10,6 +10,7 @@ import { menuItems } from '@/shared/lib/menu'
 import { IconDashboard } from '@tabler/icons-react'
 
 export const MenuList = memo(() => {
+  console.log('menuItems.items', menuItems.items)
   const navItems = menuItems.items.map((item) => {
     switch (item.type) {
       case 'group':
