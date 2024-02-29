@@ -1,7 +1,7 @@
 # Personal Account Frontend && BFF
 
 ```
-nvm use 18.16.0
+nvm use 18.17.0
 yarn
 ```
 
