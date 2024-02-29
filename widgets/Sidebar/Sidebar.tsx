@@ -64,5 +64,3 @@ export const Sidebar = ({ drawerOpen, drawerToggle }: SidebarProps) => {
     </Box>
   )
 }
-
-export default Sidebar

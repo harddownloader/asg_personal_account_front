@@ -64,8 +64,6 @@ export {
 
 // lib
 export {
-  getSortedCurrentItemsListByDate,
-
   // filters all spaces
   getSpacesOfUnsavedCargo,
   getSpacesOfExistsCargo

@@ -56,8 +56,10 @@ export type TCargoCost = number // Стоимость
 export type TCargoTariff = number // Тариф
 export type TCargoVolume = number // Объем
 export type TCargoWeight = number // Вес
+export type TCargoToneId = string // foreign key to Tones collection
 
 export interface ICargo {
+  toneId: TCargoToneId
   status: TCargoStatus
   costOfDelivery: TCargoCostOfDelivery
   // cargoName: CargoNameType

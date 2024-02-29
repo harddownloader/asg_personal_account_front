@@ -22,12 +22,11 @@ import { ClientsStore } from "@/entities/User"
 import { NotificationsStore } from "@/entities/Notification"
 
 // entities
-import { mapUserDataFromApi } from "@/entities/User"
-import { getAllClients } from "@/entities/User"
+import { getAllClients, mapUserDataFromApi } from "@/entities/User"
 import { getAllByUserId } from "@/entities/Notification"
 import { getMe } from "@/entities/User"
-import { getAllCargos } from "@/entities/Cargo"
-import { getCargosByUserId } from "@/entities/Cargo"
+import { getAllCargos, getCargosByUserId } from "@/entities/Cargo"
+import { getTones, ToneStore } from "@/entities/Tone"
 
 export const getServerSideProps = async (ctx: GetServerSidePropsContext) => {
   const redirectToLoginPage = {
@@ -115,6 +114,11 @@ export const getServerSideProps = async (ctx: GetServerSidePropsContext) => {
         })
         : await emptyPromise()
 
+    const tonesPromiseIndex = 3
+    promises[tonesPromiseIndex] = async () => await getTones({
+      country,
+      token: accessToken,
+    })
     const outcomes = await Promise.allSettled(promises.map(promise => promise()))
 
     console.timeEnd('home_page_all_requests_benchmark')
@@ -130,6 +134,9 @@ export const getServerSideProps = async (ctx: GetServerSidePropsContext) => {
           : [],
         cargos: outcomes[cargosPromiseIndex].status === "fulfilled"
           ? outcomes[cargosPromiseIndex].value
+          : [],
+        tones: outcomes[tonesPromiseIndex].status === "fulfilled"
+          ? outcomes[tonesPromiseIndex].value
           : [],
       },
     }
@@ -151,6 +158,7 @@ function Home ({
                  currentUser,
                  clients,
                  notifications,
+                 tones,
                }: InferGetServerSidePropsType<typeof getServerSideProps>) {
   useEffect(() => {
     if (cargos?.length) CargosStore.setList(cargos)
@@ -161,6 +169,8 @@ function Home ({
     else if (clients?.length) ClientsStore.setList(clients)
 
     if (notifications?.length) NotificationsStore.setList(notifications)
+
+    if (tones?.length) ToneStore.setList(tones)
   }, [])
 
   return (

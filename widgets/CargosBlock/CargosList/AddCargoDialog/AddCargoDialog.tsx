@@ -35,6 +35,7 @@ export const AddCargoDialog = observer(({
     handleSubmit: handleSubmitForm,
     formState: { errors: errorsForm },
     setError: setErrorForm,
+    clearErrors: clearErrorsForm,
     reset,
     control,
     getValues,
@@ -71,6 +72,7 @@ export const AddCargoDialog = observer(({
 
   const handleAddCargo = handleSubmitForm(async ({
                                                     cargoId,
+                                                    toneId,
                                                     clientCode,
                                                     status,
                                                     costOfDelivery,
@@ -86,6 +88,7 @@ export const AddCargoDialog = observer(({
 
     const { data }: ICargoAddResponse = await CargosStore.add({
       cargoId,
+      toneId,
       clientCode,
       status,
       costOfDelivery,
@@ -173,6 +176,7 @@ export const AddCargoDialog = observer(({
           registerForm,
           errorsForm,
           setErrorForm,
+          clearErrorsForm,
           control,
           formDefaultValues: {
             status: CARGO_FIELD_NAMES.STATUS.defaultValue,

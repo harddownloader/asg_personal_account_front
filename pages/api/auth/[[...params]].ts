@@ -86,7 +86,7 @@ const getUserInAuth = async (
   email: string,
   password: string
   // @ts-ignore
-): Promise<{user: User, userInDB: IUserOfDB}>  => {
+): Promise<{user: User, userInDB: IUserOfDB} | void>  => {
   try {
     return await signInWithEmailAndPassword(firebaseAuth, email, password)
       .then(async (userCredential) => {

@@ -1,4 +1,4 @@
-import React, { ChangeEvent, ReactElement, useMemo } from "react"
+import React, { ChangeEvent, ReactElement } from "react"
 import { Controller } from "react-hook-form"
 
 // mui
@@ -8,39 +8,42 @@ import {
   FormControl,
   Grid,
   MenuItem,
-  Typography
 } from "@mui/material"
 import InputLabel from '@mui/material/InputLabel'
 import Select from '@mui/material/Select'
 
 // project components
 import { SaveCargoButton } from "./SaveCargoButton"
-import { Spaces } from "@/widgets/CargosBlock/CargosForm/Spaces/Spaces"
+import { Spaces } from "@/widgets/CargosBlock/CargosForm/Spaces"
 import { Title } from "@/widgets/CargosBlock/CargosForm/Title"
+import { ToneField } from "@/widgets/CargosBlock/CargosForm/ToneField"
 
 // shared
 import { GRID_SPACING } from "@/shared/const"
 import { TFixMeInTheFuture } from "@/shared/types/types"
 
 // entities
-import { CargosStore } from "@/entities/Cargo"
 import {
   CARGO_FIELD_NAMES,
   STATUS_OPTIONS,
 } from '@/entities/Cargo'
 import type { TSpaceItem } from '@/entities/Cargo'
 
+// assets
+import classes from './CargosForm.module.scss'
+
 // types
 import { TTitle } from "@/widgets/CargosBlock/CargosInfo/CargoInfo"
 import { volumeFieldInputProps } from "@/widgets/CargosBlock/CargosForm/helpers/VolumeFieldInputProps"
 import { weightFieldInputProps } from "./helpers/WeightFieldInputProps"
-import {tariffFieldInputProps} from "@/widgets/CargosBlock/CargosForm/helpers/TariffFieldInputProps";
+import { tariffFieldInputProps } from "@/widgets/CargosBlock/CargosForm/helpers/TariffFieldInputProps"
 import { insuranceFieldInputProps } from "./helpers/InsuranceFieldInputProps"
 
 export interface ICargoInfoFormControl {
   registerForm: TFixMeInTheFuture,
   errorsForm: TFixMeInTheFuture,
   setErrorForm: TFixMeInTheFuture,
+  clearErrorsForm: TFixMeInTheFuture,
   control: TFixMeInTheFuture,
   formDefaultValues: TFixMeInTheFuture,
   reset: TFixMeInTheFuture,
@@ -64,6 +67,8 @@ export const CargosForm = ({
                                 formControl: {
                                   registerForm,
                                   errorsForm,
+                                  setErrorForm,
+                                  clearErrorsForm,
                                   control,
                                   formDefaultValues,
                                   reset,
@@ -121,38 +126,35 @@ export const CargosForm = ({
     </>
   )
 
+  const statusSelectNameAttr = `select-for-${CARGO_FIELD_NAMES.STATUS.value}`
   const StatusField: ReactElement = (
     <>
       <FormControl
         fullWidth
-        style={{
-          color: '#121926',
-          marginTop: '16px',
-          marginBottom: '8px'
-        }}
+        className={`${classes.dropdown}`}
         id={CARGO_FIELD_NAMES.STATUS.value}
       >
-        <InputLabel htmlFor="trinity-select">
+        <InputLabel id={statusSelectNameAttr}>
           {CARGO_FIELD_NAMES.STATUS.label}
         </InputLabel>
         <Controller
-          name={"status"}
+          name={CARGO_FIELD_NAMES.STATUS.value}
           control={control}
           defaultValue={formDefaultValues?.status}
           render={({ field }) => (
             <Select
-              label={CARGO_FIELD_NAMES.STATUS.label}
+              labelId={statusSelectNameAttr}
               fullWidth
               disabled={isDisabled}
               {...field}
             >
-              {STATUS_OPTIONS.map((person) => (
-                <MenuItem key={person.value} value={person.value}>
-                  {person.text}
+              {STATUS_OPTIONS.map((option) => (
+                <MenuItem key={option.value} value={option.value}>
+                  {option.text}
                 </MenuItem>
               ))}
             </Select>
-            )}
+          )}
         />
       </FormControl>
       {!!errorsForm.status && (
@@ -279,6 +281,8 @@ export const CargosForm = ({
     return TariffField
   }
 
+  const TariffField = getTariffField()
+
   const VolumeField: ReactElement = (
     <>
       <TextField
@@ -367,7 +371,23 @@ export const CargosForm = ({
                     {CostPlaceField}
                   </Grid>
                   <Grid item lg={lgColValue} md={6} sm={6} xs={12}>
-                    {getTariffField()}
+                    {TariffField}
+                  </Grid>
+                  <Grid item lg={lgColValue} md={6} sm={6} xs={12}>
+                    <ToneField
+                      isDisabled={isDisabled}
+                      formControl={{
+                        registerForm,
+                        errorsForm,
+                        setErrorForm,
+                        clearErrorsForm,
+                        control,
+                        formDefaultValues,
+                        reset,
+                        getValues,
+                        setValue,
+                      }}
+                    />
                   </Grid>
                 </Grid>
               </Grid>

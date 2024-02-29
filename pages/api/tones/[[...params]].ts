@@ -1,0 +1,132 @@
+import {
+  BadRequestException,
+  Body,
+  createHandler,
+  Delete,
+  ForbiddenException,
+  Get,
+  InternalServerErrorException,
+  NotFoundException,
+  Param,
+  Post,
+  Req, ValidationPipe,
+} from "next-api-decorators"
+import { v4 as uuidv4 } from "uuid"
+import { getLogger } from "@/shared/lib/logger/log-util"
+import { CreateToneDto } from "./dto/create-tone.dto"
+import { exceptionsAdapter } from "@/pages/api/_core/endpoint-catch-handler"
+import { getFirestoreAdmin } from "@/shared/lib/firebase/firebaseAdmin"
+import { getUniqDocId } from "@/pages/api/_lib/getUniqDocId"
+import {
+  mapToneDataFromApi,
+  TONE_ENTITY,
+  TONES_DB_COLLECTION_NAME,
+  TONE_API_ERRORS,
+} from "@/entities/Tone"
+import type { ITone } from "@/entities/Tone"
+import { TFixMeInTheFuture } from "@/shared/types"
+
+
+class TonesService {
+  protected readonly logger = getLogger(TonesService.name)
+
+  public async create(country: string, dto: CreateToneDto) {
+    try {
+      const db = getFirestoreAdmin(country).firestore()
+      const tonesRef = await db.collection(TONES_DB_COLLECTION_NAME)
+
+      /* check is tone with this label not exists */
+      let isDocExists = false
+      await tonesRef.where(TONE_ENTITY.label, "==", dto.label)
+        .get()
+        .then((querySnapshot) => {
+          querySnapshot.forEach((doc) => {
+            // doc.data() is never undefined for query doc snapshots
+            // console.log(doc.id, " => ", doc.data())
+            isDocExists = true
+          })
+        })
+        .catch((error) => {
+          console.log("TonesService=>create, Error getting documents: ", error)
+        })
+
+      if (isDocExists) {
+        throw new BadRequestException(TONE_API_ERRORS.ALREADY_EXISTS, [])
+      }
+
+      const toneID: string = await getUniqDocId(tonesRef)
+      const tone = {
+        ...dto, id: toneID
+      }
+
+      return await tonesRef
+        .doc(toneID)
+        .set({ ...tone })
+        .then(() => tone)
+        .catch((error) => {
+          console.error(error)
+        })
+    } catch (error) {
+      console.error(`TonesService create error: ${error}`)
+
+      exceptionsAdapter(error)
+    }
+  }
+
+  public async findAll(country: string): Promise<Array<ITone> | null> {
+    const db = getFirestoreAdmin(country).firestore()
+    const tonesRef = await db.collection(TONES_DB_COLLECTION_NAME)
+    return await tonesRef.get()
+      .then((tones: any) => {
+        const tonesList: Array<ITone> = []
+        tones.forEach((tone: TFixMeInTheFuture) => {
+          const tonesDecode = {...tone.data()}
+
+          tonesList.push(mapToneDataFromApi({
+            _id: tone.id,
+            ...tonesDecode
+          }))
+        })
+
+        return tonesList
+      })
+      .catch((error: TFixMeInTheFuture) => {
+        console.log('Error getting documents', error)
+
+        return null
+      })
+  }
+
+  async remove(country: string, id: string) {}
+}
+
+class TonesController {
+  private tonesService: TonesService
+
+  constructor() {
+    this.tonesService = new TonesService()
+  }
+
+  @Post('/:country')
+  public async create(
+    @Param('country') country: string,
+    @Body(ValidationPipe) dto: CreateToneDto,
+  ) {
+    return await this.tonesService.create(country, dto)
+  }
+
+  @Get('/:country')
+  findAll(@Param('country') country: string) {
+    return this.tonesService.findAll(country)
+  }
+
+  @Delete('/:country/:id')
+  remove(
+    @Param('country') country: string,
+    @Param('id') id: string,
+  ) {
+    return this.tonesService.remove(country, id)
+  }
+}
+
+export default createHandler(TonesController)

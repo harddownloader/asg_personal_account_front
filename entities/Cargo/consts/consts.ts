@@ -88,6 +88,10 @@ export const CARGO_FIELD_NAMES: TCargoFieldNames<string | number> = {
     value: 'weight',
     defaultValue: 0.0,
   },
+  TONE: {
+    label: 'Тонна',
+    value: 'toneId',
+  },
 
   // spaces
   CARGO_NAME: {

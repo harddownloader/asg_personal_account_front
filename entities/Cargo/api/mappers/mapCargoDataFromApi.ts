@@ -13,6 +13,7 @@ export const mapCargoDataFromApi = (cargoDB: Object) => {
   const cargo: ICargoFull = {
     id: '',
     cargoId: '',
+    toneId: '',
     clientCode: '',
     clientId: '',
     status: 0,
@@ -23,8 +24,11 @@ export const mapCargoDataFromApi = (cargoDB: Object) => {
     volume: 0,
     weight: 0,
     spaces: [],
-    [CREATE_AT]: '',
-    [UPDATE_AT]: ''
+
+    createdAt: '',
+    updatedAt: ''
+    // [CREATE_AT]: '',
+    // [UPDATE_AT]: ''
   }
 
   for (let prop of Object.keys(cargo)) {
@@ -36,10 +40,10 @@ export const mapCargoDataFromApi = (cargoDB: Object) => {
 
       // @ts-ignore // check - match by type
       if (typeof cargo[`${prop}`] === typeof cargoDB[`${prop}`] || cargo[`${prop}`] === null) cargo[`${prop}`] = cargoDB[`${prop}`]
-      else Sentry.captureMessage(`spreadCargoEntity Custom Error: '${prop}' in cargoDB(${cargoDB}) has a strange type, typeof prop=${typeof prop}`);
+      else Sentry.captureMessage(`mapCargoDataFromApi Custom Error: '${prop}' in cargoDB(${cargoDB}) has a strange type, typeof prop=${typeof prop}`);
 
     } else {
-      Sentry.captureMessage(`spreadCargoEntity Custom Error: not found '${prop}' in cargoDB(${cargoDB}), typeof cargoDB=${typeof cargoDB}`);
+      Sentry.captureMessage(`mapCargoDataFromApi Custom Error: not found '${prop}' in cargoDB(${cargoDB}), typeof cargoDB=${typeof cargoDB}`);
     }
   }
 

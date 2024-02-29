@@ -27,9 +27,6 @@ import {
 
 // entities
 import {
-  // lib
-  getSortedCurrentItemsListByDate,
-
   // const
   CARGOS_DB_COLLECTION_NAME,
   CARGO_STATUS,
@@ -38,6 +35,7 @@ import {
   UPLOAD_IMAGE_STATUS,
   SORTING_BY_DATE,
 } from "@/entities/Cargo"
+import { getSortedCurrentItemsListByDate } from '@/shared/lib/arrays/sorting'
 
 import type {
   IFiltersOfList,
@@ -168,7 +166,7 @@ export class _CargosStore {
       ) && (currentUserCode ? cargo.clientCode === currentUserCode : true)
     })
 
-    const sortedCargos = getSortedCurrentItemsListByDate(
+    const sortedCargos = getSortedCurrentItemsListByDate<TCargosItems>(
       JSON.parse(JSON.stringify(filteredList)),
       this.filtersOfList.byDate
     )
@@ -181,6 +179,7 @@ export class _CargosStore {
 
   add = async ({
                  cargoId,
+                 toneId,
                  clientCode,
                  status,
                  costOfDelivery,
@@ -214,6 +213,22 @@ export class _CargosStore {
       country: ClientsStore.clients.currentItem?.country,
       token,
     })
+
+    console.log({
+      cargoId,
+      toneId,
+      clientCode,
+      status,
+      costOfDelivery,
+      // cargoName,
+      insurance,
+      cost,
+      tariff,
+      volume,
+      weight,
+      spaces,
+    })
+    return response
 
     if (response.data.addingCargo.errors.length) return response
 
@@ -265,7 +280,7 @@ export class _CargosStore {
       ) || (
         !this.cargos.isCurrentItemsListArchive &&
         status !== CARGO_STATUS.CARGO_RECEIVED_BY_CUSTOMER
-      )) this.cargos.currentItemsList = getSortedCurrentItemsListByDate([
+      )) this.cargos.currentItemsList = getSortedCurrentItemsListByDate<TCargosItems>([
         ...this.cargos.currentItemsList,
         newCargo
       ], this.filtersOfList.byDate)
@@ -286,6 +301,7 @@ export class _CargosStore {
 
   update = async ({
                     cargoId,
+                    toneId,
                     clientCode,
                     status,
                     costOfDelivery,
@@ -322,6 +338,22 @@ export class _CargosStore {
       country: ClientsStore.clients.currentItem?.country,
       token,
     })
+
+    console.log({
+      cargoId,
+      toneId,
+      clientCode,
+      status,
+      costOfDelivery,
+      // cargoName,
+      insurance,
+      cost,
+      tariff,
+      volume,
+      weight,
+      spaces,
+    })
+    // return response
 
     if (spaces.length && cargoId.length >= 2) {
       enum spacePropertiesEnum {
@@ -387,6 +419,7 @@ export class _CargosStore {
 
     const requestData: IUpdateCargoReqBody = {
       cargoId,
+      toneId,
       clientCode,
       status,
       costOfDelivery,
@@ -428,12 +461,12 @@ export class _CargosStore {
         const currItemsListTmp = JSON.parse(JSON.stringify(this.cargos.currentItemsList))
 
         currItemsListTmp.splice(currCargoInItemsList, 1, updatedCargo)
-        this.cargos.currentItemsList = getSortedCurrentItemsListByDate([...currItemsListTmp], this.filtersOfList.byDate)
+        this.cargos.currentItemsList = getSortedCurrentItemsListByDate<TCargosItems>([...currItemsListTmp], this.filtersOfList.byDate)
       } else if (currCargoInItemsList !== -1) {
         const currItemsListTmp = JSON.parse(JSON.stringify(this.cargos.currentItemsList))
 
         currItemsListTmp.splice(currCargoInItemsList, 1)
-        this.cargos.currentItemsList = getSortedCurrentItemsListByDate([...currItemsListTmp], this.filtersOfList.byDate)
+        this.cargos.currentItemsList = getSortedCurrentItemsListByDate<TCargosItems>([...currItemsListTmp], this.filtersOfList.byDate)
       } else {
         console.error('Something went wrong in add/edit/delete from current cargo list logic')
       }

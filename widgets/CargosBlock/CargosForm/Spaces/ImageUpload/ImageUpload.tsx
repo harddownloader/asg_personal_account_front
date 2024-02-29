@@ -74,6 +74,8 @@ export const ImageUpload = observer(({
     })
   }
 
+  // a bug - https://github.com/react-dropzone/react-dropzone/issues/1229
+  // @ts-ignore
   const { getRootProps, getInputProps } = useDropzone({
     onDrop,
     accept: {
@@ -114,7 +116,8 @@ export const ImageUpload = observer(({
 
       <UploadDropZone>
         <p className="mb-2 text-sm text-inherit">
-          <span className="font-semibold">Кликните</span> или <span className="font-semibold">перетащите</span></p>
+          <span className="font-semibold">Кликните</span> или <span className="font-semibold">перетащите</span>
+        </p>
         <p className="text-xs text-inherit">SVG, PNG, JPG или GIF чтобы загрузить.</p>
       </UploadDropZone>
 
@@ -143,5 +146,3 @@ export const ImageUpload = observer(({
     </div>
   )
 })
-
-export default ImageUpload
