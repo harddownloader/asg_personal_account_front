@@ -6,7 +6,7 @@ export type TToneCreatedAt = string
 export type TToneUpdatedAt = string
 
 export interface ITone {
-  _id: TToneId
+  id: TToneId
   label: TToneLabel
   createdAt: TToneCreatedAt
   updatedAt: TToneUpdatedAt

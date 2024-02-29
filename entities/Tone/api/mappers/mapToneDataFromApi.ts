@@ -3,7 +3,7 @@ import { ITone } from "@/entities/Tone"
 
 export const mapToneDataFromApi = (toneDB: Object) => {
   const tone: ITone = {
-    _id: '',
+    id: '',
     label: '',
     createdAt: '',
     updatedAt: ''
