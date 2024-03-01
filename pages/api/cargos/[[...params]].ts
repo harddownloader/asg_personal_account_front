@@ -18,12 +18,13 @@ import { getFirestoreAdmin } from "@/shared/lib/firebase/firebaseAdmin"
 import { getUserByCustomToken } from "../_lib/getUserByCustomToken"
 import { mapCargoDataFromApi, CARGOS_DB_COLLECTION_NAME } from "@/entities/Cargo"
 import type { ICargoFull } from "@/entities/Cargo"
-import { ITone, mapToneDataFromApi, TONES_DB_COLLECTION_NAME } from "@/entities/Tone";
+import { getAllTonesSSR, ITone, mapToneDataFromApi, TONES_DB_COLLECTION_NAME } from "@/entities/Tone"
 
 export class CargosService {
   async create(country: string, createCargoDto: CreateCargoDto) {
     const db = getFirestoreAdmin(country).firestore()
     const cargosRef = await db.collection(CARGOS_DB_COLLECTION_NAME)
+    const allTones = await getAllTonesSSR(db)
     const cargoID: string = await uuidv4()
 
     const cargo = {...createCargoDto, id: cargoID}
@@ -38,7 +39,12 @@ export class CargosService {
           }))
         }))]
       })
-      .then(() => cargo)
+      .then(() => {
+        return {
+          ...cargo,
+          tone: allTones.find((tone) => tone.id === cargo.toneId)
+        }
+      })
       .catch((error) => {
         console.error(error)
       })
@@ -47,20 +53,7 @@ export class CargosService {
   async findAll(country: string): Promise<Array<ICargoFull> | null> {
     const db = getFirestoreAdmin(country).firestore()
     const cargosRef = await db.collection(CARGOS_DB_COLLECTION_NAME)
-    const tonesRef = await db.collection(TONES_DB_COLLECTION_NAME)
-
-    const allTones = await tonesRef.get().then((tones) => {
-      const tonesList: ITone[] = []
-      tones.forEach((tone) => {
-        const toneDecode = {...tone.data()}
-        tonesList.push(mapToneDataFromApi({
-          id: tone.id,
-          ...toneDecode
-        }))
-      })
-
-      return tonesList
-    })
+    const allTones = await getAllTonesSSR(db)
 
     return await cargosRef.get()
       .then((cargos: TFixMeInTheFuture) => {
@@ -88,20 +81,7 @@ export class CargosService {
   async findByUserId(country: string, userId: string) {
     const db = getFirestoreAdmin(country).firestore()
     const cargosRef = await db.collection(CARGOS_DB_COLLECTION_NAME)
-    const tonesRef = await db.collection(TONES_DB_COLLECTION_NAME)
-
-    const allTones = await tonesRef.get().then((tones) => {
-      const tonesList: ITone[] = []
-      tones.forEach((tone) => {
-        const toneDecode = {...tone.data()}
-        tonesList.push(mapToneDataFromApi({
-          id: tone.id,
-          ...toneDecode
-        }))
-      })
-
-      return tonesList
-    })
+    const allTones = await getAllTonesSSR(db)
 
     return await cargosRef
       .where("clientId", "==", userId)
@@ -128,6 +108,7 @@ export class CargosService {
   ) {
     const db = getFirestoreAdmin(country).firestore()
     const cargosRef = await db.collection(CARGOS_DB_COLLECTION_NAME)
+    const allTones = await getAllTonesSSR(db)
 
     const cargo = {...updateCargoDto}
     return await cargosRef
@@ -141,7 +122,11 @@ export class CargosService {
           }))
         }))]
       })
-      .then(() => ({...cargo, id: id}))
+      .then(() => ({
+        ...cargo,
+        id: id,
+        tone: allTones.find((tone) => tone.id === cargo.toneId)
+      }))
       .catch((error) => {
         console.error(error)
       })

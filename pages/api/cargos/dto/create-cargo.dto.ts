@@ -13,10 +13,9 @@ import { CARGO_STATUS } from './../const'
 import type {
   TCargoCost,
   TCargoCostOfDelivery,
-  TCargoId,
   TCargoInsurance,
   TCargoStatus,
-  TCargoTariff,
+  TCargoTariff, TCargoToneId,
   TCargoVolume,
   TCargoWeight,
   TClientId,
@@ -57,7 +56,7 @@ export class SpacesDto {
 export class CreateCargoDto {
   @IsNotEmpty()
   @IsString()
-  readonly cargoId!: TCargoId;
+  readonly toneId!: TCargoToneId;
 
   @IsNotEmpty()
   @IsString()
