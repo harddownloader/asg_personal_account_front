@@ -1,16 +1,12 @@
-import {
-  CARGO_IMAGE_STATUS,
-  CARGO_STATUS,
-  UPLOAD_IMAGE_STATUS
-} from "@/entities/Cargo"
-import { TResponseFieldErrorsArray } from "@/shared/types/types"
-import type { TUserId } from "@/entities/User"
-import { ITone } from "@/entities/Tone";
+import { CARGO_IMAGE_STATUS, CARGO_STATUS, UPLOAD_IMAGE_STATUS } from '@/entities/Cargo'
+import { TResponseFieldErrorsArray } from '@/shared/types/types'
+import type { TUserId } from '@/entities/User'
+import { ITone } from '@/entities/Tone'
 
 export type TCargoFieldNames<Type> = {
   [key: string]: {
-    label: string,
-    value: string,
+    label: string
+    value: string
     defaultValue?: Type
   }
 }
@@ -49,7 +45,7 @@ export type TSpaceItem = {
 export type TCargoID = string
 export type TCargoCustomIdentify = string
 export type TCargoClientCode = string
-export type TCargoStatus = typeof CARGO_STATUS[keyof typeof CARGO_STATUS] // Статус
+export type TCargoStatus = (typeof CARGO_STATUS)[keyof typeof CARGO_STATUS] // Статус
 export type TCargoCostOfDelivery = number // Стоимость доставки
 // export type CargoNameType = string // Название груза
 export type TCargoInsurance = number // Страховка
@@ -81,9 +77,8 @@ export interface ICargoLocalFormat extends ICargo {
   spaces: Array<TSpaceItem>
 }
 
-export interface ICargoDBFormatWithoutId extends ICargo, ICargoDateTime {
+export interface ICargoDBFormatWithoutId extends Omit<ICargo, 'tone'>, ICargoDateTime {
   spaces: Array<TSpaceOfDB>
-  cargoId: TCargoCustomIdentify // Номер отправки
   clientCode: TCargoClientCode // Код клиента
 }
 
@@ -91,13 +86,16 @@ export interface IUpdateCargoReqBody extends ICargoDBFormatWithoutId {
   clientId: TUserId // user id
 }
 
-export interface ICargoDBFormat extends ICargoDBFormatWithoutId {
-  id: TCargoID // index in DB
+export interface ICargoForForm extends ICargoLocalFormat {
+  clientCode: TCargoClientCode // Код клиента
 }
 
-export interface ICargoForForm extends ICargoLocalFormat {
-  cargoId: TCargoCustomIdentify // Номер отправки
+export interface ICargoSubmitForm extends Omit<ICargoLocalFormat, 'tone'> {
   clientCode: TCargoClientCode // Код клиента
+}
+
+export interface ICargoDBFormat extends Omit<ICargoSubmitForm, 'spaces'>, ICargoDBFormatWithoutId {
+  id: TCargoID // index in DB
 }
 
 export interface ICargoFull extends ICargoForForm, ICargoDateTime {
@@ -105,9 +103,8 @@ export interface ICargoFull extends ICargoForForm, ICargoDateTime {
   clientId: TUserId // user id
 }
 
-export interface IAddCargo extends ICargo, ICargoDateTime {
+export interface IAddCargo extends Omit<ICargo, 'tone'>, ICargoDateTime {
   spaces: Array<TSpaceOfDB>
-  cargoId: TCargoCustomIdentify // Номер отправки
   clientCode: TCargoClientCode // Код клиента
   clientId: TUserId // user id
 }
@@ -132,8 +129,8 @@ export interface ICargoAddResponse {
   }
 }
 
-export type TCargoImageStatus = typeof CARGO_IMAGE_STATUS[keyof typeof CARGO_IMAGE_STATUS]
-export type TUploadImageStatus = typeof UPLOAD_IMAGE_STATUS[keyof typeof UPLOAD_IMAGE_STATUS]
+export type TCargoImageStatus = (typeof CARGO_IMAGE_STATUS)[keyof typeof CARGO_IMAGE_STATUS]
+export type TUploadImageStatus = (typeof UPLOAD_IMAGE_STATUS)[keyof typeof UPLOAD_IMAGE_STATUS]
 
 // state for showing upload images animation
 export type TUploadImage = {
@@ -166,7 +163,7 @@ export type TCargosState = {
 // === FOR FUNCTIONS ===
 // addPhoto
 export type TAddPhotoSpaceInfoArgs = {
-  spaceID: TSpaceItemId,
+  spaceID: TSpaceItemId
   spaceIndex: number
   clientId: string
   cargoId?: string

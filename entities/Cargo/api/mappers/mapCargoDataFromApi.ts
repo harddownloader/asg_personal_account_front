@@ -17,7 +17,6 @@ interface ICargoFullMap extends Omit<ICargoFull, 'tone'> {
 export const mapCargoDataFromApi = (cargoDB: Object) => {
   const cargo: ICargoFullMap = {
     id: '',
-    cargoId: '',
     toneId: '',
     tone: null,
     clientCode: '',

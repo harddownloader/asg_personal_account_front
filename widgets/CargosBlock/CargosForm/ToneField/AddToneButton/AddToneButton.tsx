@@ -13,14 +13,23 @@ import { Preloader } from "@/shared/ui/Preloader"
 
 // assets
 import classes from "./AddToneButton.module.scss"
+import { TSearchText } from "../ToneField"
+import { TFixMeInTheFuture } from "@/shared/types"
+
+export interface IAddToneButton {
+  searchText: TSearchText
+  clearErrorsForm: TFixMeInTheFuture
+  setErrorForm: TFixMeInTheFuture
+  setValue: TFixMeInTheFuture
+}
 
 
 export const AddToneButton = observer(function AddToneButton({
                                 searchText,
                                 clearErrorsForm,
                                 setErrorForm,
-                                                               setValue,
-                              }) {
+                                setValue,
+                              }:IAddToneButton) {
   const onClickHandler = async () => {
     console.log('add')
     await clearErrorsForm(CARGO_FIELD_NAMES.TONE.value)
@@ -40,9 +49,7 @@ export const AddToneButton = observer(function AddToneButton({
       return
     }
 
-
-    // setValue(CARGO_FIELD_NAMES.TONE.value, "9114f974-6c7a-4c02-83d5-fcc9f7d000e4", { shouldValidate: true })
-    await setValue(CARGO_FIELD_NAMES.TONE.value, data.addingTone.newTone?._id, { shouldValidate: true })
+    await setValue(CARGO_FIELD_NAMES.TONE.value, data.addingTone.newTone?.id, { shouldValidate: true })
   }
 
   return (

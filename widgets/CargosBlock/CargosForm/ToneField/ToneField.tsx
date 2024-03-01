@@ -42,6 +42,8 @@ const containsText = (text: string, searchText: string) => {
 const labelId = `label-${CARGO_FIELD_NAMES.TONE.value}`
 const searchTextDefaultValue = ''
 
+export type TSearchText = string
+
 export const ToneField = observer(function ToneField({
   isDisabled,
   formControl: {
@@ -58,7 +60,7 @@ export const ToneField = observer(function ToneField({
 }: IToneFieldProps) {
   const allTones: ITone[] = [...ToneStore.tones.items]
 
-  const [searchText, setSearchText] = useState<string>(searchTextDefaultValue)
+  const [searchText, setSearchText] = useState<TSearchText>(searchTextDefaultValue)
 
   const displayedOptions = useMemo(
     () =>
@@ -70,7 +72,7 @@ export const ToneField = observer(function ToneField({
 
   const optionsList = displayedOptions.map((option: ITone) => {
     return (
-      <MenuItem key={option._id} value={option._id}>
+      <MenuItem key={option.id} value={option.id}>
         {option.label}
       </MenuItem>
     )

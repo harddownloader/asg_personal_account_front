@@ -85,7 +85,6 @@ const findUserInRegion = async (
 const getUserInAuth = async (
   email: string,
   password: string
-  // @ts-ignore
 ): Promise<{user: User, userInDB: IUserOfDB} | void>  => {
   try {
     return await signInWithEmailAndPassword(firebaseAuth, email, password)
@@ -115,7 +114,13 @@ class AuthService {
 
       this.logger.info({ cred: { email, password } })
 
-      const { user, userInDB } = await getUserInAuth(email, password)
+      const userInAuth = await getUserInAuth(email, password)
+
+      if (!userInAuth) {
+        throw new NotFoundException(`User not found in database. Check your auth`)
+      }
+
+      const { user, userInDB } = userInAuth
 
       if (userInDB === null) throw new NotFoundException(`User not found in database`)
       // @ts-ignore

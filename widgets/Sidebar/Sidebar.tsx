@@ -32,9 +32,6 @@ export const Sidebar = observer(({ drawerOpen, drawerToggle }: SidebarProps) => 
   const handleChangeCurrentToneId = (toneId: string) => {
     if (currentToneId && toneId === currentToneId) {
       ToneStore.clearCurrentToneId()
-      CargosStore.setCurrentItemsListByStatus({
-        isArchive: CargosStore.cargos.isCurrentItemsListArchive
-      })
     } else {
       ToneStore.setCurrentToneId(toneId)
     }
@@ -61,9 +58,9 @@ export const Sidebar = observer(({ drawerOpen, drawerToggle }: SidebarProps) => 
           marginRight: '6px'
         }}
       >
-        Список тонн
+        <span>Список тонн</span>
         {allTones.map((tone, index) => {
-          const toneActive = tone._id === currentToneId
+          const toneActive = tone.id === currentToneId
 
           return (
             <Grid
@@ -71,7 +68,7 @@ export const Sidebar = observer(({ drawerOpen, drawerToggle }: SidebarProps) => 
               item
               onMouseEnter={() => setIsShown(true)}
               onMouseLeave={() => setIsShown(false)}
-              onClick={() => handleChangeCurrentToneId(tone._id)}
+              onClick={() => handleChangeCurrentToneId(tone.id)}
               className={`flex items-center ${
                 toneActive ? 'bg-brand text-white' : ''
               } transition-all cursor-pointer rounded p-1 hover:bg-brand hover:text-white`}

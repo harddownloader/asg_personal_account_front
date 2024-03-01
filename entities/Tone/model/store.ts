@@ -129,11 +129,13 @@ export class _ToneStore {
     CargosStore.setCurrentItemsListByStatus({
       isArchive: CargosStore.cargos.isCurrentItemsListArchive
     })
-
-    CargosStore.setCurrentItemsListByToneId(toneId)
   }
 
   clearCurrentToneId = () => {
     this.tones.currentToneId = ''
+
+    CargosStore.setCurrentItemsListByStatus({
+      isArchive: CargosStore.cargos.isCurrentItemsListArchive
+    })
   }
 }

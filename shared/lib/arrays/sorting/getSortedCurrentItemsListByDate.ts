@@ -1,6 +1,6 @@
 export type TSort = 'asc' | 'desc'
 
-export const getSortedCurrentItemsListByDate = <Type>(list: Type, order: TSort) => {
+export const getSortedCurrentItemsListByDate = <Type extends Array<{createdAt: string}>>(list: Type, order: TSort) => {
   return list.sort((a, b) => {
     const firstDate = new Date(a.createdAt)
     const secondDate = new Date(b.createdAt)

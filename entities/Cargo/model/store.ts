@@ -29,7 +29,8 @@ import {
   CARGO_FIELD_NAMES,
   CARGO_IMAGE_STATUS,
   UPLOAD_IMAGE_STATUS,
-  SORTING_BY_DATE
+  SORTING_BY_DATE,
+  CargosStore
 } from '@/entities/Cargo'
 import { getSortedCurrentItemsListByDate } from '@/shared/lib/arrays/sorting'
 
@@ -72,6 +73,8 @@ import {
 import type { TDecodedAccessToken } from '@/entities/User'
 import { parseJwtOnServer } from '@/shared/lib/token'
 import { splitArrayIntoSubArrays } from '@/shared/lib/arrays/splitArrayIntoSubArrays'
+import { ICargoSubmitForm } from '../types'
+import { ToneStore } from '@/entities/Tone'
 
 export class _CargosStore {
   cargos: TCargosState = {
@@ -100,7 +103,6 @@ export class _CargosStore {
       clearCurrentItemsList: action,
       clearCurrentItem: action,
       setCurrentItemsListByStatus: action,
-      setCurrentItemsListByToneId: action,
       setCurrentItem: action,
       add: action,
       update: action,
@@ -153,32 +155,25 @@ export class _CargosStore {
 
   setCurrentItemsListByStatus = ({
     isArchive,
-    currentUserCode
+    currentUserCode,
   }: {
     isArchive: boolean
     currentUserCode?: string
   }) => {
+    const currentToneId: string = ToneStore.tones.currentToneId
+    
     this.cargos.isCurrentItemsListArchive = isArchive
+
     const filteredList = this.cargos.items.filter(cargo => {
       return (
         Boolean(
           isArchive
             ? Number(cargo.status) === CARGO_STATUS.CARGO_RECEIVED_BY_CUSTOMER
             : Number(cargo.status) !== CARGO_STATUS.CARGO_RECEIVED_BY_CUSTOMER
-        ) && (currentUserCode ? cargo.clientCode === currentUserCode : true)
+        ) &&
+        (currentUserCode ? cargo.clientCode === currentUserCode : true) &&
+        (currentToneId ? cargo.toneId === currentToneId : true)
       )
-    })
-
-    const sortedCargos = getSortedCurrentItemsListByDate<TCargosItems>(
-      JSON.parse(JSON.stringify(filteredList)),
-      this.filtersOfList.byDate
-    )
-    this.cargos.currentItemsList = sortedCargos
-  }
-
-  setCurrentItemsListByToneId = (toneId: string) => {
-    const filteredList = this.cargos.items.filter(cargo => {
-      return cargo.toneId === toneId
     })
 
     const sortedCargos = getSortedCurrentItemsListByDate<TCargosItems>(
@@ -193,7 +188,6 @@ export class _CargosStore {
   }
 
   add = async ({
-    cargoId,
     toneId,
     clientCode,
     status,
@@ -205,7 +199,7 @@ export class _CargosStore {
     volume,
     weight,
     spaces
-  }: ICargoForForm) => {
+  }: ICargoSubmitForm) => {
     const token = await getCookies(ACCESS_TOKEN_KEY)
     const response: ICargoAddResponse = {
       data: {
@@ -216,7 +210,7 @@ export class _CargosStore {
     }
 
     const userOfCargo = await checkAddCargoFields({
-      cargoId,
+      toneId,
       clientCode,
       status,
       costOfDelivery,
@@ -228,7 +222,6 @@ export class _CargosStore {
       country: ClientsStore.clients.currentItem?.country,
       token
     })
-
 
     if (response.data.addingCargo.errors.length) return response
 
@@ -242,7 +235,7 @@ export class _CargosStore {
     this.cargos.isLoading = true
     const newUpdatedAndCreatedAt = new Date().toISOString()
     const newCargoData: IAddCargo = {
-      cargoId,
+      toneId,
       clientCode,
       clientId: userOfCargo.id,
       status,
@@ -297,7 +290,6 @@ export class _CargosStore {
   }
 
   update = async ({
-    cargoId,
     toneId,
     clientCode,
     status,
@@ -322,7 +314,7 @@ export class _CargosStore {
     }
 
     const userOfCargo = await checkUpdateCargoFields({
-      cargoId,
+      toneId,
       clientCode,
       status,
       costOfDelivery,
@@ -337,7 +329,6 @@ export class _CargosStore {
     })
 
     console.log({
-      cargoId,
       toneId,
       clientCode,
       status,
@@ -352,7 +343,7 @@ export class _CargosStore {
     })
     // return response
 
-    if (spaces.length && cargoId.length >= 2) {
+    if (spaces.length && toneId) {
       enum spacePropertiesEnum {
         weight = 'weight',
         piecesInPlace = 'piecesInPlace',
@@ -419,7 +410,6 @@ export class _CargosStore {
     this.cargos.isLoading = true
 
     const requestData: IUpdateCargoReqBody = {
-      cargoId,
       toneId,
       clientCode,
       status,
@@ -719,7 +709,6 @@ export class _CargosStore {
 
     function getIndexOfUnsavedSpace(
       spaces: Array<TSpaceItem>,
-      cargoId: string,
       clientId: string,
       spaceIndex: number
     ): number {
@@ -765,7 +754,6 @@ export class _CargosStore {
       getSpaceIndex = getIndexOfUnsavedSpace.bind(
         null,
         tmpSpacesBeforeSetNewPhoto,
-        cargoId,
         clientId,
         spaceIndex
       )
@@ -1136,12 +1124,18 @@ export class _CargosStore {
   toggleByDate = (status: TByDate) => {
     this.filtersOfList.byDate = status
 
-    this.setCurrentItemsListByStatus({
-      isArchive: this.cargos.isCurrentItemsListArchive,
-      currentUserCode: ClientsStore.clients.currentItem?.userCodeId
-        ? ClientsStore.clients.currentItem.userCodeId
-        : undefined
-    })
+    const currentToneId: string = ToneStore.tones.currentToneId
+
+    // if (currentToneId) {
+    //   CargosStore.setCurrentItemsListByToneId(currentToneId)
+    // } else {
+      this.setCurrentItemsListByStatus({
+        isArchive: this.cargos.isCurrentItemsListArchive,
+        currentUserCode: ClientsStore.clients.currentItem?.userCodeId
+          ? ClientsStore.clients.currentItem.userCodeId
+          : undefined
+      })
+    // }
   }
 }
 

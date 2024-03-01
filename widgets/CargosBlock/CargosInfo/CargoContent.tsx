@@ -25,6 +25,7 @@ import { getSpacesOfExistsCargo } from '@/entities/Cargo/lib/spaces'
 import type { IUserOfDB } from "@/entities/User"
 import { mapCargoSpacesDataFromApi } from '@/entities/Cargo'
 import type { TTitle, TIsFull } from "@/widgets/CargosBlock/CargosInfo/CargoInfo"
+import { ICargoSubmitForm } from '@/entities/Cargo/types'
 
 export interface ICargoContentProps {
   title: TTitle
@@ -85,7 +86,6 @@ export const CargoContent = observer(function CargoContent({
 
   const formDefaultValues = {
     // id: currentCargo.id,
-    cargoId: currentCargo.cargoId,
     clientCode: currentCargo.clientCode,
     status: currentCargo.status,
     costOfDelivery: currentCargo.costOfDelivery,
@@ -124,7 +124,6 @@ export const CargoContent = observer(function CargoContent({
 
   const onInvalid = (errors: any) => console.error(errors)
   const handleSaveCargo = async ({
-                                                    cargoId,
                                                     toneId,
                                                     clientCode,
                                                     status,
@@ -134,7 +133,7 @@ export const CargoContent = observer(function CargoContent({
                                                     tariff,
                                                     volume,
                                                     weight,
-                                                  }: ICargoForForm): Promise<void> => {
+                                                  }: ICargoSubmitForm): Promise<void> => {
     if (!currentCargo?.id) {
       console.warn('currentCargo.id not found')
       return
@@ -144,7 +143,6 @@ export const CargoContent = observer(function CargoContent({
 
     const { data }: ICargoSavingResponse = await CargosStore.update({
       id: currentCargo.id,
-      cargoId,
       toneId,
       clientCode,
       status,
@@ -162,8 +160,8 @@ export const CargoContent = observer(function CargoContent({
     if (data?.cargoSaving?.errors.length) {
       // Unable to sign in.
       data?.cargoSaving?.errors.forEach((e) => {
-        if (e.field === "cargoId") {
-          setErrorForm("cargoId", { message: e.message! })
+        if (e.field === "toneId") {
+          setErrorForm("toneId", { message: e.message! })
         } else if (e.field === "clientCode") {
           setErrorForm("clientCode", { message: e.message! })
         } else if (e.field === 'status') {

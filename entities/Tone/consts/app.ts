@@ -1,7 +1,7 @@
 import { ITone } from '@/entities/Tone'
 
 export const TONE_ENTITY: ITone = {
-  _id: "_id",
+  id: "id",
   'label': "label",
   createdAt: "createdAt",
   updatedAt: "updatedAt"
