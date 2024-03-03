@@ -1,11 +1,12 @@
-// @ts-nocheck
-// import PropTypes from 'prop-types'
 import { forwardRef, useMemo } from 'react'
 
 // mui
 import { useTheme } from '@mui/material/styles'
 import { Card, CardContent, CardHeader, Divider, Typography } from '@mui/material'
+
+// shared
 import { TFixMeInTheFuture } from '@/shared/types/types'
+import {ICustomTheme} from "@/shared/lib/themes/theme"
 
 // constant
 const headerSX = {
@@ -29,7 +30,11 @@ const headerSX = {
 // isScrollable: boolean
 // }
 
-const MainCard = forwardRef(
+export interface IMainCardProps {
+
+}
+
+export const MainCard = forwardRef(
     (
         {
             border = true,
@@ -49,7 +54,7 @@ const MainCard = forwardRef(
         }: TFixMeInTheFuture,
         ref
     ) => {
-        const theme = useTheme()
+        const theme = useTheme<ICustomTheme>()
 
         const scrollableStyles = useMemo(() => {
           return isScrollable ? {
@@ -68,6 +73,7 @@ const MainCard = forwardRef(
                   height: isHeightFull ? '100%' : 'auto',
                   ...scrollableStyles,
                   border: border ? '1px solid' : 'none',
+                  // @ts-ignore
                   borderColor: theme.palette.primary[200] + 25,
                   ':hover': {
                       boxShadow: boxShadow ? shadow || '0 2px 14px 0 rgb(32 40 45 / 8%)' : 'inherit'
@@ -75,30 +81,30 @@ const MainCard = forwardRef(
                   ...sx
                 }}
             >
-                {/* card header and action */}
-                {title && (
+                <div>
+                  {/* card header and action */}
+                  {title && (
                     <CardHeader
-                        sx={headerSX}
-                        title={darkTitle ? <Typography variant="h3">{title}</Typography> : title}
-                        action={secondary}
+                      sx={headerSX}
+                      title={darkTitle ? <Typography variant="h3">{title}</Typography> : title}
+                      action={secondary}
                     />
-                )}
+                  )}
 
-                {/* content & header divider */}
-                {title && <Divider />}
+                  {/* content & header divider */}
+                  {title && <Divider />}
 
-                {/* card content */}
-                {content && (
+                  {/* card content */}
+                  {content && (
                     <CardContent sx={contentSX} className={contentClass}>
-                        {children}
+                      {children}
                     </CardContent>
-                )}
-                {!content && children}
+                  )}
+                  {!content && children}
+                </div>
             </Card>
         )
     }
 )
 
 MainCard.displayName = 'MainCard'
-
-export default MainCard

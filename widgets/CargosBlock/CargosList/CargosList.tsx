@@ -23,6 +23,7 @@ import { Head } from "@/widgets/CargosBlock/CargosList/Head"
 
 // shared
 import { GRID_SPACING } from "@/shared/const"
+import { ICustomTheme } from "@/shared/lib/themes/theme"
 
 // store
 import {
@@ -58,7 +59,7 @@ export const CargosList = observer(({
                                       showConfirmToLeave,
                                       currentClient,
                            }: CargosListProps) => {
-  const theme = useTheme()
+  const theme = useTheme<ICustomTheme>()
   // @ts-ignore
   const iconsColor = theme.palette.primary[200]
 

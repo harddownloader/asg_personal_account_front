@@ -5,10 +5,13 @@
 import { useTheme } from '@mui/material/styles'
 import MuiAvatar from '@mui/material/Avatar'
 
+// shared
+import {ICustomTheme} from "@/shared/lib/themes/theme"
+
 // ==============================|| AVATAR ||============================== //
 
 const Avatar = ({ color, outline, size, sx, ...others }) => {
-    const theme = useTheme()
+    const theme = useTheme<ICustomTheme>()
 
     const colorSX = color && !outline && { color: theme.palette.background.paper, bgcolor: `${color}.main` }
     const outlineSX = outline && {

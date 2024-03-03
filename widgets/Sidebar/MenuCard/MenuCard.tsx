@@ -18,6 +18,7 @@ import {
 
 // shared
 import { TFixMeInTheFuture } from "@/shared/types/types"
+import { ICustomTheme } from '@/shared/lib/themes/theme'
 
 // assets
 import TableChartOutlinedIcon from '@mui/icons-material/TableChartOutlined'
@@ -54,7 +55,7 @@ const CardStyle = styled(Card)(({ theme }) => ({
 }))
 
 function LinearProgressWithLabel({ value, ...others }: TFixMeInTheFuture) {
-  const theme = useTheme()
+  const theme = useTheme<ICustomTheme>()
 
   return (
     <Grid container direction="column" spacing={1} sx={{ mt: 1.5 }}>

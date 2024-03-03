@@ -9,16 +9,24 @@ import { SearchSection } from './SearchSection'
 import { ProfileSection } from './ProfileSection'
 import { NotificationSection } from './NotificationSection'
 
-// assets
-import { IconMenu2 } from '@tabler/icons-react'
+// entities
+import { RegionSection } from "@/entities/Region"
+
+// widgets
 import { LogoSection } from "@/widgets/LogoSection"
 
-export interface HeaderProps {
+// assets
+import { IconMenu2 } from '@tabler/icons-react'
+
+// shared
+import { ICustomTheme } from "@/shared/lib/themes/theme"
+
+export interface IHeaderProps {
   handleLeftDrawerToggle: () => void
 }
 
-export const Header = memo(({ handleLeftDrawerToggle }: HeaderProps) => {
-  const theme = useTheme()
+export const Header = memo(({ handleLeftDrawerToggle }: IHeaderProps) => {
+  const theme = useTheme<ICustomTheme>()
 
   return (
     <>
@@ -40,9 +48,7 @@ export const Header = memo(({ handleLeftDrawerToggle }: HeaderProps) => {
             <Avatar
               variant="rounded"
               sx={{
-                // @ts-ignore
                 ...theme.typography.commonAvatar,
-                // @ts-ignore
                 ...theme.typography.mediumAvatar,
                 borderRadius: '4px',
                 transition: 'all .2s ease-in-out',
@@ -68,8 +74,11 @@ export const Header = memo(({ handleLeftDrawerToggle }: HeaderProps) => {
       <Box sx={{ flexGrow: 1 }} />
       <Box sx={{ flexGrow: 1 }} />
 
+      {/*<RegionSection />*/}
       <NotificationSection />
       <ProfileSection />
     </>
   )
 })
+
+Header.displayName = 'Header'

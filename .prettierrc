@@ -10,5 +10,6 @@
   "jsxBracketSameLine": false,
   "arrowParens": "avoid",
   "newline-before-return": true,
-  "no-duplicate-variable": [true, "check-parameters"]
+  "no-duplicate-variable": [true, "check-parameters"],
+  "endOfLine": "lf"
 }

@@ -4,11 +4,14 @@ import { useTheme, styled } from '@mui/material/styles'
 import { Avatar, Box, List, ListItem, ListItemAvatar, ListItemText, Typography } from '@mui/material'
 
 // project components
-import MainCard from '@/shared/ui/cards/MainCard'
+import {MainCard} from '@/shared/ui/cards/MainCard'
 import TotalIncomeCard from '@/shared/ui/cards/Skeleton/TotalIncomeCard'
 
 // assets
 import StorefrontTwoToneIcon from '@mui/icons-material/StorefrontTwoTone'
+
+// shared
+import {ICustomTheme} from "@/shared/lib/themes/theme"
 
 // styles
 const CardWrapper = styled(MainCard)(({ theme }) => ({
@@ -43,7 +46,7 @@ export interface TotalIncomeLightCardProps {
 }
 
 export const TotalIncomeLightCard = ({ isLoading }: TotalIncomeLightCardProps) => {
-    const theme = useTheme()
+    const theme = useTheme<ICustomTheme>()
 
     return (
         <>

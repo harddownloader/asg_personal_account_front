@@ -10,11 +10,14 @@ import { Avatar, Box, ButtonBase, Card, Grid, InputAdornment, OutlinedInput, Pop
 import PopupState, { bindPopper, bindToggle } from 'material-ui-popup-state'
 
 // project components
-import Transitions from '@/shared/ui/extended/Transitions'
+import {Transitions} from '@/shared/ui/extended/Transitions'
 
 // assets
 import { IconAdjustmentsHorizontal, IconSearch, IconX } from '@tabler/icons-react'
 import { shouldForwardProp } from '@mui/system'
+
+// shared
+import { ICustomTheme } from '@/shared/lib/themes/theme'
 
 // styles
 const PopperStyle = styled(Popper, { shouldForwardProp })(({ theme }) => ({
@@ -60,7 +63,7 @@ const HeaderAvatarStyle = styled(Avatar, { shouldForwardProp })(({ theme }) => (
 // ==============================|| SEARCH INPUT - MOBILE||============================== //
 
 export const MobileSearch = ({ value, setValue, popupState }) => {
-  const theme = useTheme()
+  const theme = useTheme<ICustomTheme>()
 
   return (
     <OutlineInputStyle

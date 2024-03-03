@@ -9,6 +9,7 @@ import MuiBreadcrumbs from '@mui/material/Breadcrumbs'
 
 // shared
 import { GRID_SPACING, BASE_NAME } from '@/shared/const'
+import { ICustomTheme } from "@/shared/lib/themes/theme"
 
 // assets
 import {IconSettings, IconTallymark1} from '@tabler/icons-react'
@@ -16,6 +17,7 @@ import AccountTreeTwoToneIcon from '@mui/icons-material/AccountTreeTwoTone'
 import HomeIcon from '@mui/icons-material/Home'
 import HomeTwoToneIcon from '@mui/icons-material/HomeTwoTone'
 import { MenuItemInterface, MenuItemsInterface } from '@/shared/lib/menu'
+
 
 const linkSX = {
     display: 'flex',
@@ -64,7 +66,7 @@ export const Breadcrumbs = memo(({
                               isTitleBottom,
                               ...others
 }: BreadcrumbsProps) => {
-    const theme = useTheme()
+    const theme = useTheme<ICustomTheme>()
 
     const iconStyle = {
         marginRight: theme.spacing(0.75),

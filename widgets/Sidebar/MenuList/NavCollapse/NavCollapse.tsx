@@ -13,10 +13,13 @@ import FiberManualRecordIcon from '@mui/icons-material/FiberManualRecord'
 import {TFixMeInTheFuture} from "@/shared/types/types"
 import { IconChevronDown, IconChevronUp } from '@tabler/icons-react'
 
+// shared
+import { ICustomTheme } from '@/shared/lib/themes/theme'
+
 // ==============================|| SIDEBAR MENU LIST COLLAPSE ITEMS ||============================== //
 
 export const NavCollapse = ({ menu, level }: TFixMeInTheFuture) => {
-  const theme = useTheme()
+  const theme = useTheme<ICustomTheme>()
 
   const [open, setOpen] = useState(false)
   const [selected, setSelected] = useState(null)

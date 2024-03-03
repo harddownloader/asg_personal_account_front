@@ -5,11 +5,12 @@ import { forwardRef } from 'react'
 // mui
 import { useTheme } from '@mui/material/styles'
 import { Card, CardContent, CardHeader, Divider, Typography } from '@mui/material'
+import {ICustomTheme} from "@/shared/lib/themes/theme";
 
 // ==============================|| CUSTOM SUB CARD ||============================== //
 
 const SubCard = forwardRef(({ children, content=true, contentClass, darkTitle, secondary, sx = {}, contentSX = {}, title, ...others }, ref) => {
-    const theme = useTheme()
+    const theme = useTheme<ICustomTheme>()
 
     return (
         <Card

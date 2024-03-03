@@ -7,6 +7,9 @@ import { NavItem } from '../NavItem'
 import { NavCollapse } from '../NavCollapse'
 import { TFixMeInTheFuture } from "@/shared/types/types"
 
+// shared
+import { ICustomTheme } from '@/shared/lib/themes/theme'
+
 // ==============================|| SIDEBAR MENU LIST GROUP ||============================== //
 
 export interface NavGroupProps {
@@ -14,7 +17,7 @@ export interface NavGroupProps {
 }
 
 export const NavGroup = ({ item }: NavGroupProps) => {
-  const theme = useTheme()
+  const theme = useTheme<ICustomTheme>()
 
   // menu list collapse & items
   const items = item.children?.map((menu: TFixMeInTheFuture) => {
@@ -58,5 +61,3 @@ export const NavGroup = ({ item }: NavGroupProps) => {
     </>
   )
 }
-
-export default NavGroup

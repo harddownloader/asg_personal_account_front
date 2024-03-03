@@ -10,7 +10,7 @@ const UPDATE_AT: TUpdateAtProp = 'updatedAt' as const
 /*
 * convert cargo data from backend to frontend entity format
 * */
-interface ICargoFullMap extends Omit<ICargoFull, 'tone'> {
+interface ICargoFullMap extends Omit<ICargoFull, 'tone' | 'cargoId'> {
   tone: ITone | null
 }
 

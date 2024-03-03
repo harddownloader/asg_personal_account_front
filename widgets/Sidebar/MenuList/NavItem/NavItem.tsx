@@ -21,13 +21,16 @@ import { MenuStore } from '@/entities/AppMenu/model'
 import FiberManualRecordIcon from '@mui/icons-material/FiberManualRecord'
 import { TFixMeInTheFuture } from '@/shared/types/types'
 
+// shared
+import { ICustomTheme } from '@/shared/lib/themes/theme'
+
 export interface NavItemProps {
   item: TFixMeInTheFuture
   level: number
 }
 
 const NavItemComponent = ({ item, level }: NavItemProps) => {
-  const theme = useTheme()
+  const theme = useTheme<ICustomTheme>()
   const matchesSM = useMediaQuery(theme.breakpoints.down('lg'))
 
   const Icon = item.icon

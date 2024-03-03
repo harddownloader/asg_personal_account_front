@@ -1,11 +1,28 @@
-import { TFixMeInTheFuture } from "@/shared/types/types"
+import { CSSProperties, TypographyOptions } from "@mui/material/styles/createTypography"
+import { Palette } from "@mui/material/styles/createPalette"
 
+// shared
+import { TFixMeInTheFuture } from "@/shared/types/types"
+import { IThemeOption } from "@/shared/lib/themes/theme"
+
+export interface IThemeTypography extends TypographyOptions {
+  customInput: CSSProperties
+  mainContent: CSSProperties
+  menuCaption: CSSProperties
+  subMenuCaption: CSSProperties
+  commonAvatar: CSSProperties
+  smallAvatar: CSSProperties
+  mediumAvatar: CSSProperties
+  largeAvatar: CSSProperties
+}
+
+export type TThemeTypographyReturn = IThemeTypography | ((palette: Palette) => IThemeTypography)
 /**
  * Typography used in theme
  * @param {JsonObject} theme theme customization object
  */
 
-export default function themeTypography(theme: TFixMeInTheFuture) {
+export function themeTypography(theme: IThemeOption): TThemeTypographyReturn {
     return {
         fontFamily: theme?.customization?.fontFamily,
         h6: {
@@ -73,7 +90,7 @@ export default function themeTypography(theme: TFixMeInTheFuture) {
             '& > label': {
                 top: 23,
                 left: 0,
-                color: theme.grey500,
+                color: theme.colors.grey500,
                 '&[data-shrink="false"]': {
                     top: 5
                 }

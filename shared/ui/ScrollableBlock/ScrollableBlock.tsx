@@ -2,7 +2,7 @@ import { ReactNode } from 'react'
 
 // mui
 import { CardContent } from '@mui/material'
-import MainCard from '@/shared/ui/cards/MainCard'
+import { MainCard } from '@/shared/ui/cards/MainCard'
 
 // project components
 import SkeletonPopularCard from '@/shared/ui/cards/Skeleton/PopularCard'
@@ -40,5 +40,3 @@ export const ScrollableBlock = ({
     </>
   )
 }
-
-export default ScrollableBlock

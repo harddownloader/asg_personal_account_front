@@ -1,11 +1,32 @@
+import { Palette, PaletteColor, PaletteColorOptions, PaletteOptions, TypeText } from "@mui/material/styles/createPalette"
 import { TFixMeInTheFuture } from "@/shared/types/types"
+import { IThemeOption } from "@/shared/lib/themes/theme"
+
+
+export interface ICustomTypeText extends TypeText {
+  dark: string
+  hint: string
+}
+
+export interface ICustomPaletteOptions extends Omit<PaletteOptions, 'text'> {
+  text: Partial<ICustomTypeText>
+  orange: PaletteColorOptions
+  dark: PaletteColorOptions
+}
+
+export interface ICustomPalette extends Omit<Palette, 'text'> {
+  // primary: PaletteColorOptions
+  text: Partial<ICustomTypeText>
+  orange: PaletteColor
+  dark: PaletteColor
+}
 
 /**
  * Color intention that you want to used in your theme
  * @param {JsonObject} theme Theme customization object
  */
 
-export default function themePalette(theme: TFixMeInTheFuture) {
+export function themePalette(theme: IThemeOption): ICustomPaletteOptions {
     return {
         mode: theme?.customization?.navType,
         common: {

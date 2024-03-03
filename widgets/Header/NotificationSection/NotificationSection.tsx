@@ -25,17 +25,21 @@ import {
 // import PerfectScrollbar from 'react-perfect-scrollbar'
 
 // project components
-import MainCard from '@/shared/ui/cards/MainCard'
-import Transitions from '@/shared/ui/extended/Transitions'
+import {MainCard} from '@/shared/ui/cards/MainCard'
+import {Transitions} from '@/shared/ui/extended/Transitions'
 import NotificationList from './NotificationList'
 import { StyledBadge } from '@/shared/ui/StyledBadge'
 
 // assets
+import classes from './NotificationSection.module.scss'
 import { IconBell } from '@tabler/icons-react'
 
 // store
 import { NotificationsStore } from "@/entities/Notification"
 import { observer } from "mobx-react-lite"
+
+// shared
+import { ICustomTheme } from '@/shared/lib/themes/theme'
 
 // notification status options
 const status = [
@@ -60,10 +64,10 @@ const status = [
 // ==============================|| NOTIFICATION ||============================== //
 
 export const NotificationSection = observer(() => {
-  const theme = useTheme()
+  const theme = useTheme<ICustomTheme>()
   const matchesXs = useMediaQuery(theme.breakpoints.down('md'))
 
-  const [open, setOpen] = useState(false)
+  const [isOpen, setIsOpen] = useState<boolean>(false)
   const [value, setValue] = useState('')
   /**
    * anchorRef is used on different components and specifying one type leads to other components throwing an error
@@ -71,23 +75,23 @@ export const NotificationSection = observer(() => {
   const anchorRef = useRef(null)
 
   const handleToggle = () => {
-    setOpen((prevOpen) => !prevOpen)
+    setIsOpen((prevOpen) => !prevOpen)
   }
 
   const handleClose = (event) => {
     if (anchorRef.current && anchorRef.current.contains(event.target)) {
       return
     }
-    setOpen(false)
+    setIsOpen(false)
   }
 
-  const prevOpen = useRef(open)
+  const prevOpen = useRef(isOpen)
   useEffect(() => {
-    if (prevOpen.current === true && open === false) {
+    if (prevOpen.current === true && isOpen === false) {
       anchorRef.current.focus()
     }
-    prevOpen.current = open
-  }, [open])
+    prevOpen.current = isOpen
+  }, [isOpen])
 
   const handleChange = (event) => {
     if (event?.target.value) setValue(event?.target.value)
@@ -136,7 +140,7 @@ export const NotificationSection = observer(() => {
                   }
                 }}
                 ref={anchorRef}
-                aria-controls={open ? 'menu-list-grow' : undefined}
+                aria-controls={isOpen ? 'menu-list-grow' : undefined}
                 aria-haspopup="true"
                 onClick={handleToggle}
                 color="inherit"
@@ -149,7 +153,7 @@ export const NotificationSection = observer(() => {
       </Box>
       <Popper
         placement={matchesXs ? 'bottom' : 'bottom-end'}
-        open={open}
+        open={isOpen}
         anchorEl={anchorRef.current}
         role={undefined}
         transition
@@ -166,7 +170,7 @@ export const NotificationSection = observer(() => {
         }}
       >
         {({ TransitionProps }) => (
-          <Transitions position={matchesXs ? 'top' : 'top-right'} in={open} {...TransitionProps}>
+          <Transitions position={matchesXs ? 'top' : 'top-right'} in={isOpen} {...TransitionProps}>
             <Paper>
               <ClickAwayListener onClickAway={handleClose}>
                 <MainCard border={false} elevation={16} content={false} boxShadow shadow={theme.shadows[16]}>
@@ -197,9 +201,7 @@ export const NotificationSection = observer(() => {
                       {/*<PerfectScrollbar*/}
                       {/*    style={{ height: '100%', maxHeight: 'calc(100vh - 205px)', overflowX: 'hidden' }}*/}
                       {/*>*/}
-                      <div
-                        style={{ height: '100%', maxHeight: 'calc(100vh - 205px)', overflowX: 'hidden' }}
-                      >
+                      <div className={classes.notifications_list__wrap}>
                         {/*<Grid container direction="column" spacing={2}>*/}
                         {/*  <Grid item xs={12}>*/}
                         {/*    <Box sx={{ px: 2, pt: 0.25 }}>*/}
@@ -245,5 +247,3 @@ export const NotificationSection = observer(() => {
     </>
   )
 })
-
-export default NotificationSection
