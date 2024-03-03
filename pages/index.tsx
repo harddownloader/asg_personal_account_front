@@ -1,87 +1,143 @@
+/* eslint react-hooks/exhaustive-deps: 0 */
 import { ReactElement, useEffect } from "react"
 import { InferGetServerSidePropsType, GetServerSidePropsContext } from "next"
 import nookies from "nookies"
+import * as Sentry from '@sentry/nextjs'
 
-// project components
-import { AccountLayout } from "@/components/Layout"
-import { CargosBlock } from "@/components/CargosBlock/CargosBlock"
+// widgets
+import { AccountLayout } from "@/widgets/Layout"
+import { CargosBlock } from "@/widgets/CargosBlock/CargosBlock"
 
-// utils
-import { getAllClients, getUserFromDB } from "@/lib/ssr/requests/getUsers"
-import { firebaseAdmin } from "@/lib/firebase/firebaseAdmin"
-import { getNotifications } from "@/lib/ssr/requests/notifications/getNotifications"
-import { getAllCargos, getCargosByClient } from "@/lib/ssr/requests/getCargos"
+// shared
+import { ACCESS_TOKEN_KEY } from "@/shared/lib/providers/auth"
+import { pagesPath } from "@/shared/lib/$path"
+import { isTokenExpire, parseJwtOnServer } from "@/shared/lib/token"
 
 // store
-import CargosStore, { CARGOS_DB_COLLECTION_NAME } from "@/stores/cargosStore"
-import UserStore, {
-  USER_ROLE,
-  UserOfDB,
-  USERS_DB_COLLECTION_NAME
-} from "@/stores/userStore"
-import ClientsStore from "@/stores/clientsStore"
-import NotificationsStore, {
-  Notification,
-  NOTIFICATION_DB_COLLECTION_NAME
-} from "@/stores/notificationsStore"
+import { CargosStore } from "@/entities/Cargo"
+import { UserStore } from "@/entities/User"
+import { USER_ROLE } from '@/entities/User'
+import type { IUserOfDB, TDecodedAccessToken } from '@/entities/User'
+import { ClientsStore } from "@/entities/User"
+import { NotificationsStore } from "@/entities/Notification"
+
+// entities
+import { getAllClients, mapUserDataFromApi } from "@/entities/User"
+import { getAllByUserId } from "@/entities/Notification"
+import { getMe } from "@/entities/User"
+import { getAllCargos, getCargosByUserId } from "@/entities/Cargo"
+import { getTones, ToneStore } from "@/entities/Tone"
 
 export const getServerSideProps = async (ctx: GetServerSidePropsContext) => {
+  const redirectToLoginPage = {
+    redirect: {
+      permanent: false,
+      destination: pagesPath.login.$url().pathname,
+    },
+    // `as never` is required for correct type inference
+    // by InferGetServerSidePropsType below
+    props: {} as never,
+  }
+
+  console.log('Home Page - getServerSideProps start...')
+
   try {
-    // if the user is authenticated
+    // if the users is authenticated
     const cookies = nookies.get(ctx)
-    const currentFirebaseUser = await firebaseAdmin.auth().verifyIdToken(cookies.token)
+    const accessToken = cookies[ACCESS_TOKEN_KEY]
 
-    const db = firebaseAdmin.firestore()
-    const usersRef = await db.collection(USERS_DB_COLLECTION_NAME)
-
-    const currentUserInDB: UserOfDB | void = await getUserFromDB({
-      currentUserId: currentFirebaseUser.uid,
-      usersRef
-    }).catch((error) => console.error('getUserFromDB error', error))
-
-    if (!currentUserInDB) return {
-      redirect: {
-        permanent: false,
-        destination: "/login",
-      },
+    if (!accessToken) {
+      console.log('accessToken not found, redirecting to login page...')
+      return {
+        redirect: {
+          permanent: false,
+          destination: pagesPath.login.$url().pathname,
+        },
+      }
     }
 
-    const isUserManager = currentUserInDB.role === USER_ROLE.MANAGER
+    const decodedJwt: TDecodedAccessToken = await parseJwtOnServer(accessToken)
+    if (isTokenExpire(decodedJwt)) return redirectToLoginPage
 
-    const notificationsRef = await db.collection(NOTIFICATION_DB_COLLECTION_NAME)
-    const notifications: Array<Notification> = await getNotifications({
-      currentUserId: currentFirebaseUser.uid,
-      notificationsRef
+    const countryByToken = decodedJwt.claims.country
+    const userIdByToken = decodedJwt.claims.id
+
+    const currentUser: IUserOfDB | null = await getMe({
+      userId: userIdByToken,
+      country: countryByToken,
+      token: accessToken
     })
 
-    const clients: Array<UserOfDB> | null = isUserManager
-      ? await getAllClients({usersRef})
-      : null
+    if (!currentUser) {
+      console.log('current users(currentUserInDB) not found, redirecting to login page...')
+      Sentry.captureMessage(
+        `current users(currentUserInDB) not found, redirecting to login page... currentUser:${currentUser}`
+      )
+      return {
+        redirect: {
+          permanent: false,
+          destination: pagesPath.login.$url().pathname,
+        },
+      }
+    }
+    const country = currentUser.country
+    const userId = currentUser.id
+    const isUserEmployee = currentUser.role > USER_ROLE.CLIENT
 
-    const cargosRef = await db.collection(CARGOS_DB_COLLECTION_NAME)
-    const allCargos = isUserManager
-        ? await getAllCargos({ cargosRef })
-        : currentUserInDB?.userCodeId ? await getCargosByClient({
-          cargosRef,
-          userCodeId: currentUserInDB.userCodeId,
-        }) : []
+    console.time('home_page_all_requests_benchmark')
 
+    const emptyPromise = async () => null
+    const promises = []
+    const notificationsPromiseIndex = 0
+    promises[notificationsPromiseIndex] = async () => await getAllByUserId({
+      userId,
+      country,
+      token: accessToken,
+    })
+
+    const clientsPromiseIndex = 1
+    promises[clientsPromiseIndex] = async () => isUserEmployee
+      ? await getAllClients({ country, token: accessToken })
+      : await emptyPromise()
+
+    const cargosPromiseIndex = 2
+    promises[cargosPromiseIndex] = async () => isUserEmployee
+      ? await getAllCargos({
+        country,
+        token: accessToken,
+      })
+      : currentUser?.userCodeId
+        ? await getCargosByUserId({
+          userId,
+          country,
+          token: accessToken,
+        })
+        : await emptyPromise()
+
+    const tonesPromiseIndex = 3
+    promises[tonesPromiseIndex] = async () => await getTones({
+      country,
+      token: accessToken,
+    })
+    const outcomes = await Promise.allSettled(promises.map(promise => promise()))
+
+    console.timeEnd('home_page_all_requests_benchmark')
 
     return {
       props: {
-        currentFirebaseUser,
-        currentUser: {
-          id: currentUserInDB.id,
-          name: currentUserInDB.name,
-          phone: currentUserInDB.phone,
-          email: currentUserInDB.email,
-          city: currentUserInDB.city,
-          role: currentUserInDB.role,
-          userCodeId: currentUserInDB.userCodeId,
-        },
-        notifications,
-        clients,
-        cargos: allCargos,
+        currentUser: {...currentUser},
+        notifications: outcomes[notificationsPromiseIndex].status === "fulfilled"
+          ? outcomes[notificationsPromiseIndex].value
+          : [],
+        clients: outcomes[clientsPromiseIndex].status === "fulfilled"
+          ? outcomes[clientsPromiseIndex].value
+          : [],
+        cargos: outcomes[cargosPromiseIndex].status === "fulfilled"
+          ? outcomes[cargosPromiseIndex].value
+          : [],
+        tones: outcomes[tonesPromiseIndex].status === "fulfilled"
+          ? outcomes[tonesPromiseIndex].value
+          : [],
       },
     }
   } catch (err) {
@@ -93,15 +149,7 @@ export const getServerSideProps = async (ctx: GetServerSidePropsContext) => {
     // either way: redirect to the login page
     // throw new Error(`${err}`)
 
-    return {
-      redirect: {
-        permanent: false,
-        destination: "/login",
-      },
-      // `as never` is required for correct type inference
-      // by InferGetServerSidePropsType below
-      props: {} as never,
-    }
+    return redirectToLoginPage
   }
 }
 
@@ -110,27 +158,20 @@ function Home ({
                  currentUser,
                  clients,
                  notifications,
+                 tones,
                }: InferGetServerSidePropsType<typeof getServerSideProps>) {
   useEffect(() => {
     if (cargos?.length) CargosStore.setList(cargos)
 
-    const currentUserData = {
-      id: currentUser.id,
-      name: currentUser.name,
-      phone: currentUser.phone,
-      email: currentUser.email,
-      city: currentUser.city,
-      role: currentUser.role,
-      userCodeId: currentUser.userCodeId,
-    }
+    if (!UserStore.user.currentUser.id) UserStore.saveUserToStore(mapUserDataFromApi({...currentUser}))
 
-    if (!UserStore.user.currentUser.id) UserStore.saveUserToStore({...currentUserData})
-
-    if (clients === null) ClientsStore.setCurrentItem({...currentUserData})
+    if (clients === null) ClientsStore.setCurrentItem({...currentUser})
     else if (clients?.length) ClientsStore.setList(clients)
 
     if (notifications?.length) NotificationsStore.setList(notifications)
-  })
+
+    if (tones?.length) ToneStore.setList(tones)
+  }, [])
 
   return (
     <>
