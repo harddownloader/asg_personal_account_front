@@ -29,12 +29,15 @@ import { NotificationsStore } from "@/entities/Notification"
 // entities
 import type { INotification } from '@/entities/Notification'
 
+// shared
+import { ICustomTheme } from '@/shared/lib/themes/theme'
+
 export interface NotificationListProps {
   notifications: Array<INotification>
 }
 
 const NotificationList = observer(({ notifications }: NotificationListProps) => {
-  const theme = useTheme()
+  const theme = useTheme<ICustomTheme>()
 
   const chipSX = {
       height: 24,

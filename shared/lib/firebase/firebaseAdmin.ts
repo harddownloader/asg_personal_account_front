@@ -42,15 +42,7 @@ import {
   THIRD_FIREBASE_ADMIN_DOMAIN_URL,
 } from './const'
 import {App} from "firebase-admin/lib/app";
-
-export const FIRST_REGION_SHORTNAME: string = process.env.NEXT_PUBLIC_FIRST_REGION_SHORTNAME || "" as const
-export const SECOND_REGION_SHORTNAME: string = process.env.NEXT_PUBLIC_SECOND_REGION_SHORTNAME || "" as const
-export const THIRD_REGION_SHORTNAME: string = process.env.NEXT_PUBLIC_THIRD_REGION_SHORTNAME || "" as const
-export const REGIONS: string[] = [
-  FIRST_REGION_SHORTNAME,
-  SECOND_REGION_SHORTNAME,
-  THIRD_REGION_SHORTNAME
-] as const;
+import {FIRST_REGION_SHORTNAME, SECOND_REGION_SHORTNAME, THIRD_REGION_SHORTNAME} from "@/entities/Region";
 
 // configs
 const firstAppConfig = {

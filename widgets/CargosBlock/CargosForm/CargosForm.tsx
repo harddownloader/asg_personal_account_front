@@ -1,80 +1,78 @@
-import React, { ChangeEvent, ReactElement, useMemo } from "react"
-import { Controller } from "react-hook-form"
+import React, { ChangeEvent, ReactElement } from 'react'
+import { Controller } from 'react-hook-form'
 
 // mui
-import Box from "@mui/material/Box"
-import TextField from "@mui/material/TextField"
-import {
-  FormControl,
-  Grid,
-  MenuItem,
-  Typography
-} from "@mui/material"
+import Box from '@mui/material/Box'
+import TextField from '@mui/material/TextField'
+import { FormControl, Grid, MenuItem, OutlinedInput } from '@mui/material'
 import InputLabel from '@mui/material/InputLabel'
 import Select from '@mui/material/Select'
 
 // project components
-import { SaveCargoButton } from "./SaveCargoButton"
-import { Spaces } from "@/widgets/CargosBlock/CargosForm/Spaces/Spaces"
-import { Title } from "@/widgets/CargosBlock/CargosForm/Title"
+import { SaveCargoButton } from './SaveCargoButton'
+import { Spaces } from '@/widgets/CargosBlock/CargosForm/Spaces'
+import { Title } from '@/widgets/CargosBlock/CargosForm/Title'
+import { ToneField } from '@/widgets/CargosBlock/CargosForm/ToneField'
 
 // shared
-import { GRID_SPACING } from "@/shared/const"
-import { TFixMeInTheFuture } from "@/shared/types/types"
+import { GRID_SPACING } from '@/shared/const'
+import { TFixMeInTheFuture } from '@/shared/types/types'
 
 // entities
-import { CargosStore } from "@/entities/Cargo"
-import {
-  CARGO_FIELD_NAMES,
-  STATUS_OPTIONS,
-} from '@/entities/Cargo'
+import { CARGO_FIELD_NAMES, STATUS_OPTIONS } from '@/entities/Cargo'
 import type { TSpaceItem } from '@/entities/Cargo'
 
+// assets
+import classes from './CargosForm.module.scss'
+
 // types
-import { TTitle } from "@/widgets/CargosBlock/CargosInfo/CargoInfo"
-import { volumeFieldInputProps } from "@/widgets/CargosBlock/CargosForm/helpers/VolumeFieldInputProps"
-import { weightFieldInputProps } from "./helpers/WeightFieldInputProps"
-import {tariffFieldInputProps} from "@/widgets/CargosBlock/CargosForm/helpers/TariffFieldInputProps";
-import { insuranceFieldInputProps } from "./helpers/InsuranceFieldInputProps"
+import { TTitle } from '@/widgets/CargosBlock/CargosInfo/CargoInfo'
+import { volumeFieldInputProps } from '@/widgets/CargosBlock/CargosForm/helpers/VolumeFieldInputProps'
+import { weightFieldInputProps } from './helpers/WeightFieldInputProps'
+import { tariffFieldInputProps } from '@/widgets/CargosBlock/CargosForm/helpers/TariffFieldInputProps'
+import { insuranceFieldInputProps } from './helpers/InsuranceFieldInputProps'
 
 export interface ICargoInfoFormControl {
-  registerForm: TFixMeInTheFuture,
-  errorsForm: TFixMeInTheFuture,
-  setErrorForm: TFixMeInTheFuture,
-  control: TFixMeInTheFuture,
-  formDefaultValues: TFixMeInTheFuture,
-  reset: TFixMeInTheFuture,
-  getValues: TFixMeInTheFuture,
+  registerForm: TFixMeInTheFuture
+  errorsForm: TFixMeInTheFuture
+  setErrorForm: TFixMeInTheFuture
+  clearErrorsForm: TFixMeInTheFuture
+  control: TFixMeInTheFuture
+  formDefaultValues: TFixMeInTheFuture
+  reset: TFixMeInTheFuture
+  getValues: TFixMeInTheFuture
   setValue: TFixMeInTheFuture
 }
 
 export interface ICargoInfoFormProps {
-  title?: TTitle,
-  handleSubmit: () => void,
-  formControl: ICargoInfoFormControl,
-  isFull: boolean,
-  isContentVisible: boolean,
-  isItEditForm: boolean,
+  title?: TTitle
+  handleSubmit: () => void
+  formControl: ICargoInfoFormControl
+  isFull: boolean
+  isContentVisible: boolean
+  isItEditForm: boolean
   currentTmpSpaces: Array<TSpaceItem>
 }
 
 export const CargosForm = ({
-                                title,
-                                handleSubmit,
-                                formControl: {
-                                  registerForm,
-                                  errorsForm,
-                                  control,
-                                  formDefaultValues,
-                                  reset,
-                                  getValues,
-                                  setValue,
-                                },
-                                isFull,
-                                isContentVisible,
-                                isItEditForm,
-                                currentTmpSpaces,
-                              }: ICargoInfoFormProps) => {
+  title,
+  handleSubmit,
+  formControl: {
+    registerForm,
+    errorsForm,
+    setErrorForm,
+    clearErrorsForm,
+    control,
+    formDefaultValues,
+    reset,
+    getValues,
+    setValue
+  },
+  isFull,
+  isContentVisible,
+  isItEditForm,
+  currentTmpSpaces
+}: ICargoInfoFormProps) => {
   const lgColValue = isFull ? 4 : 6
   const isCurrentUserManager = !isFull
   const isDisabled = isFull
@@ -88,10 +86,10 @@ export const CargosForm = ({
         id={CARGO_FIELD_NAMES.CLIENT_CODE.value}
         placeholder={CARGO_FIELD_NAMES.CLIENT_CODE.label}
         label={CARGO_FIELD_NAMES.CLIENT_CODE.label}
-        className={"bg-white rounded"}
+        className={'bg-white rounded'}
         disabled={true}
-        {...registerForm("clientCode", {
-          required: true,
+        {...registerForm('clientCode', {
+          required: true
         })}
       />
       {!!errorsForm.clientCode && (
@@ -102,18 +100,19 @@ export const CargosForm = ({
 
   const CargoIdField: ReactElement = (
     <>
-      <TextField
-        margin="normal"
-        required
-        fullWidth
-        id={CARGO_FIELD_NAMES.CARGO_ID.value}
-        placeholder={CARGO_FIELD_NAMES.CARGO_ID.label}
-        label={CARGO_FIELD_NAMES.CARGO_ID.label}
-        className={"bg-white rounded"}
-        disabled={isDisabled}
-        {...registerForm("cargoId", {
-          required: true,
-        })}
+      <ToneField
+        isDisabled={isDisabled}
+        formControl={{
+          registerForm,
+          errorsForm,
+          setErrorForm,
+          clearErrorsForm,
+          control,
+          formDefaultValues,
+          reset,
+          getValues,
+          setValue
+        }}
       />
       {!!errorsForm.cargoId && (
         <p className="text-sm text-red-500 pt-2">{errorsForm.cargoId?.message}</p>
@@ -121,38 +120,30 @@ export const CargosForm = ({
     </>
   )
 
+  const statusSelectNameAttr = `select-for-${CARGO_FIELD_NAMES.STATUS.value}`
   const StatusField: ReactElement = (
     <>
-      <FormControl
-        fullWidth
-        style={{
-          color: '#121926',
-          marginTop: '16px',
-          marginBottom: '8px'
-        }}
-        id={CARGO_FIELD_NAMES.STATUS.value}
-      >
-        <InputLabel htmlFor="trinity-select">
-          {CARGO_FIELD_NAMES.STATUS.label}
-        </InputLabel>
+      <FormControl fullWidth className={`${classes.dropdown}`} id={CARGO_FIELD_NAMES.STATUS.value}>
+        <InputLabel id={statusSelectNameAttr}>{CARGO_FIELD_NAMES.STATUS.label}</InputLabel>
         <Controller
-          name={"status"}
+          name={CARGO_FIELD_NAMES.STATUS.value}
           control={control}
           defaultValue={formDefaultValues?.status}
           render={({ field }) => (
             <Select
-              label={CARGO_FIELD_NAMES.STATUS.label}
+              labelId={statusSelectNameAttr}
               fullWidth
               disabled={isDisabled}
+              input={<OutlinedInput id="outlined-input" label={CARGO_FIELD_NAMES.STATUS.label} />}
               {...field}
             >
-              {STATUS_OPTIONS.map((person) => (
-                <MenuItem key={person.value} value={person.value}>
-                  {person.text}
+              {STATUS_OPTIONS.map(option => (
+                <MenuItem key={option.value} value={option.value}>
+                  {option.text}
                 </MenuItem>
               ))}
             </Select>
-            )}
+          )}
         />
       </FormControl>
       {!!errorsForm.status && (
@@ -170,14 +161,14 @@ export const CargosForm = ({
         id={CARGO_FIELD_NAMES.COST_OF_DELIVERY.value}
         placeholder={CARGO_FIELD_NAMES.COST_OF_DELIVERY.label}
         label={CARGO_FIELD_NAMES.COST_OF_DELIVERY.label}
-        className={"bg-white rounded"}
+        className={'bg-white rounded'}
         disabled={true}
         type="number"
         inputProps={{ min: 0, max: 100000000, step: 1 }}
         defaultValue={formDefaultValues?.costOfDelivery}
         {...registerForm(CARGO_FIELD_NAMES.COST_OF_DELIVERY.value, {
           valueAsNumber: true,
-          required: true,
+          required: true
         })}
       />
       {!!errorsForm.costOfDelivery && (
@@ -195,13 +186,13 @@ export const CargosForm = ({
         id={CARGO_FIELD_NAMES.INSURANCE.value}
         placeholder={CARGO_FIELD_NAMES.INSURANCE.label}
         label={CARGO_FIELD_NAMES.INSURANCE.label}
-        className={"bg-white rounded"}
+        className={'bg-white rounded'}
         disabled={isDisabled}
         type="number"
         inputProps={insuranceFieldInputProps}
-        {...registerForm("insurance", {
+        {...registerForm('insurance', {
           valueAsNumber: true,
-          required: true,
+          required: true
         })}
       />
       {!!errorsForm.insurance && (
@@ -219,18 +210,16 @@ export const CargosForm = ({
         id={CARGO_FIELD_NAMES.COST.value}
         placeholder={CARGO_FIELD_NAMES.COST.label}
         label={CARGO_FIELD_NAMES.COST.label}
-        className={"bg-white rounded"}
+        className={'bg-white rounded'}
         disabled={isDisabled}
         type="number"
-        inputProps={{ min: "0.00", max: "100000000.00", step: "0.01" }}
-        {...registerForm("cost", {
+        inputProps={{ min: '0.00', max: '100000000.00', step: '0.01' }}
+        {...registerForm('cost', {
           valueAsNumber: true,
-          required: true,
+          required: true
         })}
       />
-      {!!errorsForm.cost && (
-        <p className="text-sm text-red-500 pt-2">{errorsForm.cost?.message}</p>
-      )}
+      {!!errorsForm.cost && <p className="text-sm text-red-500 pt-2">{errorsForm.cost?.message}</p>}
     </>
   )
 
@@ -242,7 +231,7 @@ export const CargosForm = ({
 
   const getTariffField = () => {
     const { onChange, onBlur, name, ref } = registerForm(CARGO_FIELD_NAMES.TARIFF.value, {
-      required: true,
+      required: true
     })
 
     const TariffField: ReactElement = (
@@ -254,13 +243,13 @@ export const CargosForm = ({
           id={CARGO_FIELD_NAMES.TARIFF.value}
           placeholder={CARGO_FIELD_NAMES.TARIFF.label}
           label={CARGO_FIELD_NAMES.TARIFF.label}
-          className={"bg-white rounded"}
+          className={'bg-white rounded'}
           disabled={isDisabled}
           type="number"
           inputProps={tariffFieldInputProps}
           {...registerForm(CARGO_FIELD_NAMES.TARIFF.value, {
             valueAsNumber: true,
-            required: true,
+            required: true
           })}
           onChange={(e: ChangeEvent<HTMLInputElement>) => {
             onChange(e)
@@ -279,6 +268,8 @@ export const CargosForm = ({
     return TariffField
   }
 
+  const TariffField = getTariffField()
+
   const VolumeField: ReactElement = (
     <>
       <TextField
@@ -288,14 +279,14 @@ export const CargosForm = ({
         id={CARGO_FIELD_NAMES.VOLUME.value}
         placeholder={CARGO_FIELD_NAMES.VOLUME.label}
         label={CARGO_FIELD_NAMES.VOLUME.label}
-        className={"bg-white rounded"}
+        className={'bg-white rounded'}
         disabled={true}
         type="number"
         inputProps={volumeFieldInputProps}
         defaultValue={formDefaultValues?.volume}
-        {...registerForm("volume", {
+        {...registerForm('volume', {
           valueAsNumber: true,
-          required: true,
+          required: true
         })}
       />
       {!!errorsForm.volume && (
@@ -313,14 +304,14 @@ export const CargosForm = ({
         id={CARGO_FIELD_NAMES.WEIGHT.value}
         placeholder={CARGO_FIELD_NAMES.WEIGHT.label}
         label={CARGO_FIELD_NAMES.WEIGHT.label}
-        className={"bg-white rounded"}
+        className={'bg-white rounded'}
         disabled={true}
         type="number"
         inputProps={weightFieldInputProps}
         defaultValue={formDefaultValues?.weight}
         {...registerForm(CARGO_FIELD_NAMES.WEIGHT.value, {
           valueAsNumber: true,
-          required: true,
+          required: true
         })}
       />
       {!!errorsForm.weight && (
@@ -331,15 +322,12 @@ export const CargosForm = ({
 
   return (
     <>
-      <Box
-        component="form"
-        onSubmit={handleSubmit}
-      >
+      <Box component="form" onSubmit={handleSubmit}>
         <Grid container spacing={GRID_SPACING}>
-          <Title title={title || ""} />
-          {isContentVisible &&
+          <Title title={title || ''} />
+          {isContentVisible && (
             <>
-              <Grid item xs={12} className={"mb-6"}>
+              <Grid item xs={12} className={'mb-6'}>
                 <Grid container spacing={GRID_SPACING}>
                   <Grid item lg={lgColValue} md={6} sm={6} xs={12}>
                     {CargoIdField}
@@ -367,7 +355,7 @@ export const CargosForm = ({
                     {CostPlaceField}
                   </Grid>
                   <Grid item lg={lgColValue} md={6} sm={6} xs={12}>
-                    {getTariffField()}
+                    {TariffField}
                   </Grid>
                 </Grid>
               </Grid>
@@ -379,7 +367,7 @@ export const CargosForm = ({
                   formDefaultValues,
                   reset,
                   getValues,
-                  setValue,
+                  setValue
                 }}
                 currentTmpSpaces={currentTmpSpaces}
                 isDisabled={isDisabled}
@@ -388,10 +376,12 @@ export const CargosForm = ({
                 updateCostOfDeliveryValue={updateCostOfDeliveryValue}
               />
             </>
-          }
-          {isContentVisible && isCurrentUserManager && <Grid item xs={12}>
-            <SaveCargoButton />
-          </Grid>}
+          )}
+          {isContentVisible && isCurrentUserManager && (
+            <Grid item xs={12}>
+              <SaveCargoButton />
+            </Grid>
+          )}
         </Grid>
       </Box>
     </>

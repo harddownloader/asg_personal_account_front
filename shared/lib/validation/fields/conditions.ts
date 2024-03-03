@@ -240,6 +240,20 @@ export const checkClientCode = ({
   }
 }
 
+export const checkCargoTone = ({
+  toneId,
+  responseErrorsArray,
+  fieldName,
+  errorMessage
+}: commonArgsForCheckType & { toneId: string }) => {
+  if (!toneId || toneId.length < 2) {
+    responseErrorsArray.push({
+      field: fieldName,
+      message: errorMessage
+    })
+  }
+}
+
 export const checkCargoStatus = ({
                                  status,
                                  responseErrorsArray,

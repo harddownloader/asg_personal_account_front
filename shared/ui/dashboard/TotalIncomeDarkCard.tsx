@@ -6,11 +6,14 @@ import { styled, useTheme } from '@mui/material/styles'
 import { Avatar, Box, List, ListItem, ListItemAvatar, ListItemText, Typography } from '@mui/material'
 
 // project components
-import MainCard from '@/shared/ui/cards/MainCard'
+import {MainCard} from '@/shared/ui/cards/MainCard'
 import TotalIncomeCard from '@/shared/ui/cards/Skeleton/TotalIncomeCard'
 
 // assets
 import TableChartOutlinedIcon from '@mui/icons-material/TableChartOutlined'
+
+// shared
+import {ICustomTheme} from "@/shared/lib/themes/theme"
 
 // styles
 const CardWrapper = styled(MainCard)(({ theme }) => ({
@@ -43,7 +46,7 @@ const CardWrapper = styled(MainCard)(({ theme }) => ({
 // ==============================|| DASHBOARD - TOTAL INCOME DARK CARD ||============================== //
 
 const TotalIncomeDarkCard = ({ isLoading }) => {
-    const theme = useTheme()
+    const theme = useTheme<ICustomTheme>()
 
     return (
         <>

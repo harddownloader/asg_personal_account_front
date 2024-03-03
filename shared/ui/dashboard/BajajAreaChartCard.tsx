@@ -13,10 +13,13 @@ const Chart = dynamic(() => import("react-apexcharts"), { ssr: false })
 // project components
 import chartData from './chart-data/bajaj-area-chart'
 
+// shared
+import {ICustomTheme} from "@/shared/lib/themes/theme"
+
 // ===========================|| DASHBOARD DEFAULT - BAJAJ AREA CHART CARD ||=========================== //
 
 const BajajAreaChartCard = () => {
-    const theme = useTheme()
+    const theme = useTheme<ICustomTheme>()
     const navType = undefined
 
     const orangeDark = theme.palette.secondary[800]

@@ -1,4 +1,4 @@
-import { memo } from "react"
+import { observer } from 'mobx-react-lite'
 
 // mui
 import { useTheme } from '@mui/material/styles'
@@ -6,28 +6,33 @@ import { Box, Drawer, useMediaQuery } from '@mui/material'
 
 // project components
 import { MenuList } from './MenuList'
-import { LogoSection } from "@/widgets/LogoSection"
+import { LogoSection } from '@/widgets/LogoSection'
+import { TonesSidebar } from "@/widgets/Sidebar/TonesSidebar"
 
 // shared
 import { DRAWER_WIDTH } from '@/shared/const'
+import { ICustomTheme } from '@/shared/lib/themes/theme'
 
 export interface SidebarProps {
   drawerOpen: boolean
   drawerToggle: () => void
 }
 
-export const Sidebar = ({ drawerOpen, drawerToggle }: SidebarProps) => {
-  const theme = useTheme()
+export const Sidebar = observer(({ drawerOpen, drawerToggle }: SidebarProps) => {
+  const theme = useTheme<ICustomTheme>()
   const matchUpMd = useMediaQuery(theme.breakpoints.up('md'))
 
   const drawer = (
     <>
-      <Box sx={{ display: { xs: 'block', md: 'none' } }}>
-        <Box sx={{ display: 'flex', p: 2, mx: 'auto' }}>
-          <LogoSection />
+      <div className="bg-brand">
+        <Box sx={{display: {xs: 'block', md: 'none'}}}>
+          <Box sx={{display: 'flex', p: 2, mx: 'auto'}}>
+            <LogoSection/>
+          </Box>
         </Box>
-      </Box>
-      <MenuList />
+      </div>
+      <MenuList/>
+      <TonesSidebar />
     </>
   )
 
@@ -63,6 +68,6 @@ export const Sidebar = ({ drawerOpen, drawerToggle }: SidebarProps) => {
       </Drawer>
     </Box>
   )
-}
+})
 
-export default Sidebar
+Sidebar.displayName = 'Sidebar'

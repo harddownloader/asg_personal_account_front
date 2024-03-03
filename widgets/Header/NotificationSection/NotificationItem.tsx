@@ -27,6 +27,9 @@ import type {
   TNotificationStatus
 } from '@/entities/Notification'
 
+// shared
+import { ICustomTheme } from "@/shared/lib/themes/theme"
+
 // styles
 const ListItemWrapper = styled('div')(({ theme }) => ({
   cursor: 'pointer',
@@ -53,7 +56,7 @@ export const NotificationItem = ({
                                     message,
                                     isViewed,
                                  }: NotificationItem) => {
-  const theme = useTheme()
+  const theme = useTheme<ICustomTheme>()
 
   const toggleChangeStatus = async (unreadStatus: boolean) => {
     const country = UserStore.user.currentUser.country

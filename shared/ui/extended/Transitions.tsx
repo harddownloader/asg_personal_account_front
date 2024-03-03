@@ -1,24 +1,18 @@
-// @ts-nocheck
-// import PropTypes from 'prop-types'
-import { forwardRef } from 'react'
+import {forwardRef, ReactNode} from 'react'
 
 // mui
 import { Collapse, Fade, Box, Grow, Slide, Zoom } from '@mui/material'
+import {OverridableComponent} from "@mui/types"
+import {BoxTypeMap} from "@mui/system"
 
-// Transitions.propTypes = {
-//     children: PropTypes.node,
-//     type: PropTypes.oneOf(['grow', 'fade', 'collapse', 'slide', 'zoom']),
-//     position: PropTypes.oneOf(['top-left', 'top-right', 'top', 'bottom-left', 'bottom-right', 'bottom']),
-//     direction: PropTypes.oneOf(['up', 'down', 'left', 'right'])
-// }
-//
-// Transitions.defaultProps = {
-//     type: 'grow',
-//     position: 'top-left',
-//     direction: 'up'
-// }
+export interface ITransitionsProps {
+  children: ReactNode
+  type?: 'grow' | 'fade' | 'collapse' | 'slide' | 'zoom'
+  position?: 'top-left' | 'top-right' | 'top' | 'bottom-left' | 'bottom-right' | 'bottom'
+  direction?: 'up' | 'down' | 'left' | 'right'
+}
 
-const Transitions = forwardRef(({
+export const Transitions = forwardRef<OverridableComponent<BoxTypeMap<{}, "div">>, ITransitionsProps>(({
                                   children,
                                   position='top-left',
                                   type='grow',
@@ -110,5 +104,3 @@ const Transitions = forwardRef(({
 })
 
 Transitions.displayName = 'Transitions'
-
-export default Transitions

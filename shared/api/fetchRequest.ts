@@ -42,6 +42,7 @@ export function fetchRequest(
       if (response.ok) {
         return await response.json()
       } else {
+        console.log('fetchRequest response status', response.status)
         try {
           const errorMessages = await response.json()
           console.log('fetchRequest', {errorMessages})

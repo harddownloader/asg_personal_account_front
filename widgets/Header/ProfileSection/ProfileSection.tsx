@@ -27,12 +27,13 @@ import {
 } from '@mui/material'
 
 // project components
-import MainCard from '@/shared/ui/cards/MainCard'
-import Transitions from '@/shared/ui/extended/Transitions'
+import {MainCard} from '@/shared/ui/cards/MainCard'
+import {Transitions} from '@/shared/ui/extended/Transitions'
 import UpgradePlanCard from './UpgradePlanCard'
 
 // shared
 import { pagesPath } from "@/shared/lib/$path"
+import { ICustomTheme } from '@/shared/lib/themes/theme'
 
 // store
 import { UserStore } from "@/entities/User"
@@ -44,7 +45,7 @@ import User1 from '/public/img/users/user-round.svg'
 // ==============================|| PROFILE MENU ||============================== //
 
 export const ProfileSection = memo(() => {
-  const theme = useTheme()
+  const theme = useTheme<ICustomTheme>()
   const router = useRouter()
 
   const [sdm, setSdm] = useState(true)
@@ -320,3 +321,5 @@ export const ProfileSection = memo(() => {
     </>
   )
 })
+
+ProfileSection.displayName = ProfileSection

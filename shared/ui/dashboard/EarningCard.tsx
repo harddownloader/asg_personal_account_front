@@ -9,7 +9,7 @@ import { styled, useTheme } from '@mui/material/styles'
 import { Avatar, Box, Grid, Menu, MenuItem, Typography } from '@mui/material'
 
 // project components
-import MainCard from '@/shared/ui/cards/MainCard'
+import {MainCard} from '@/shared/ui/cards/MainCard'
 import SkeletonEarningCard from '@/shared/ui/cards/Skeleton/EarningCard'
 
 // assets
@@ -20,6 +20,9 @@ import GetAppTwoToneIcon from '@mui/icons-material/GetAppOutlined'
 import FileCopyTwoToneIcon from '@mui/icons-material/FileCopyOutlined'
 import PictureAsPdfTwoToneIcon from '@mui/icons-material/PictureAsPdfOutlined'
 import ArchiveTwoToneIcon from '@mui/icons-material/ArchiveOutlined'
+
+// shared
+import {ICustomTheme} from "@/shared/lib/themes/theme"
 
 const CardWrapper = styled(MainCard)(({ theme }) => ({
     backgroundColor: theme.palette.secondary.dark,
@@ -60,7 +63,7 @@ const CardWrapper = styled(MainCard)(({ theme }) => ({
 // ===========================|| DASHBOARD DEFAULT - EARNING CARD ||=========================== //
 
 const EarningCard = ({ isLoading }) => {
-    const theme = useTheme()
+    const theme = useTheme<ICustomTheme>()
 
     const [anchorEl, setAnchorEl] = useState(null)
 

@@ -26,4 +26,4 @@ export const MenuList = memo(() => {
   return <>{navItems}</>
 })
 
-export default MenuList
+MenuList.displayName = 'MenuList'

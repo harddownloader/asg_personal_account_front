@@ -1,6 +1,7 @@
 import { TFixMeInTheFuture } from "@/shared/types/types"
+import { IThemeOption } from "@/shared/lib/themes/theme"
 
-export default function componentStyleOverrides(theme: TFixMeInTheFuture) {
+export function componentStyleOverrides(theme: IThemeOption) {
     const bgColor = theme.colors?.grey50
     return {
         MuiButton: {

@@ -7,7 +7,7 @@ import { Avatar, Button, CardActions, CardContent, Divider, Grid, Menu, MenuItem
 
 // project components
 import BajajAreaChartCard from './BajajAreaChartCard'
-import MainCard from '@/shared/ui/cards/MainCard'
+import {MainCard} from '@/shared/ui/cards/MainCard'
 import SkeletonPopularCard from '@/shared/ui/cards/Skeleton/PopularCard'
 import { GRID_SPACING } from '@/shared/const'
 
@@ -16,6 +16,9 @@ import ChevronRightOutlinedIcon from '@mui/icons-material/ChevronRightOutlined'
 import MoreHorizOutlinedIcon from '@mui/icons-material/MoreHorizOutlined'
 import KeyboardArrowUpOutlinedIcon from '@mui/icons-material/KeyboardArrowUpOutlined'
 import KeyboardArrowDownOutlinedIcon from '@mui/icons-material/KeyboardArrowDownOutlined'
+
+// shared
+import {ICustomTheme} from "@/shared/lib/themes/theme"
 
 // ==============================|| DASHBOARD DEFAULT - POPULAR CARD ||============================== //
 
@@ -34,7 +37,7 @@ const PopularCard = ({
                        isShowOptionsMenu=false,
                        isShowViewAllBtn=false,
 }: PopularCardProps) => {
-    const theme = useTheme()
+    const theme = useTheme<ICustomTheme>()
 
     const [anchorEl, setAnchorEl] = useState(null)
 

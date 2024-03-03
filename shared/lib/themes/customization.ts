@@ -1,6 +1,9 @@
+import { PaletteMode } from "@mui/material"
+
 export interface customizationInterface {
-  fontFamily: string,
+  fontFamily: string
   borderRadius: string
+  navType?: PaletteMode
 }
 
 export const customization = {

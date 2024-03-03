@@ -2,7 +2,7 @@ import {
   useState,
   useEffect,
   useContext,
-  createContext,
+  createContext, ReactNode,
 } from "react"
 import nookies from "nookies"
 import {
@@ -30,7 +30,7 @@ const AuthContext = createContext<{ user: FirebaseUser | null }>({
 })
 
 export type AuthProviderProps = {
-  children: any
+  children: ReactNode
 }
 
 export function AuthProvider({ children }: AuthProviderProps) {

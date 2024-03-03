@@ -5,7 +5,7 @@ import type {
   TUserCountry,
   TUserId
 } from "@/entities/User"
-import { IAddCargo } from "@/entities/Cargo"
+import type { IAddCargo } from "@/entities/Cargo"
 
 export type TCreateCargoArgs = {
   country: TUserCountry

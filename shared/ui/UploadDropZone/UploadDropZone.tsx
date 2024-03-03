@@ -23,5 +23,3 @@ export const UploadDropZone = ({ children }: UploadDropZoneProps) => {
     </>
   )
 }
-
-export default UploadDropZone

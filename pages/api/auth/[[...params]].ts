@@ -13,29 +13,43 @@ import {
 import {
   signInWithCustomToken,
   signInWithEmailAndPassword,
-  getAuth
+  getAuth,
+  User,
+  UserCredential,
 } from "firebase/auth"
-import { LoginDTO } from "@/pages/api/auth/dto/login.dto"
-import { getLogger } from "@/shared/lib/logger/log-util"
-import { firebaseAdmin, fApp, getFirestoreAdmin, REGIONS } from "@/shared/lib/firebase/firebaseAdmin"
-import { firebaseAuth } from "@/shared/lib/firebase"
+
+// dto
 import { CreateUserDto } from "../users/dto/create-user.dto"
+import { LoginDTO } from "@/pages/api/auth/dto/login.dto"
+
+
+// lib
+import { getUserByCustomToken } from "@/pages/api/_lib/getUserByCustomToken"
+import { endpointCatchHandler, exceptionsAdapter } from "@/pages/api/_core/endpoint-catch-handler"
+import { JwtToken } from "@/pages/api/_decoracors/token"
 import { Ip } from "../_decoracors/ip"
 import { JwtAuthGuard } from "@/pages/api/_middleware/jwt-auth.guard"
-import { JwtToken } from "@/pages/api/_decoracors/token"
-import { User, UserCredential } from "@firebase/auth"
-import { getUserByCustomToken } from "@/pages/api/_lib/getUserByCustomToken"
+
+
+// entities
 import {
+  // const
   USER_ROLE,
-  USERS_DB_COLLECTION_NAME
-} from "@/entities/User"
-import type {
+  USERS_DB_COLLECTION_NAME,
+
+  // types
   IUserOfDB,
-} from '@/entities/User'
+
+  // api - mappers
+  mapUserDataFromApi,
+} from "@/entities/User"
+import { REGIONS } from '@/entities/Region'
+
+// shared
 import { TFixMeInTheFuture } from "@/shared/types/types"
-import { mapUserDataFromApi } from "@/entities/User"
-import { v4 as uuidv4} from "uuid"
-import { endpointCatchHandler, exceptionsAdapter } from "@/pages/api/_core/endpoint-catch-handler"
+import { getLogger } from "@/shared/lib/logger/log-util"
+import { firebaseAdmin, fApp, getFirestoreAdmin } from "@/shared/lib/firebase/firebaseAdmin"
+import { firebaseAuth } from "@/shared/lib/firebase"
 
 const getUserInRegion = async (regionName: string, userId: string): Promise<IUserOfDB | null> => {
    try {
@@ -85,8 +99,7 @@ const findUserInRegion = async (
 const getUserInAuth = async (
   email: string,
   password: string
-  // @ts-ignore
-): Promise<{user: User, userInDB: IUserOfDB}>  => {
+): Promise<{user: User, userInDB: IUserOfDB} | void>  => {
   try {
     return await signInWithEmailAndPassword(firebaseAuth, email, password)
       .then(async (userCredential) => {
@@ -115,7 +128,13 @@ class AuthService {
 
       this.logger.info({ cred: { email, password } })
 
-      const { user, userInDB } = await getUserInAuth(email, password)
+      const userInAuth = await getUserInAuth(email, password)
+
+      if (!userInAuth) {
+        throw new NotFoundException(`User not found in database. Check your auth`)
+      }
+
+      const { user, userInDB } = userInAuth
 
       if (userInDB === null) throw new NotFoundException(`User not found in database`)
       // @ts-ignore

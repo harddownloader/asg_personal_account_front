@@ -38,19 +38,19 @@ export const STATUS_OPTIONS = [
 export const CARGO_FIELD_NAMES: TCargoFieldNames<string | number> = {
   CARGO_ID: {
     label: 'Номер отправки',
-    value: 'cargoId',
+    value: 'cargoId'
   },
   CLIENT_CODE: {
     label: 'Код клиента',
-    value: 'clientCode',
+    value: 'clientCode'
   },
   DISPATCH_NUMBER: {
     label: 'Номер отправки',
-    value: 'dispatchNumber',
+    value: 'dispatchNumber'
   },
   NUMBER_OF_SEATS: {
     label: 'Кол-во мест',
-    value: 'numberOfSeats',
+    value: 'numberOfSeats'
   },
   STATUS: {
     label: 'Статус',
@@ -59,7 +59,7 @@ export const CARGO_FIELD_NAMES: TCargoFieldNames<string | number> = {
   },
   CARGO_PHOTO: {
     label: 'Фото',
-    value: 'cargoPhoto',
+    value: 'cargoPhoto'
   },
   COST_OF_DELIVERY: {
     label: 'Стоимость доставки($)',
@@ -68,25 +68,29 @@ export const CARGO_FIELD_NAMES: TCargoFieldNames<string | number> = {
   },
   INSURANCE: {
     label: 'Страховка',
-    value: 'insurance',
+    value: 'insurance'
   },
   COST: {
     label: 'Стоимость груза',
-    value: 'cost',
+    value: 'cost'
   },
   TARIFF: {
     label: 'Тариф',
-    value: 'tariff',
+    value: 'tariff'
   },
   VOLUME: {
     label: 'Объем',
     value: 'volume',
-    defaultValue: 0.000
+    defaultValue: 0.0
   },
   WEIGHT: {
     label: 'Вес(кг.)',
     value: 'weight',
-    defaultValue: 0.0,
+    defaultValue: 0.0
+  },
+  TONE: {
+    label: 'Название тонны',
+    value: 'toneId'
   },
 
   // spaces
@@ -98,7 +102,7 @@ export const CARGO_FIELD_NAMES: TCargoFieldNames<string | number> = {
   PIECES_IN_PLACE: {
     label: 'Шт в месте(шт.)',
     value: 'piecesInPlace',
-    defaultValue: 0,
+    defaultValue: 0
   },
   SPACE_VOLUME: {
     label: 'Объем',
@@ -108,8 +112,8 @@ export const CARGO_FIELD_NAMES: TCargoFieldNames<string | number> = {
   SPACE_WEIGHT: {
     label: 'Вес(кг.)',
     value: 'weight',
-    defaultValue: 0,
-  },
+    defaultValue: 0
+  }
 } as const
 
 export const CARGO_IMAGE_STATUS = {

@@ -1,6 +1,6 @@
 import { forwardRef, useEffect } from 'react'
 import Link from 'next/link'
-import { observer } from "mobx-react-lite"
+import { observer } from 'mobx-react-lite'
 
 // mui
 import { useTheme } from '@mui/material/styles'
@@ -19,7 +19,10 @@ import { MenuStore } from '@/entities/AppMenu/model'
 
 // assets
 import FiberManualRecordIcon from '@mui/icons-material/FiberManualRecord'
-import { TFixMeInTheFuture } from "@/shared/types/types"
+import { TFixMeInTheFuture } from '@/shared/types/types'
+
+// shared
+import { ICustomTheme } from '@/shared/lib/themes/theme'
 
 export interface NavItemProps {
   item: TFixMeInTheFuture
@@ -27,7 +30,7 @@ export interface NavItemProps {
 }
 
 const NavItemComponent = ({ item, level }: NavItemProps) => {
-  const theme = useTheme()
+  const theme = useTheme<ICustomTheme>()
   const matchesSM = useMediaQuery(theme.breakpoints.down('lg'))
 
   const Icon = item.icon
@@ -36,8 +39,8 @@ const NavItemComponent = ({ item, level }: NavItemProps) => {
   ) : (
     <FiberManualRecordIcon
       sx={{
-        width: MenuStore.menu.openedIds.findIndex((id) => id === item?.id) > -1 ? 8 : 6,
-        height: MenuStore.menu.openedIds.findIndex((id) => id === item?.id) > -1 ? 8 : 6
+        width: MenuStore.menu.openedIds.findIndex(id => id === item?.id) > -1 ? 8 : 6,
+        height: MenuStore.menu.openedIds.findIndex(id => id === item?.id) > -1 ? 8 : 6
       }}
       fontSize={level > 0 ? 'inherit' : 'medium'}
     />
@@ -57,7 +60,8 @@ const NavItemComponent = ({ item, level }: NavItemProps) => {
         href={item.url}
         target={itemTarget}
       ></a>
-    </Link>))
+    </Link>
+  ))
 
   ListItemNextJSLinkComponent.displayName = 'ListItemNextJSLinkComponent'
   let listItemProps = {
@@ -79,7 +83,7 @@ const NavItemComponent = ({ item, level }: NavItemProps) => {
     const currentIndex = document.location.pathname
       .toString()
       .split('/')
-      .findIndex((id) => id === item.id)
+      .findIndex(id => id === item.id)
     if (currentIndex > -1) {
       MenuStore.setOpenMenuItem(item.id)
     }
@@ -99,7 +103,7 @@ const NavItemComponent = ({ item, level }: NavItemProps) => {
           py: level > 1 ? 1 : 1.25,
           pl: `${level * 24}px`
         }}
-        selected={MenuStore.menu.openedIds.findIndex((id) => id === item.id) > -1}
+        selected={MenuStore.menu.openedIds.findIndex(id => id === item.id) > -1}
         onClick={() => itemHandler(item.id)}
       >
         <ListItemIcon
@@ -108,11 +112,15 @@ const NavItemComponent = ({ item, level }: NavItemProps) => {
             minWidth: !item?.icon ? 18 : 36,
             color: level > 1 ? `${theme.palette.primary.main} !important` : 'inherit'
           }}
-        >{itemIcon}</ListItemIcon>
+        >
+          {itemIcon}
+        </ListItemIcon>
         <ListItemText
           primary={
             <Typography
-              variant={MenuStore.menu.openedIds.findIndex((id) => id === item.id) > -1 ? 'h5' : 'body1'}
+              variant={
+                MenuStore.menu.openedIds.findIndex(id => id === item.id) > -1 ? 'h5' : 'body1'
+              }
               color="inherit"
             >
               {item.title}

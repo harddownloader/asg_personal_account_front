@@ -12,11 +12,14 @@ import Chart from 'react-apexcharts'
 
 // project components
 import SkeletonTotalGrowthBarChart from '@/shared/ui/cards/Skeleton/TotalGrowthBarChart'
-import MainCard from '@/shared/ui/cards/MainCard'
+import {MainCard} from '@/shared/ui/cards/MainCard'
 import { GRID_SPACING } from '@/shared/const'
 
 // chart data
 import chartData from './chart-data/total-growth-bar-chart'
+
+// shared
+import {ICustomTheme} from "@/shared/lib/themes/theme"
 
 const status = [
     {
@@ -37,7 +40,7 @@ const status = [
 
 const TotalGrowthBarChart = ({ isLoading }) => {
     const [value, setValue] = useState('today')
-    const theme = useTheme()
+    const theme = useTheme<ICustomTheme>()
 
     // const { navType } = customization
     const navType = undefined

@@ -10,7 +10,7 @@ import { Avatar, Box, Button, Grid, Typography } from '@mui/material'
 import Chart from 'react-apexcharts'
 
 // project components
-import MainCard from '@/shared/ui/cards/MainCard'
+import {MainCard} from '@/shared/ui/cards/MainCard'
 import SkeletonTotalOrderCard from '@/shared/ui/cards/Skeleton/EarningCard'
 
 import ChartDataMonth from './chart-data/total-order-month-line-chart'
@@ -19,6 +19,9 @@ import ChartDataYear from './chart-data/total-order-year-line-chart'
 // assets
 import LocalMallOutlinedIcon from '@mui/icons-material/LocalMallOutlined'
 import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward'
+
+// shared
+import {ICustomTheme} from "@/shared/lib/themes/theme"
 
 const CardWrapper = styled(MainCard)(({ theme }) => ({
     backgroundColor: theme.palette.primary.dark,
@@ -65,7 +68,7 @@ const CardWrapper = styled(MainCard)(({ theme }) => ({
 // ==============================|| DASHBOARD - TOTAL ORDER LINE CHART CARD ||============================== //
 
 const TotalOrderLineChartCard = ({ isLoading }) => {
-    const theme = useTheme()
+    const theme = useTheme<ICustomTheme>()
 
     const [timeValue, setTimeValue] = useState(false)
     const handleChangeTime = (event, newValue) => {

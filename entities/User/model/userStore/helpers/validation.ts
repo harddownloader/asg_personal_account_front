@@ -14,7 +14,7 @@ import {
   checkCargoCost,
   checkCargoTariff,
   checkCargoId,
-  checkPasswordByReAuthentication, checkUserId,
+  checkPasswordByReAuthentication, checkUserId, checkCargoTone,
 } from "@/shared/lib/validation/fields/conditions"
 
 // types
@@ -40,6 +40,7 @@ import {
   TCargoStatus,
 } from "@/entities/Cargo"
 import { TAccessToken } from "@/entities/User"
+import { TCargoToneId } from "@/entities/Cargo/types"
 
 export const  checkContactUserDataFields = async ({
                                              name,
@@ -249,7 +250,7 @@ export const checkEditClientByManagerFields = async ({
 }
 
 export const checkAddCargoFields = async ({
-                                      cargoId,
+                                      toneId,
                                       clientCode,
                                       status,
                                       costOfDelivery,
@@ -262,7 +263,7 @@ export const checkAddCargoFields = async ({
                                       country,
                                       token,
                                     }: {
-  cargoId: TCargoCustomIdentify
+  toneId: TCargoToneId
   clientCode: TCargoClientCode
   status: TCargoStatus
   costOfDelivery: TCargoCostOfDelivery
@@ -284,12 +285,12 @@ export const checkAddCargoFields = async ({
     errorMessage: 'Что-то пошло не так (проблема с нахождением пользователя)'
   })
 
-  await checkCargoCustomIdentify({
-    cargoId,
-    responseErrorsArray,
-    fieldName: 'cargoId',
-    errorMessage: 'Не корректный номер отправки',
-  })
+   await checkCargoTone({
+     toneId,
+     responseErrorsArray,
+     fieldName: 'toneId',
+     errorMessage: 'Выберите пожалуйста тонну'
+   })
 
   await checkClientCode({
     clientCode,
@@ -344,7 +345,7 @@ export const checkAddCargoFields = async ({
 }
 
 export const checkUpdateCargoFields = async ({
-                                         cargoId,
+                                        toneId,
                                          clientCode,
                                          status,
                                          costOfDelivery,
@@ -358,7 +359,7 @@ export const checkUpdateCargoFields = async ({
                                          country,
                                          token,
                                        }: {
-  cargoId: TCargoCustomIdentify
+  toneId: TCargoToneId
   clientCode: TCargoClientCode
   status: TCargoStatus
   costOfDelivery: TCargoCostOfDelivery
@@ -381,11 +382,11 @@ export const checkUpdateCargoFields = async ({
     errorMessage: 'Что-то пошло не так (проблема с нахождением пользователя)'
   })
 
-  await checkCargoCustomIdentify({
-    cargoId,
+  await checkCargoTone({
+    toneId,
     responseErrorsArray,
-    fieldName: 'cargoId',
-    errorMessage: 'Не корректный номер отправки',
+    fieldName: 'toneId',
+    errorMessage: 'Выберите пожалуйста тонну'
   })
 
   await checkClientCode({

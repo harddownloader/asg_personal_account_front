@@ -21,6 +21,9 @@ import { MenuStore, TOpened } from "@/entities/AppMenu"
 // assets
 import { IconChevronRight } from '@tabler/icons-react'
 
+// shared
+import { ICustomTheme } from '@/shared/lib/themes/theme'
+
 export interface MainStyledComponentProps {
   theme: TFixMeInTheFuture
   open: TOpened
@@ -88,7 +91,7 @@ export interface AccountLayoutProps {
 }
 
 export const AccountLayout = observer(({ children }: AccountLayoutProps) => {
-  const theme = useTheme()
+  const theme = useTheme<ICustomTheme>()
   const matchDownMd = useMediaQuery(theme.breakpoints.down('md'))
 
   // Handle left drawer
@@ -124,6 +127,7 @@ export const AccountLayout = observer(({ children }: AccountLayoutProps) => {
         />
 
         {/* main content */}
+        {/* @ts-ignore */}
         <Main theme={theme} open={isLeftDrawerOpened}>
           {/* breadcrumb */}
           <Breadcrumbs
