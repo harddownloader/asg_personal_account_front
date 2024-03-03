@@ -10,6 +10,7 @@ import SkeletonPopularCard from '@/shared/ui/cards/Skeleton/PopularCard'
 export interface ScrollableBlockProps {
   isLoading: boolean
   children: ReactNode
+  underBlockJSX?: ReactNode | null
   overContent?: ReactNode
   underContent?: ReactNode
   isScrollable: boolean
@@ -22,7 +23,8 @@ export const ScrollableBlock = ({
   overContent = null,
   underContent = null,
   isScrollable,
-  style
+  style,
+  underBlockJSX = null
 }: ScrollableBlockProps) => {
   return (
     <>
@@ -31,7 +33,13 @@ export const ScrollableBlock = ({
       ) : (
         <>
           {overContent}
-          <MainCard content={false} isHeightFull isScrollable={isScrollable} style={style}>
+          <MainCard
+            content={false}
+            isHeightFull
+            isScrollable={isScrollable}
+            style={style}
+            underBlockJSX={underBlockJSX}
+          >
             <CardContent>{children}</CardContent>
           </MainCard>
           {underContent}
