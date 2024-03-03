@@ -17,15 +17,19 @@ import { IconChevronDown, IconChevronUp } from '@tabler/icons-react'
 import { ICustomTheme } from '@/shared/lib/themes/theme'
 
 // ==============================|| SIDEBAR MENU LIST COLLAPSE ITEMS ||============================== //
+export interface INavCollapseProps {
+  menu: TFixMeInTheFuture
+  level: number
+}
 
-export const NavCollapse = ({ menu, level }: TFixMeInTheFuture) => {
+export const NavCollapse = ({ menu, level }: INavCollapseProps) => {
   const theme = useTheme<ICustomTheme>()
 
-  const [open, setOpen] = useState(false)
+  const [isOpen, setIsOpen] = useState(false)
   const [selected, setSelected] = useState(null)
 
   const handleClick = () => {
-    setOpen(!open)
+    setIsOpen(!isOpen)
     setSelected(!selected ? menu.id : null)
   }
 
@@ -90,13 +94,13 @@ export const NavCollapse = ({ menu, level }: TFixMeInTheFuture) => {
             )
           }
         />
-        {open ? (
+        {isOpen ? (
           <IconChevronUp stroke={1.5} size="1rem" style={{ marginTop: 'auto', marginBottom: 'auto' }} />
         ) : (
           <IconChevronDown stroke={1.5} size="1rem" style={{ marginTop: 'auto', marginBottom: 'auto' }} />
         )}
       </ListItemButton>
-      <Collapse in={open} timeout="auto" unmountOnExit>
+      <Collapse in={isOpen} timeout="auto" unmountOnExit>
         <List
           component="div"
           disablePadding
