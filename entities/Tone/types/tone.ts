@@ -1,6 +1,7 @@
 import { TResponseFieldErrorsArray } from "@/shared/types"
 
 export type TToneId = string
+export type TToneIdState = TToneId | null
 export type TToneLabel = string
 export type TToneCreatedAt = string
 export type TToneUpdatedAt = string

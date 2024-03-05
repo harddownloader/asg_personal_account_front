@@ -74,7 +74,8 @@ import type { TDecodedAccessToken } from '@/entities/User'
 import { parseJwtOnServer } from '@/shared/lib/token'
 import { splitArrayIntoSubArrays } from '@/shared/lib/arrays/splitArrayIntoSubArrays'
 import { ICargoSubmitForm } from '../types'
-import { ToneStore } from '@/entities/Tone'
+import { ToneStore, TToneIdState } from '@/entities/Tone'
+import {TSetCurrentItemsListByStatusArgs} from "@/entities/Cargo/types/methodArgs";
 
 export class _CargosStore {
   cargos: TCargosState = {
@@ -156,12 +157,9 @@ export class _CargosStore {
   setCurrentItemsListByStatus = ({
     isArchive,
     currentUserCode,
-  }: {
-    isArchive: boolean
-    currentUserCode?: string
-  }) => {
-    const currentToneId: string = ToneStore.tones.currentToneId
-    
+  }: TSetCurrentItemsListByStatusArgs) => {
+    const currentToneId: TToneIdState = ToneStore.tones.currentToneId
+
     this.cargos.isCurrentItemsListArchive = isArchive
 
     const filteredList = this.cargos.items.filter(cargo => {
@@ -181,6 +179,8 @@ export class _CargosStore {
       this.filtersOfList.byDate
     )
     this.cargos.currentItemsList = sortedCargos
+
+    return sortedCargos
   }
 
   setCurrentItem = (currentItem: ICargoFull) => {
@@ -1124,18 +1124,12 @@ export class _CargosStore {
   toggleByDate = (status: TByDate) => {
     this.filtersOfList.byDate = status
 
-    const currentToneId: string = ToneStore.tones.currentToneId
-
-    // if (currentToneId) {
-    //   CargosStore.setCurrentItemsListByToneId(currentToneId)
-    // } else {
-      this.setCurrentItemsListByStatus({
-        isArchive: this.cargos.isCurrentItemsListArchive,
-        currentUserCode: ClientsStore.clients.currentItem?.userCodeId
-          ? ClientsStore.clients.currentItem.userCodeId
-          : undefined
-      })
-    // }
+    this.setCurrentItemsListByStatus({
+      isArchive: this.cargos.isCurrentItemsListArchive,
+      currentUserCode: ClientsStore.clients.currentItem?.userCodeId
+        ? ClientsStore.clients.currentItem.userCodeId
+        : undefined
+    })
   }
 }
 

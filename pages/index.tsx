@@ -166,7 +166,7 @@ function Home ({
     if (!UserStore.user.currentUser.id) UserStore.saveUserToStore(mapUserDataFromApi({...currentUser}))
 
     if (clients === null) ClientsStore.setCurrentItem({...currentUser})
-    else if (clients?.length) ClientsStore.setList(clients)
+    else if (clients?.length) ClientsStore.initClientsLists(clients)
 
     if (notifications?.length) NotificationsStore.setList(notifications)
 

@@ -47,6 +47,9 @@ export type {
   TByDate,
   TIsShowFilters,
   IFiltersOfList,
+
+  // method args
+  TSetCurrentItemsListByStatusArgs,
 } from './types'
 
 // const

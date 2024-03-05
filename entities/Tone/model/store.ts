@@ -7,23 +7,40 @@ import { getCookies } from '@/shared/lib/cookies'
 import { ACCESS_TOKEN_KEY } from '@/shared/lib/providers/auth'
 
 // entities
-import { addTone, mapToneDataFromApi, TONE_API_ERRORS } from '@/entities/Tone'
+import {
+  addTone,
+  CURRENT_TONE_ID_DEFAULT,
+  mapToneDataFromApi,
+  TONE_API_ERRORS,
+  TToneId,
+  TToneIdState
+} from '@/entities/Tone'
 import type { IToneAddResponse, TToneLabel, ITone } from '@/entities/Tone'
 import { checkAddTone } from '@/entities/Tone/model/helpers/validation'
 import { ClientsStore } from '@/entities/User'
-import { CARGO_FIELD_NAMES, CargosStore } from '@/entities/Cargo'
+import {
+  // const
+  CARGO_FIELD_NAMES,
+  SORTING_BY_DATE,
+
+  // store
+  CargosStore,
+
+  // types
+  TSetCurrentItemsListByStatusArgs,
+} from '@/entities/Cargo'
 
 type TToneStore = {
   items: ITone[]
   isLoading: boolean
-  currentToneId: string
+  currentToneId: TToneIdState
 }
 
 export class _ToneStore {
   tones: TToneStore = {
     items: [],
     isLoading: false,
-    currentToneId: ''
+    currentToneId: CURRENT_TONE_ID_DEFAULT
   }
 
   constructor() {
@@ -38,7 +55,7 @@ export class _ToneStore {
 
   setList = (tones: ITone[]) => {
     const mappedTones = tones.map(tone => mapToneDataFromApi(tone))
-    const tonesSortedByDate = getSortedCurrentItemsListByDate<ITone[]>(mappedTones, 'desc')
+    const tonesSortedByDate = getSortedCurrentItemsListByDate<ITone[]>(mappedTones, SORTING_BY_DATE.ASC)
     this.tones.items = [...tonesSortedByDate]
   }
 
@@ -92,7 +109,7 @@ export class _ToneStore {
     })
       .then(newToneRecord => {
         console.log({ newToneRecord })
-        this.tones.items = [...this.tones.items, newToneRecord]
+        this.tones.items = [newToneRecord, ...this.tones.items]
 
         response.data.addingTone.newTone = newToneRecord
       })
@@ -120,22 +137,30 @@ export class _ToneStore {
     return response
   }
 
-  setCurrentToneId = (toneId: string) => {
+  setCurrentToneId = (toneId: TToneId) => {
     this.tones.currentToneId = toneId
 
     ClientsStore.clearCurrentItem()
     CargosStore.clearCurrentItem()
 
-    CargosStore.setCurrentItemsListByStatus({
+    const sortedCargos = CargosStore.setCurrentItemsListByStatus({
       isArchive: CargosStore.cargos.isCurrentItemsListArchive
     })
+
+    const uniqClientsCodes = new Set(sortedCargos.map(cargo => cargo.clientCode))
+    const relevantClients = ClientsStore.clients.items.filter(client => client.userCodeId && uniqClientsCodes.has(client.userCodeId))
+    ClientsStore.setCurrentList(relevantClients)
   }
 
   clearCurrentToneId = () => {
-    this.tones.currentToneId = ''
+    this.tones.currentToneId = CURRENT_TONE_ID_DEFAULT
 
-    CargosStore.setCurrentItemsListByStatus({
-      isArchive: CargosStore.cargos.isCurrentItemsListArchive
-    })
+    const cargosListArgs: TSetCurrentItemsListByStatusArgs = {
+      isArchive: CargosStore.cargos.isCurrentItemsListArchive,
+    }
+    if(ClientsStore.clients.currentItem?.userCodeId) cargosListArgs.currentUserCode = ClientsStore.clients.currentItem?.userCodeId
+    CargosStore.setCurrentItemsListByStatus(cargosListArgs)
+
+    ClientsStore.restoreCurrentList()
   }
 }

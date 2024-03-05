@@ -15,19 +15,26 @@ import { getCookies } from "@/shared/lib/cookies"
 
 export interface ClientsState {
   items: Array<IUserOfDB>,
+  currentList: Array<IUserOfDB>
   currentItem: IUserOfDB | null,
   isLoading: boolean,
 }
 
 export class _ClientsStore {
   clients: ClientsState = {
-    items: [],
-    currentItem: null,
+    items: [], // all clients
+    currentList: [], // clients what we can see in list
+    currentItem: null, // selected client
     isLoading: false,
   }
 
   constructor() {
     makeAutoObservable(this)
+  }
+
+  initClientsLists(clientsList: Array<IUserOfDB>) {
+    this.clients.items = [...clientsList]
+    this.clients.currentList = [...clientsList]
   }
 
   setCurrentItem = (currentItem: IUserOfDB) => {
@@ -47,6 +54,32 @@ export class _ClientsStore {
       ...this.clients.items,
       client
     ]
+  }
+
+  setCurrentList = (clientsList: Array<IUserOfDB>) => {
+    this.clients.currentList = [...clientsList]
+  }
+
+  restoreCurrentList = () => {
+    this.clients.currentList = [...this.clients.items]
+  }
+
+  updateClientInLists = (updatedUser: IUserOfDB) => {
+    const clientsItemsTmp = JSON.parse(JSON.stringify(this.clients.items))
+    const currentClientsItemsTmp = JSON.parse(JSON.stringify(this.clients.currentList))
+    const currentUserIndex__all = clientsItemsTmp.findIndex((user: IUserOfDB) => user.id === updatedUser.id)
+    const currentUserIndex__view = currentClientsItemsTmp.findIndex((user: IUserOfDB) => user.id === updatedUser.id)
+    if (
+      currentUserIndex__all !== -1 &&
+      currentUserIndex__view !== -1
+    ) {
+      clientsItemsTmp.splice(currentUserIndex__all, 1, updatedUser)
+      this.setList(clientsItemsTmp)
+      this.setCurrentItem(updatedUser)
+    } else console.warn('clientsStore->updateClientInLists error: we can not found updated user in lists', {
+      currentUserIndex__all,
+      currentUserIndex__view,
+    })
   }
 
   saveClientProfile = async ({
@@ -107,13 +140,7 @@ export class _ClientsStore {
             this.clients.isLoading = false
           })
 
-        const clientsItemsTmp = JSON.parse(JSON.stringify(this.clients.items))
-        const currentUserIndex = clientsItemsTmp.findIndex((user: IUserOfDB) => user.id === id)
-        if (currentUserIndex !== -1) {
-          clientsItemsTmp.splice(currentUserIndex, 1, updatedUserData)
-          this.setList(clientsItemsTmp)
-          this.setCurrentItem(updatedUserData)
-        }
+        this.updateClientInLists(updatedUserData)
       } catch (err) {
         this.clients.isLoading = false
         console.error(`Some request was failed, error: ${err}`)

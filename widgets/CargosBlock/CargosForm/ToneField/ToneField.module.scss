@@ -3,3 +3,17 @@
 .dropdown {
   @extend .dropdown;
 }
+
+.paper {
+  overflow-x: scroll;
+  max-height: 40vh;
+  //margin-top: 8px;
+}
+
+.list {
+  padding-top: 0
+}
+
+.search_field {
+  padding-top: 0.5rem;
+}

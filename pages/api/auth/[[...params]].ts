@@ -48,7 +48,7 @@ import { REGIONS } from '@/entities/Region'
 // shared
 import { TFixMeInTheFuture } from "@/shared/types/types"
 import { getLogger } from "@/shared/lib/logger/log-util"
-import { firebaseAdmin, fApp, getFirestoreAdmin } from "@/shared/lib/firebase/firebaseAdmin"
+import {firebaseAdmin, fApp, getFirestoreAdmin, sApp, tApp} from "@/shared/lib/firebase/firebaseAdmin"
 import { firebaseAuth } from "@/shared/lib/firebase"
 
 const getUserInRegion = async (regionName: string, userId: string): Promise<IUserOfDB | null> => {

@@ -34,8 +34,8 @@ export const ClientsList = observer(({
                                        showConfirmToLeave,
                      }: ClientsListProps) => {
   const clients = useMemo(
-    () => [...ClientsStore.clients.items],
-    [JSON.stringify(ClientsStore.clients.items)]
+    () => [...ClientsStore.clients.currentList],
+    [JSON.stringify(ClientsStore.clients.currentList)]
   )
   const [selectedClient, setSelectedClient] = useState<IUserOfDB | null>(null)
   const [isOpenEditModal, setIsOpenEditModal] = useState<boolean>(false)
@@ -63,7 +63,7 @@ export const ClientsList = observer(({
     }
 
     setNewCurrentItem(client)
-    ToneStore.clearCurrentToneId()
+    // ToneStore.clearCurrentToneId()
 
     //  set cargos list && set filtering cargos list by "currents"
     if (client.userCodeId) {
