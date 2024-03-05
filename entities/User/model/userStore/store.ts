@@ -329,6 +329,15 @@ export class _UserStore {
       } else Sentry.captureMessage('we cant get access token after registration of new user')
 
     }).catch((error) => {
+      console.log({error, 'error.message': error.message})
+      if (error.message === 'TOO_LONG') response.data.accountRegister.errors.push({
+        field: 'phone',
+        message: `Не валидный номер телефона - слишком длинный`
+      })
+      if (error.message === 'TOO_SHORT') response.data.accountRegister.errors.push({
+        field: 'phone',
+        message: `Не валидный номер телефона - слишком меленький`
+      })
       if (error.message === "The email address is already in use by another account.") {
         response.data.accountRegister.errors.push({
           field: "email",
