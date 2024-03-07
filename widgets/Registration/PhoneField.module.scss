@@ -1,3 +1,15 @@
+.paper {
+  overflow-x: scroll;
+  max-height: 40vh;
+}
+
+.list {
+  padding-top: 0
+}
+
+.search_field {
+  padding-top: 0.5rem;
+}
 
 .phoneNumberTextField {
   @apply bg-white rounded;
