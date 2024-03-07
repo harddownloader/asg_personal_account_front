@@ -17,7 +17,7 @@ import {
 } from '@/entities/Tone'
 import type { IToneAddResponse, TToneLabel, ITone } from '@/entities/Tone'
 import { checkAddTone } from '@/entities/Tone/model/helpers/validation'
-import { ClientsStore } from '@/entities/User'
+import { ClientsStore, USER_ROLE } from '@/entities/User'
 import {
   // const
   CARGO_FIELD_NAMES,
@@ -140,7 +140,7 @@ export class _ToneStore {
   setCurrentToneId = (toneId: TToneId) => {
     this.tones.currentToneId = toneId
 
-    ClientsStore.clearCurrentItem()
+    if (ClientsStore.clients.currentItem?.role !== USER_ROLE.CLIENT) ClientsStore.clearCurrentItem()
     CargosStore.clearCurrentItem()
 
     const sortedCargos = CargosStore.setCurrentItemsListByStatus({

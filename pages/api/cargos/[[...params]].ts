@@ -19,6 +19,7 @@ import { getUserByCustomToken } from "../_lib/getUserByCustomToken"
 import { mapCargoDataFromApi, CARGOS_DB_COLLECTION_NAME } from "@/entities/Cargo"
 import type { ICargoFull } from "@/entities/Cargo"
 import { getAllTonesSSR, ITone, mapToneDataFromApi, TONES_DB_COLLECTION_NAME } from "@/entities/Tone"
+import { ICargoFullMap } from "@/entities/Cargo/api/mappers/mapCargoDataFromApi";
 
 export class CargosService {
   async create(country: string, createCargoDto: CreateCargoDto) {
@@ -78,7 +79,7 @@ export class CargosService {
   }
 
   /* new service - UPD: added proto to backend */
-  async findByUserId(country: string, userId: string) {
+  async findByUserId(country: string, userId: string): Promise<ICargoFullMap[]> {
     const db = getFirestoreAdmin(country).firestore()
     const cargosRef = await db.collection(CARGOS_DB_COLLECTION_NAME)
     const allTones = await getAllTonesSSR(db)
