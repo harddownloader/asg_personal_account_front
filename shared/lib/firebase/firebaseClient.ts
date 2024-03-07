@@ -95,7 +95,6 @@ function getDefaultRegionConfig() {
 
 const firebaseClientConfig = getDefaultRegionConfig()
 
-// export const firebaseClient = createFirebaseApp(firebaseConfig)
 export const firebaseClient = createFirebaseApp(firebaseClientConfig)
 
 export const firebaseAuth = getAuth(firebaseClient)
