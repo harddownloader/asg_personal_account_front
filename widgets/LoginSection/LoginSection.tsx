@@ -1,8 +1,6 @@
-import { ReactElement, useEffect } from "react"
-import { GetServerSidePropsContext, InferGetServerSidePropsType } from "next"
+import { ReactElement } from "react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
-import nookies from "nookies"
 import { useForm } from "react-hook-form"
 import * as Sentry from "@sentry/nextjs"
 
@@ -12,20 +10,17 @@ import TextField from '@mui/material/TextField'
 
 // project components
 import { AuthForm } from '@/widgets/Form'
-import { AuthLayout } from "@/widgets/Layout/AuthLayout/AuthLayout"
-import { FooterMemoized } from "@/widgets/Footer"
 import { PasswordField as PasswordFieldComponent } from '@/shared/ui/fields/PasswordField'
 
 // shared
-import { ACCESS_TOKEN_KEY, AUTHORIZATION_HEADER_KEY } from "@/shared/lib/providers/auth"
-import { isTokenExpire, parseJwtOnServer } from "@/shared/lib/token"
-import { API_URI } from "@/shared/const"
 import { pagesPath } from "@/shared/lib/$path"
-import { destroyAccessToken } from "@/shared/lib/cookies"
 
 // store
 import { UserStore } from "@/entities/User"
-import type { IUserOfDB } from '@/entities/User'
+
+// assets
+import classes from './LoginSection.module.scss'
+
 
 export interface ILoginFormData {
   email: string
@@ -75,7 +70,7 @@ export const LoginSection = () => {
       placeholder="Логин"
       autoComplete="email"
       autoFocus
-      className={"bg-white rounded"}
+      className={classes.text_field}
       {...registerForm("email", {
         required: true,
       })}
@@ -87,6 +82,7 @@ export const LoginSection = () => {
       <PasswordFieldComponent
         placeholder="Пароль"
         id="password"
+        className={classes.text_field}
         label={null}
         registerFormFunc={registerForm("password",{
           required: true,
