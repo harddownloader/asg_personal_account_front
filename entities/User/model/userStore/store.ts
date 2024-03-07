@@ -229,7 +229,7 @@ export class _UserStore {
     }
     this.user.isLoading = true
 
-    const { accessToken } = await fetch(`${API_URI}auth/signin`, {
+    const resp = await fetch(`${API_URI}auth/signin`, {
       method: 'POST',
       headers: new Headers({
         'Content-Type': 'application/json',
@@ -251,15 +251,15 @@ export class _UserStore {
         this.user.isLoading = false
       })
 
-    if (accessToken) {
+    if (resp?.accessToken) {
       await nookies.destroy(null, ACCESS_TOKEN_KEY)
-      await nookies.set(null, ACCESS_TOKEN_KEY, accessToken, cookiesOptions.accessToken)
+      await nookies.set(null, ACCESS_TOKEN_KEY, resp.accessToken, cookiesOptions.accessToken)
       /*
       * sing in with custom token on the frontend
       * https://firebase.google.com/docs/auth/admin/create-custom-tokens?hl=ru#sign_in_using_custom_tokens_on_clients
       * */
       const auth = await getAuth()
-      await signInWithCustomToken(auth, accessToken)
+      await signInWithCustomToken(auth, resp.accessToken)
         .then((userCredential) => {
           // Signed in
           const user = userCredential.user
@@ -275,7 +275,9 @@ export class _UserStore {
 
     } else {
       console.error('assessToken not found')
-      Sentry.captureMessage(`something wrong with getting token in UserStore.login(), assessToken:${accessToken}`)
+      Sentry.captureMessage(
+        `something wrong with getting token in UserStore.login(), assessToken:${resp?.accessToken}`
+      )
     }
 
     return response
