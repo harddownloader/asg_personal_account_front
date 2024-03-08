@@ -1,0 +1,17 @@
+.text_field {
+  @apply bg-white rounded;
+}
+
+.text_field {
+  & :global(.MuiInputBase-root), :global(.MuiInputBase-root:hover) {
+    @apply rounded;
+
+    & :global(.MuiInputBase-input) {
+      @apply rounded;
+    }
+
+    & :global(fieldset) {
+      @apply rounded;
+    }
+  }
+}

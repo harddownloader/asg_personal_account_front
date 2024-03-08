@@ -26,7 +26,8 @@ import { getAllClients, mapUserDataFromApi } from "@/entities/User"
 import { getAllByUserId } from "@/entities/Notification"
 import { getMe } from "@/entities/User"
 import { getAllCargos, getCargosByUserId } from "@/entities/Cargo"
-import { getTones, ToneStore } from "@/entities/Tone"
+import {getTones, getTonesByUserCargos, ToneStore} from "@/entities/Tone"
+import {getTonesByUserId} from "@/entities/Tone/api/getTonesByUserId";
 
 export const getServerSideProps = async (ctx: GetServerSidePropsContext) => {
   const redirectToLoginPage = {
@@ -115,10 +116,16 @@ export const getServerSideProps = async (ctx: GetServerSidePropsContext) => {
         : await emptyPromise()
 
     const tonesPromiseIndex = 3
-    promises[tonesPromiseIndex] = async () => await getTones({
-      country,
-      token: accessToken,
-    })
+    promises[tonesPromiseIndex] = async () => isUserEmployee
+      ? await getTones({
+          country,
+          token: accessToken,
+        })
+      : await getTonesByUserId({
+        country,
+        token: accessToken,
+        userId
+      })
     const outcomes = await Promise.allSettled(promises.map(promise => promise()))
 
     console.timeEnd('home_page_all_requests_benchmark')
@@ -166,7 +173,7 @@ function Home ({
     if (!UserStore.user.currentUser.id) UserStore.saveUserToStore(mapUserDataFromApi({...currentUser}))
 
     if (clients === null) ClientsStore.setCurrentItem({...currentUser})
-    else if (clients?.length) ClientsStore.setList(clients)
+    else if (clients?.length) ClientsStore.initClientsLists(clients)
 
     if (notifications?.length) NotificationsStore.setList(notifications)
 

@@ -8,3 +8,5 @@ export const REGIONS: TRegionName[] = [
   SECOND_REGION_SHORTNAME,
   THIRD_REGION_SHORTNAME
 ] as const;
+
+export const DEFAULT_REGION = FIRST_REGION_SHORTNAME

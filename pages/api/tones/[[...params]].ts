@@ -9,9 +9,9 @@ import {
   NotFoundException,
   Param,
   Post,
-  Req, ValidationPipe,
+  Req,
+  ValidationPipe,
 } from "next-api-decorators"
-import { v4 as uuidv4 } from "uuid"
 import { getLogger } from "@/shared/lib/logger/log-util"
 import { CreateToneDto } from "./dto/create-tone.dto"
 import { exceptionsAdapter } from "@/pages/api/_core/endpoint-catch-handler"
@@ -23,12 +23,21 @@ import {
   TONES_DB_COLLECTION_NAME,
   TONE_API_ERRORS,
 } from "@/entities/Tone"
-import type { ITone } from "@/entities/Tone"
+import type { ITone, TToneId } from "@/entities/Tone"
 import { TFixMeInTheFuture } from "@/shared/types"
+import type { TUserId } from "@/entities/User"
+
+// services
+import { CargosService } from "@/pages/api/cargos/[[...params]]"
 
 
 class TonesService {
+  private readonly cargosService: CargosService
   protected readonly logger = getLogger(TonesService.name)
+
+  constructor() {
+    this.cargosService = new CargosService()
+  }
 
   public async create(country: string, dto: CreateToneDto) {
     try {
@@ -97,6 +106,21 @@ class TonesService {
       })
   }
 
+  async findByUserId(country: string, userId: TUserId): Promise<Array<ITone> | null> {
+    const userCargos = await this.cargosService.findByUserId(country, userId)
+
+    const tones: ITone[] = []
+    const tonesIds: TToneId[] = []
+    userCargos.forEach((cargo) => {
+      if (cargo?.tone?.id && !tonesIds.includes(cargo.tone.id)) {
+        tonesIds.push(cargo.tone.id)
+        tones.push(cargo.tone)
+      }
+    })
+
+    return tones
+  }
+
   async remove(country: string, id: string) {}
 }
 
@@ -118,6 +142,14 @@ class TonesController {
   @Get('/:country')
   findAll(@Param('country') country: string) {
     return this.tonesService.findAll(country)
+  }
+
+  @Get('/:country/byUserId/:userId')
+  findByUserId(
+    @Param('country') country: string,
+    @Param('userId') userId: TUserId,
+  ) {
+    return this.tonesService.findByUserId(country, userId)
   }
 
   @Delete('/:country/:id')

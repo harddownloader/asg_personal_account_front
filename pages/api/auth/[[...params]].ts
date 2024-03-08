@@ -43,12 +43,12 @@ import {
   // api - mappers
   mapUserDataFromApi,
 } from "@/entities/User"
-import { REGIONS } from '@/entities/Region'
+import {DEFAULT_REGION, REGIONS} from '@/entities/Region'
 
 // shared
 import { TFixMeInTheFuture } from "@/shared/types/types"
 import { getLogger } from "@/shared/lib/logger/log-util"
-import { firebaseAdmin, fApp, getFirestoreAdmin } from "@/shared/lib/firebase/firebaseAdmin"
+import {firebaseAdmin, fApp, getFirestoreAdmin, sApp, tApp} from "@/shared/lib/firebase/firebaseAdmin"
 import { firebaseAuth } from "@/shared/lib/firebase"
 
 const getUserInRegion = async (regionName: string, userId: string): Promise<IUserOfDB | null> => {
@@ -103,14 +103,22 @@ const getUserInAuth = async (
   try {
     return await signInWithEmailAndPassword(firebaseAuth, email, password)
       .then(async (userCredential) => {
+        console.log('into signInWithEmailAndPassword')
         // Signed in
         const user = userCredential.user
-        const userInDB: IUserOfDB | null = await findUserInRegion(REGIONS, user.uid)
+
+        // loop
+        let userInDB: IUserOfDB | null = null //= await findUserInRegion(REGIONS, user.uid)
+        await Promise.all(REGIONS.map(async (region, index) => {
+          const userRes = await findUserInRegion(REGIONS, user.uid, index)
+          if (userRes) userInDB = userRes
+        }))
 
         if (!userInDB) throw new NotFoundException(`User not found in database`)
 
         return { user, userInDB }
       }).catch((error) => {
+        console.log('getUserInAuth catch')
         throw new NotFoundException(`User not found. Code: ${error.code}, message: ${error.message}`)
       })
   } catch (error) {
@@ -124,7 +132,7 @@ class AuthService {
   public async login({ email, password }: LoginDTO) {
     try {
       console.log('login')
-      const auth = fApp.auth()
+      const auth = await getFirestoreAdmin(DEFAULT_REGION).auth()
 
       this.logger.info({ cred: { email, password } })
 
@@ -137,7 +145,7 @@ class AuthService {
       const { user, userInDB } = userInAuth
 
       if (userInDB === null) throw new NotFoundException(`User not found in database`)
-      // @ts-ignore
+
       const userId = user.uid
 
       {
@@ -160,7 +168,7 @@ class AuthService {
 
   async register(dto: CreateUserDto) {
     try {
-      const defaultFbInstance = await getFirestoreAdmin('')
+      const defaultFbInstance = await getFirestoreAdmin(DEFAULT_REGION)
       const fbInstance = typeof dto.country === "string"
         ? await getFirestoreAdmin(dto.country) // get region instance
         : defaultFbInstance // get default instance

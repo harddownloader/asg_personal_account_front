@@ -127,16 +127,13 @@ export const getFirestoreAdmin = (country: string): app.App => {
   switch (country) {
     case FIRST_REGION_SHORTNAME:
      return fApp
-     break
     case SECOND_REGION_SHORTNAME:
       return sApp
-      break
     case THIRD_REGION_SHORTNAME:
       return tApp
-      break
 
     default:
-      console.error('country not found')
+      console.error('getFirestoreAdmin error: Country not found!!! Its return first of all.')
       return fApp
   }
 }

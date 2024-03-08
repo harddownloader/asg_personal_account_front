@@ -6,14 +6,6 @@ export const useDetectUserLocation = <T extends Function, Q extends Function>(su
       fetch("https://ipapi.co/json")
         .then(res => res.json())
         .then(userIpRes => {
-          // console.log({
-          //   [`${COUNTRY_FIELD_NAME}`]: userIpRes.country_code,
-          //   timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
-          // })
-
-          // resetForm({
-          //   [`${COUNTRY_FIELD_NAME}`]: userIpRes.country_code
-          // })
           successCallback && successCallback(userIpRes.country_code)
         })
         .catch((e) => {

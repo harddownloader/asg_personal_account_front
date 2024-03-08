@@ -1,21 +1,17 @@
-import {UserStore} from "@/entities/User";
-import {Avatar, Grid, ListItem, ListItemAvatar, ListItemSecondaryAction, ListItemText, Typography} from "@mui/material";
-import {IconMailbox} from "@tabler/icons-react";
+import {UserStore} from "@/entities/User"
+import {Avatar, Grid, ListItem, ListItemAvatar, ListItemSecondaryAction, ListItemText, Typography} from "@mui/material"
+import {IconMailbox} from "@tabler/icons-react"
 import { styled, useTheme } from "@mui/material/styles"
 import {NotificationsStore} from "@/entities/Notification"
 import {MouseEventHandler} from "react";
-import {IRegion} from "@/entities/Region";
-import {ICustomTheme} from "@/shared/lib/themes/theme";
+import {IRegion} from "@/entities/Region"
+import {ICustomTheme} from "@/shared/lib/themes/theme"
 
 
 // styles
 const ListItemWrapper = styled('div')(({ theme }) => ({
   cursor: 'pointer',
   padding: 16,
-  '&:hover': {
-    // background: theme.palette.primary.main,
-    // color: theme.palette.background.paper,
-  },
   '& .MuiListItem-root': {
     padding: 0
   }

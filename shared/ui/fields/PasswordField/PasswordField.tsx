@@ -13,19 +13,24 @@ import IconButton from "@mui/material/IconButton"
 import VisibilityOff from "@mui/icons-material/VisibilityOff"
 import Visibility from "@mui/icons-material/Visibility"
 
+
+export interface IPasswordFieldProps {
+  id: string
+  registerFormFunc: UseFormRegisterReturn
+  placeholder: string
+  label: string | null
+  errorsFormJSX: ReactElement | null
+  className?: string
+}
+
 export const PasswordField = ({
                                 id,
                                 registerFormFunc,
                                 placeholder,
                                 label,
                                 errorsFormJSX,
-                       }: {
-  id: string
-  registerFormFunc: UseFormRegisterReturn
-  placeholder: string
-  label: string | null
-  errorsFormJSX: ReactElement | null
-}) => {
+                                className="bg-white rounded"
+                       }: IPasswordFieldProps) => {
   const [showPassword, setShowPassword] = useState<boolean>(false)
   const fieldRef = useRef<HTMLInputElement>(null)
 
@@ -59,7 +64,7 @@ export const PasswordField = ({
         id={id || idDefault}
         label={label !== undefined ? label : defaultLabel}
         autoComplete="current-password"
-        className={"bg-white rounded"}
+        className={className}
         {...registerFormFunc}
         inputRef={fieldRef}
         type={showPassword ? 'text' : 'password'}

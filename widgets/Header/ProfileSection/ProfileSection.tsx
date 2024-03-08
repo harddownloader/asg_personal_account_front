@@ -52,7 +52,7 @@ export const ProfileSection = memo(() => {
   const [value, setValue] = useState('')
   const [notification, setNotification] = useState(false)
   const [selectedIndex, setSelectedIndex] = useState(-1)
-  const [open, setOpen] = useState(false)
+  const [isOpen, setIsOpen] = useState(false)
   /**
    * anchorRef is used on different componets and specifying one type leads to other components throwing an error
    * */
@@ -66,7 +66,7 @@ export const ProfileSection = memo(() => {
     if (anchorRef.current && anchorRef.current.contains(event.target)) {
       return
     }
-    setOpen(false)
+    setIsOpen(false)
   }
 
   const handleListItemClick = (event, index, route = '') => {
@@ -79,17 +79,17 @@ export const ProfileSection = memo(() => {
     }
   }
   const handleToggle = () => {
-    setOpen((prevOpen) => !prevOpen)
+    setIsOpen((prevOpen) => !prevOpen)
   }
 
-  const prevOpen = useRef(open)
+  const prevOpen = useRef(isOpen)
   useEffect(() => {
-    if (prevOpen.current === true && open === false) {
+    if (prevOpen.current === true && isOpen === false) {
       anchorRef.current.focus()
     }
 
-    prevOpen.current = open
-  }, [open])
+    prevOpen.current = isOpen
+  }, [isOpen])
 
   return (
     <>
@@ -129,7 +129,7 @@ export const ProfileSection = memo(() => {
               }
             }}
             ref={anchorRef}
-            aria-controls={open ? 'menu-list-grow' : undefined}
+            aria-controls={isOpen ? 'menu-list-grow' : undefined}
             aria-haspopup="true"
             color="inherit"
           />
@@ -137,14 +137,14 @@ export const ProfileSection = memo(() => {
         label={<IconSettings stroke={1.5} size="1.5rem" color={theme.palette.primary.main} />}
         variant="outlined"
         ref={anchorRef}
-        aria-controls={open ? 'menu-list-grow' : undefined}
+        aria-controls={isOpen ? 'menu-list-grow' : undefined}
         aria-haspopup="true"
         onClick={handleToggle}
         color="primary"
       />
       <Popper
         placement="bottom-end"
-        open={open}
+        open={isOpen}
         anchorEl={anchorRef.current}
         role={undefined}
         transition
@@ -161,7 +161,7 @@ export const ProfileSection = memo(() => {
         }}
       >
         {({ TransitionProps }) => (
-          <Transitions in={open} {...TransitionProps}>
+          <Transitions in={isOpen} {...TransitionProps}>
             <Paper>
               <ClickAwayListener onClickAway={handleClose}>
                 <MainCard border={false} elevation={16} content={false} boxShadow shadow={theme.shadows[16]}>

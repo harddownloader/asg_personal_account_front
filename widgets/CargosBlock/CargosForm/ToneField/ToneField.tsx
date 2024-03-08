@@ -106,7 +106,13 @@ export const ToneField = observer(function ToneField({
           control={control}
           render={({ field: { onChange, onBlur, value, ref } }) => (
             <Select
-              MenuProps={{ autoFocus: false }}
+              MenuProps={{
+                autoFocus: false,
+                classes: {
+                  paper: classes.paper,
+                  list: classes.list
+                }
+              }}
               labelId={labelId}
               fullWidth
               required
@@ -120,6 +126,7 @@ export const ToneField = observer(function ToneField({
             >
               <ListSubheader>
                 <TextField
+                  className={classes.search_field}
                   size="small"
                   // Autofocus on text field
                   autoFocus
