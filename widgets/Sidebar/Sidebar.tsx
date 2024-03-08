@@ -12,15 +12,21 @@ import { TonesSidebar } from "@/widgets/Sidebar/TonesSidebar"
 // shared
 import { DRAWER_WIDTH } from '@/shared/const'
 import { ICustomTheme } from '@/shared/lib/themes/theme'
+import {USER_ROLE, UserStore} from "@/entities/User";
 
-export interface SidebarProps {
+export interface ISidebarProps {
   drawerOpen: boolean
   drawerToggle: () => void
 }
 
-export const Sidebar = observer(({ drawerOpen, drawerToggle }: SidebarProps) => {
+export const Sidebar = observer(({
+                                   drawerOpen,
+                                   drawerToggle
+}: ISidebarProps) => {
   const theme = useTheme<ICustomTheme>()
   const matchUpMd = useMediaQuery(theme.breakpoints.up('md'))
+  const currentUser = UserStore.user.currentUser
+  const isUserEmployee = currentUser.role > USER_ROLE.CLIENT
 
   const drawer = (
     <>
@@ -32,7 +38,7 @@ export const Sidebar = observer(({ drawerOpen, drawerToggle }: SidebarProps) => 
         </Box>
       </div>
       <MenuList/>
-      <TonesSidebar />
+      {isUserEmployee && <TonesSidebar/>}
     </>
   )
 
