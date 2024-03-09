@@ -246,8 +246,6 @@ export class _UserStore {
           field: 'server',
           message: `Server auth error: code - ${error.code}, error_mgs - ${error.message}`
         })
-      })
-      .finally(() => {
         this.user.isLoading = false
       })
 
