@@ -1,21 +1,35 @@
 import { action, makeObservable, observable } from 'mobx'
 import * as Sentry from '@sentry/nextjs'
 
+// types
+import {
+  TToneId,
+  TToneIdState,
+  IToneAddResponse,
+  TToneLabel,
+  ITone
+} from './../types'
+
+// const
+import {
+  CURRENT_TONE_ID_DEFAULT,
+  TONE_API_ERRORS
+} from './../consts'
+
+// api
+import {
+  addTone,
+
+  // mappers
+  mapToneDataFromApi,
+} from './../api'
+
 // shared
 import { getSortedCurrentItemsListByDate } from '@/shared/lib/arrays/sorting'
 import { getCookies } from '@/shared/lib/cookies'
 import { ACCESS_TOKEN_KEY } from '@/shared/lib/providers/auth'
 
 // entities
-import {
-  addTone,
-  CURRENT_TONE_ID_DEFAULT,
-  mapToneDataFromApi,
-  TONE_API_ERRORS,
-  TToneId,
-  TToneIdState
-} from '@/entities/Tone'
-import type { IToneAddResponse, TToneLabel, ITone } from '@/entities/Tone'
 import { checkAddTone } from '@/entities/Tone/model/helpers/validation'
 import { ClientsStore, USER_ROLE } from '@/entities/User'
 import {
