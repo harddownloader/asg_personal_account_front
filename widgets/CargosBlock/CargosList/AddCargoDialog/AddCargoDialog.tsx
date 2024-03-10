@@ -8,7 +8,7 @@ import { DialogHOC } from '@/widgets/Dialog/Modal/DialogHOC'
 
 // store
 import { CargosStore, CARGO_FIELD_NAMES } from '@/entities/Cargo'
-import type { ICargoForForm, ICargoFull, ICargoAddResponse, TSpaceItem } from '@/entities/Cargo'
+import type { ICargoFull, ICargoAddResponse, TSpaceItem } from '@/entities/Cargo'
 import type { TUserCodeId, TUserId } from '@/entities/User'
 import { getSpacesOfUnsavedCargo } from '@/entities/Cargo'
 import { ICargoSubmitForm } from '@/entities/Cargo/types'
@@ -75,7 +75,6 @@ export const AddCargoDialog = observer(
       volume,
       weight
     }: ICargoSubmitForm): Promise<void> => {
-      // const currentTmpSpaces = getCurrentNewTmpSpaces(JSON.parse(notLoadedSpacesSrt))
       const { data }: ICargoAddResponse = await CargosStore.add({
         toneId,
         clientCode,
