@@ -16,17 +16,26 @@ import { FormSubmitButton } from "./FormSubmitButton"
 // shared
 import { GRID_SPACING } from "@/shared/const"
 import { pagesPath } from "@/shared/lib/$path"
-
-// store
-import { UserStore } from "@/entities/User"
-import { updateAndSet } from "@/entities/User"
-import type {
-  IProfileContacts,
-  IUserOfDB,
-  TUserSavingResponse
-} from '@/entities/User'
 import { getCookies } from "@/shared/lib/cookies"
 import { ACCESS_TOKEN_KEY } from "@/shared/lib/providers/auth"
+
+// entities
+import {
+  // const
+  USER_ROLE,
+
+  // types
+  IProfileContacts,
+  IUserOfDB,
+  TUserSavingResponse,
+
+  // lib
+  updateAndSet,
+
+  // store
+  UserStore
+} from "@/entities/User"
+
 
 export interface EditProfileProps {
   currentUser: IUserOfDB
