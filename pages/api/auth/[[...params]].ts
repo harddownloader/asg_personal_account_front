@@ -158,7 +158,8 @@ class AuthService {
 
         return {
           accessToken: accessToken,
-          refreshToken: null
+          refreshToken: null,
+          region: userInDB.country
         }
       }
     } catch (error) {
