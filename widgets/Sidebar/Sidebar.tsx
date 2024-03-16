@@ -12,7 +12,7 @@ import { TonesSidebar } from "@/widgets/Sidebar/TonesSidebar"
 // shared
 import { DRAWER_WIDTH } from '@/shared/const'
 import { ICustomTheme } from '@/shared/lib/themes/theme'
-import {USER_ROLE, UserStore} from "@/entities/User";
+import { USER_ROLE, UserStore } from "@/entities/User"
 
 export interface ISidebarProps {
   drawerOpen: boolean

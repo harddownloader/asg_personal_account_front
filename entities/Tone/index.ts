@@ -11,8 +11,7 @@ export * from './consts'
 export { mapToneDataFromApi } from './api/mappers'
 
 // api
-export { addTone } from './api/addTone'
-export { getTones } from './api/getTones'
+export * from './api'
 
 // lib
 export * from './lib'

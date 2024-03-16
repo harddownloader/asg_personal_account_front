@@ -46,21 +46,33 @@ export const CargoContent = observer(function CargoContent({
   // load spaces tmp storage
   const notLoadedSpacesSrt = JSON.stringify([...CargosStore.cargos.notLoadedSpaces.list])
 
+  // mount && unmount
   useEffect(() => {
     if (currentClient?.id && currentCargo?.id) {
-      const currentSpacesTmp = getCurrentTmpSpaces(JSON.parse(notLoadedSpacesSrt))
-      initTmpSpaces(currentSpacesTmp)
+      initTmpSpaces()
+    }
+
+    return () => {
+      CargosStore.clearNotLoadedSpaces()
     }
   }, [])
 
+  // switch to another cargo
   useEffect(() => {
     if (currentCargo?.id) {
-      resetCargoForm()
+      switchToAnotherCargo()
     }
-  }, [currentCargo?.id])
+  }, [currentCargo.id])
 
-  const initTmpSpaces = (currentSpacesTmp: Array<TSpaceItem>) => {
-    if (!currentSpacesTmp.length && currentCargo?.spaces?.length) {
+  const switchToAnotherCargo = async () => {
+    await CargosStore.clearNotLoadedSpaces()
+    await resetCargoForm()
+  }
+
+  const initTmpSpaces = () => {
+    const currentSpacesTmp: Array<TSpaceItem> = getCurrentTmpSpaces(JSON.parse(notLoadedSpacesSrt))
+
+    if (!currentSpacesTmp.length && currentCargo && JSON.parse(JSON.stringify(currentCargo.spaces))?.length) {
       // init tmp spaces for current cargo
       const newTmpSpaceItems: Array<TSpaceItem> = mapCargoSpacesDataFromApi({
         spaces: currentCargo.spaces,
@@ -71,7 +83,6 @@ export const CargoContent = observer(function CargoContent({
 
       return newTmpSpaceItems
     } else {
-      CargosStore.clearNotLoadedSpaces()
       return null
     }
   }
@@ -117,8 +128,7 @@ export const CargoContent = observer(function CargoContent({
     reset(formDefaultValues)
 
     if (currentClient?.id && currentCargo?.id) {
-      const currentSpacesTmp = getCurrentTmpSpaces(JSON.parse(notLoadedSpacesSrt))
-      initTmpSpaces(currentSpacesTmp)
+      initTmpSpaces()
     }
   }
 

@@ -1,3 +1,6 @@
+'use client'
+
+import { useMemo } from "react"
 import { observer } from "mobx-react-lite"
 
 // project components
@@ -26,7 +29,22 @@ export const CargosInfo = observer(function CargosInfo({
                                       currentClient
 }: ICargosInfoProps) {
   // load current cargo
-  const currentCargo = CargosStore.cargos?.currentItem
+  const currentCargo = useMemo(
+    () => CargosStore.cargos?.currentItem,
+    [CargosStore.cargos?.currentItem?.id]
+  )
+
+  const getContent = () => {
+    const cargoAndClientExit = currentCargo?.id && currentClient?.id
+
+    return cargoAndClientExit &&
+      <CargoContent
+        isFull={isFull}
+        title={title}
+        currentCargo={currentCargo}
+        currentClient={currentClient}
+      />
+  }
 
   return (
     <>
@@ -34,14 +52,7 @@ export const CargosInfo = observer(function CargosInfo({
         isLoading={false}
         isScrollable
       >
-        {(currentCargo?.id && currentClient?.id) &&
-          <CargoContent
-            isFull={isFull}
-            title={title}
-            currentCargo={currentCargo}
-            currentClient={currentClient}
-          />
-        }
+        {getContent()}
       </ScrollableBlock>
     </>
   )

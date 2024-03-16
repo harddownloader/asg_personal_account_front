@@ -6,12 +6,12 @@ import Button from "@mui/material/Button"
 // shared
 import { Preloader } from "@/shared/ui/Preloader"
 
-export interface SubmitButton {
+export interface ISubmitButton {
   isLoading: boolean
   text: string
 }
 
-export const SubmitButton = ({ isLoading, text }: SubmitButton) => {
+export const SubmitButton = ({ isLoading, text }: ISubmitButton) => {
   return (
     <>
       <Button

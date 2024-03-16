@@ -1,4 +1,6 @@
-import React, {RefObject, useEffect, useRef, useState} from 'react'
+import React, { useEffect, useRef, useState } from 'react'
+import { observer } from "mobx-react-lite"
+import { IconWorld } from "@tabler/icons-react"
 import {
   Avatar,
   Box,
@@ -12,29 +14,35 @@ import {
   Typography,
   useMediaQuery,
 } from "@mui/material"
-import { IconWorld } from "@tabler/icons-react"
 import { useTheme } from "@mui/material/styles"
+
+// components
 import { RegionList } from "./RegionList"
+
+// assets
+import classes from './RegionSection.module.scss'
+
+// entities
+import { RegionsStore } from "@/entities/Region"
 
 // shared
 import { Transitions } from "@/shared/ui/extended/Transitions"
 import { MainCard } from "@/shared/ui/cards/MainCard"
-
-// assets
-import classes from './RegionSection.module.scss'
+import { getCountryFlagImage } from "@/entities/Region/lib"
 import { ICustomTheme } from "@/shared/lib/themes/theme"
 
-// entities
-import {RegionsStore} from "@/entities/Region"
 
-export const RegionSection = () => {
+export const RegionSection = observer(() => {
   const theme = useTheme<ICustomTheme>()
   const matchesXs = useMediaQuery(theme.breakpoints.down('md'))
 
   const regions = [...RegionsStore.regions.items]
+  const currentRegion = RegionsStore.regions.currentItem
 
   const [isOpen, setIsOpen] = useState<boolean>(false)
-  const [value, setValue] = useState('')
+
+  // FIX - Error: Hydration failed because the initial UI does not match what was rendered on the server.
+  const [isClient, setIsClient] = useState<boolean>(false)
 
   /**
    * anchorRef is used on different components and specifying one type leads to other components throwing an error
@@ -61,12 +69,16 @@ export const RegionSection = () => {
     prevOpen.current = isOpen
   }, [isOpen])
 
+  useEffect(() => {
+    setIsClient(true)
+  }, [])
+
   return (
     <>
       <>
         <Box>
           <Tooltip title={'Регионы'}>
-            <ButtonBase>
+            <ButtonBase sx={{}}>
               <Avatar
                 variant="rounded"
                 sx={{
@@ -88,7 +100,15 @@ export const RegionSection = () => {
                 onClick={handleToggle}
                 color="inherit"
               >
-                <IconWorld stroke={1.5} size="1.3rem" />
+                {isClient && currentRegion?.name
+                  ? <div className={'border border-1 border-brand'}>
+                    {getCountryFlagImage({
+                      countryShortname: currentRegion.name,
+                      width: 15,
+                      height: 15
+                    })}
+                  </div>
+                  : <IconWorld stroke={1.5} size="1.3rem" />}
               </Avatar>
             </ButtonBase>
           </Tooltip>
@@ -147,5 +167,4 @@ export const RegionSection = () => {
       </>
     </>
   )
-}
-
+})

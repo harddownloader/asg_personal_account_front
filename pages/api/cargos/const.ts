@@ -1,4 +1,4 @@
-export const NO_REGION_STATUS = 'none';
+export const NO_REGION_STATUS = 'none'
 
 /*
 * 0 - The shipment has arrived at the warehouse and is awaiting shipment.

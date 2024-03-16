@@ -134,6 +134,7 @@ export const CargosForm = ({
               labelId={statusSelectNameAttr}
               fullWidth
               disabled={isDisabled}
+              IconComponent={isDisabled ? () => null : undefined}
               input={<OutlinedInput id="outlined-input" label={CARGO_FIELD_NAMES.STATUS.label} />}
               {...field}
             >
@@ -164,7 +165,7 @@ export const CargosForm = ({
         className={'bg-white rounded'}
         disabled={true}
         type="number"
-        inputProps={{ min: 0, max: 100000000, step: 1 }}
+        inputProps={!isDisabled ? { min: 0, max: 100000000, step: 1 } : {}}
         defaultValue={formDefaultValues?.costOfDelivery}
         {...registerForm(CARGO_FIELD_NAMES.COST_OF_DELIVERY.value, {
           valueAsNumber: true,
@@ -189,7 +190,7 @@ export const CargosForm = ({
         className={'bg-white rounded'}
         disabled={isDisabled}
         type="number"
-        inputProps={insuranceFieldInputProps}
+        inputProps={!isDisabled ? insuranceFieldInputProps : {}}
         {...registerForm('insurance', {
           valueAsNumber: true,
           required: true
@@ -213,7 +214,7 @@ export const CargosForm = ({
         className={'bg-white rounded'}
         disabled={isDisabled}
         type="number"
-        inputProps={{ min: '0.00', max: '100000000.00', step: '0.01' }}
+        inputProps={!isDisabled ? { min: '0.00', max: '100000000.00', step: '0.01' } : {}}
         {...registerForm('cost', {
           valueAsNumber: true,
           required: true
@@ -246,7 +247,7 @@ export const CargosForm = ({
           className={'bg-white rounded'}
           disabled={isDisabled}
           type="number"
-          inputProps={tariffFieldInputProps}
+          inputProps={!isDisabled ? tariffFieldInputProps: {}}
           {...registerForm(CARGO_FIELD_NAMES.TARIFF.value, {
             valueAsNumber: true,
             required: true
@@ -282,7 +283,7 @@ export const CargosForm = ({
         className={'bg-white rounded'}
         disabled={true}
         type="number"
-        inputProps={volumeFieldInputProps}
+        inputProps={!isDisabled ? volumeFieldInputProps : {}}
         defaultValue={formDefaultValues?.volume}
         {...registerForm('volume', {
           valueAsNumber: true,
@@ -307,7 +308,7 @@ export const CargosForm = ({
         className={'bg-white rounded'}
         disabled={true}
         type="number"
-        inputProps={weightFieldInputProps}
+        inputProps={!isDisabled ? weightFieldInputProps : {}}
         defaultValue={formDefaultValues?.weight}
         {...registerForm(CARGO_FIELD_NAMES.WEIGHT.value, {
           valueAsNumber: true,

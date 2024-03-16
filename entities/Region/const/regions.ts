@@ -7,6 +7,9 @@ export const REGIONS: TRegionName[] = [
   FIRST_REGION_SHORTNAME,
   SECOND_REGION_SHORTNAME,
   THIRD_REGION_SHORTNAME
-] as const;
+] as const
 
-export const DEFAULT_REGION = FIRST_REGION_SHORTNAME
+export const DEFAULT_REGION = THIRD_REGION_SHORTNAME
+
+// cookies
+export const REGION_KEY = 'user_region' as const

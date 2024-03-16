@@ -49,25 +49,29 @@ export const CargosBlock = observer(() => {
   // @ts-ignore
   const CargosListWithConfirm: FunctionComponent<CargosListProps> = ConfirmToLeave(CargosList)
 
-  /* init cargos list */
-  useEffect(() => {
-    if (
-      !isUserEmployee &&
-      !isCurrentClientHasClientCode &&
-      !CargosStore.cargos.currentItemsList.length
-    ) {
-      CargosListView.archiveItemsToggle(false)
-    }
-  }, [])
+  // /* init cargos list */
+  // useEffect(() => {
+  //   initCargoList()
+  // }, [])
+  //
+  // const initCargoList = () => {
+  //   if (
+  //     !isUserEmployee &&
+  //     !isCurrentClientHasClientCode &&
+  //     !CargosStore.cargos.currentItemsList.length
+  //   ) {
+  //     CargosListView.archiveItemsToggle(false)
+  //   }
+  // }
 
   /*
   * pooling new cargos, if were found, set them to store
   * */
   useEffect(() => {
     const TTL_DELAY_TO_START_POOLING_CARGOS_MS = 5000 as const
-    const TTL_POOLING_CARGOS_MS = 10000 as const
+    const TTL_POOLING_CARGOS_MS = 60000 as const
 
-    let intervalId: any = null
+    let intervalId: NodeJS.Timeout | null = null
     const timeoutId = setTimeout(() => {
       intervalId = setInterval(async () => {
         await CargosListPooling.poolingNewCargosForUser(isUserEmployee)

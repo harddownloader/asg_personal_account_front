@@ -14,13 +14,13 @@ export class _MenuStore {
   constructor() {
     makeAutoObservable(this)
 
-    // makePersistable(this, {
-    //   name: 'MenuStore',
-    //   storage: typeof window !== "undefined" ? window.localStorage : undefined,
-    //   properties: [
-    //     'menu'
-    //   ]
-    // })
+    makePersistable(this, {
+      name: 'MenuStore',
+      storage: typeof window !== "undefined" ? window.localStorage : undefined,
+      properties: [
+        'menu'
+      ]
+    })
   }
 
   toggleMenuStatus = (opened: boolean) => {

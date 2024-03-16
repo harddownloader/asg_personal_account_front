@@ -1,23 +1,26 @@
-import {Fragment} from "react"
-import {useTheme} from "@mui/material/styles"
-import {List} from "@mui/material"
+import { Fragment } from "react"
+import { useTheme } from "@mui/material/styles"
+import { List } from "@mui/material"
+import { observer } from "mobx-react-lite"
 
 // components
-import {RegionListItem} from "./RegionListItem"
+import { RegionListItem } from "./RegionListItem"
 
 // entities
-import {IRegion} from "@/entities/Region"
+import { IRegion, RegionsStore } from "@/entities/Region"
 
 // shared
-import {ICustomTheme} from "@/shared/lib/themes/theme"
+import { ICustomTheme } from "@/shared/lib/themes/theme"
 
 
 export interface IRegionListProps {
   regions: IRegion[]
 }
 
-export const RegionList = ({ regions }: IRegionListProps) => {
+export const RegionList = observer(({ regions }: IRegionListProps) => {
   const theme = useTheme<ICustomTheme>()
+
+  const currentRegion = RegionsStore.regions.currentItem
 
   const chipSX = {
     height: 24,
@@ -71,6 +74,7 @@ export const RegionList = ({ regions }: IRegionListProps) => {
             <Fragment key={index}>
               <RegionListItem
                 region={region}
+                isActive={Boolean(currentRegion && currentRegion?.name === region.name)}
               />
             </Fragment>
           ))
@@ -78,4 +82,4 @@ export const RegionList = ({ regions }: IRegionListProps) => {
       }
     </List>
   )
-}
+})

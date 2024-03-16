@@ -1,10 +1,8 @@
-import {ReactElement, useMemo} from "react"
+import { ReactElement } from "react"
+import { observer } from "mobx-react-lite"
 
 // mui
-import Box from "@mui/material/Box"
-import { Grid, Typography } from "@mui/material"
-import Button from "@mui/material/Button"
-import TextField from "@mui/material/TextField"
+import { Grid, TextField, Box } from "@mui/material"
 
 // project components
 import { SubmitButton } from "@/shared/ui/SubmitButton/SubmitButton"
@@ -16,27 +14,27 @@ import { TFixMeInTheFuture } from "@/shared/types/types"
 // store
 import { ClientsStore } from '@/entities/User'
 
-export interface EditFormControl {
+export interface IEditFormControl {
   registerForm: TFixMeInTheFuture,
   errorsForm: TFixMeInTheFuture,
   setErrorForm: TFixMeInTheFuture,
 }
 
-export interface EditFormProps {
+export interface IEditFormProps {
   title: string,
   handleSubmit: () => void,
-  formControl: EditFormControl,
+  formControl: IEditFormControl,
 }
 
-export const EditForm = ({
+export const EditForm = observer(({
                            title,
                            handleSubmit,
                            formControl: {
                              registerForm,
                              errorsForm,
                            }
-                          }: EditFormProps) => {
-  const isLoading = useMemo(() => ClientsStore.clients.isLoading, [ClientsStore.clients.isLoading])
+                          }: IEditFormProps) => {
+  const isLoading = ClientsStore.clients.isLoading
 
   const NameField: ReactElement = (
     <>
@@ -176,6 +174,4 @@ export const EditForm = ({
       </Box>
     </>
   )
-}
-
-export default EditForm
+})

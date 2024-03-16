@@ -78,7 +78,7 @@ export const ClientsListItem = observer(
                   {item.name}
                 </Typography>
               </Grid>
-              <Grid item>
+              <Grid item width={'100%'}>
                 <Grid container alignItems="center" justifyContent="space-between">
                   <Grid item>
                     <Typography variant="subtitle1" color="inherit">

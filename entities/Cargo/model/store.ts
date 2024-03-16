@@ -192,7 +192,6 @@ export class _CargosStore {
     clientCode,
     status,
     costOfDelivery,
-    // cargoName,
     insurance,
     cost,
     tariff,
@@ -871,7 +870,6 @@ export class _CargosStore {
       spaceIndex,
       photoIndex
     })
-    // CargosStore.deleteCargoImage()
 
     const spacesTmp = JSON.parse(JSON.stringify(this.cargos.notLoadedSpaces.list))
     const spacesWithoutRemovedPhoto = spacesTmp.map((space: TSpaceItem, _space_index: number) => {
