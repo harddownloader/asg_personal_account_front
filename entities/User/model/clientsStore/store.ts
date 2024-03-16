@@ -13,7 +13,7 @@ import {
 import { ACCESS_TOKEN_KEY, AUTHORIZATION_HEADER_KEY } from "@/shared/lib/providers/auth"
 import { getCookies } from "@/shared/lib/cookies"
 
-export interface ClientsState {
+export interface IClientsState {
   items: Array<IUserOfDB>,
   currentList: Array<IUserOfDB>
   currentItem: IUserOfDB | null,
@@ -21,7 +21,7 @@ export interface ClientsState {
 }
 
 export class _ClientsStore {
-  clients: ClientsState = {
+  clients: IClientsState = {
     items: [], // all clients
     currentList: [], // clients what we can see in list
     currentItem: null, // selected client
@@ -46,7 +46,7 @@ export class _ClientsStore {
   }
 
   setList = (clientsList: Array<IUserOfDB>) => {
-    this.clients.items = [...clientsList]
+    this.clients.items = JSON.parse(JSON.stringify(clientsList))
   }
 
   addClient = (client: IUserOfDB) => {
@@ -67,19 +67,27 @@ export class _ClientsStore {
   updateClientInLists = (updatedUser: IUserOfDB) => {
     const clientsItemsTmp = JSON.parse(JSON.stringify(this.clients.items))
     const currentClientsItemsTmp = JSON.parse(JSON.stringify(this.clients.currentList))
-    const currentUserIndex__all = clientsItemsTmp.findIndex((user: IUserOfDB) => user.id === updatedUser.id)
-    const currentUserIndex__view = currentClientsItemsTmp.findIndex((user: IUserOfDB) => user.id === updatedUser.id)
+    const currentUserIndex__all = clientsItemsTmp.findIndex(
+      (user: IUserOfDB) => user.id === updatedUser.id
+    )
+    const currentUserIndex__view = currentClientsItemsTmp.findIndex(
+      (user: IUserOfDB) => user.id === updatedUser.id
+    )
     if (
       currentUserIndex__all !== -1 &&
       currentUserIndex__view !== -1
     ) {
       clientsItemsTmp.splice(currentUserIndex__all, 1, updatedUser)
+      currentClientsItemsTmp.splice(currentUserIndex__view, 1, updatedUser)
       this.setList(clientsItemsTmp)
+      this.setCurrentList(currentClientsItemsTmp)
       this.setCurrentItem(updatedUser)
-    } else console.warn('clientsStore->updateClientInLists error: we can not found updated user in lists', {
-      currentUserIndex__all,
-      currentUserIndex__view,
-    })
+    } else console.warn(
+      'clientsStore->updateClientInLists error: we can not found updated user in lists', {
+        currentUserIndex__all,
+        currentUserIndex__view,
+      }
+    )
   }
 
   saveClientProfile = async ({
@@ -157,5 +165,12 @@ export class _ClientsStore {
       clientsTmp.splice(clientIndex, 1 , client)
       this.clients.items = clientsTmp
     }
+  }
+
+  clearAll() {
+    this.clients.items = []
+    this.clients.currentList = []
+    this.clients.currentItem = null
+    this.clients.isLoading = false
   }
 }

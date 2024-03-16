@@ -1,4 +1,5 @@
 import { memo } from "react"
+import { observer } from "mobx-react-lite"
 
 // mui
 import { useTheme } from '@mui/material/styles'
@@ -11,6 +12,7 @@ import { NotificationSection } from './NotificationSection'
 
 // entities
 import { RegionSection } from "@/entities/Region"
+import { USER_ROLE, UserStore } from "@/entities/User"
 
 // widgets
 import { LogoSection } from "@/widgets/LogoSection"
@@ -25,8 +27,11 @@ export interface IHeaderProps {
   handleLeftDrawerToggle: () => void
 }
 
-export const Header = memo(({ handleLeftDrawerToggle }: IHeaderProps) => {
+export const Header = observer(({ handleLeftDrawerToggle }: IHeaderProps) => {
   const theme = useTheme<ICustomTheme>()
+
+  const currentUser = UserStore.user.currentUser
+  const isAdmin = (currentUser && currentUser.role === USER_ROLE.ADMIN)
 
   return (
     <>
@@ -74,7 +79,7 @@ export const Header = memo(({ handleLeftDrawerToggle }: IHeaderProps) => {
       <Box sx={{ flexGrow: 1 }} />
       <Box sx={{ flexGrow: 1 }} />
 
-      {/*<RegionSection />*/}
+      {isAdmin && <RegionSection/>}
       <NotificationSection />
       <ProfileSection />
     </>

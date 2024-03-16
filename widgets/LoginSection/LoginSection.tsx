@@ -1,8 +1,9 @@
-import { ReactElement } from "react"
+import { ReactElement, useEffect } from "react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { useForm } from "react-hook-form"
 import * as Sentry from "@sentry/nextjs"
+import { observer } from "mobx-react-lite"
 
 // mui
 import Container from "@mui/material/Container"
@@ -14,6 +15,7 @@ import { PasswordField as PasswordFieldComponent } from '@/shared/ui/fields/Pass
 
 // shared
 import { pagesPath } from "@/shared/lib/$path"
+import { useAuthLoaderController } from "@/shared/lib/hooks/useAuthLoaderController"
 
 // store
 import { UserStore } from "@/entities/User"
@@ -27,8 +29,9 @@ export interface ILoginFormData {
   password: string
 }
 
-export const LoginSection = () => {
+export const LoginSection = observer(() => {
   const router = useRouter()
+  useAuthLoaderController()
 
   const {
     register: registerForm,
@@ -51,12 +54,7 @@ export const LoginSection = () => {
     }
 
     await console.log('redirect to home page')
-    // if (!data.tokenCreate.currentUser.region) setErrorForm(...)
     await router.push(pagesPath.home.$url().pathname)
-    // await router.push({
-    //   pathname: "/",
-    //   query: { region: 'ua' } // data.tokenCreate.currentUser.region
-    // })
 
     return
   })
@@ -127,4 +125,4 @@ export const LoginSection = () => {
       </div>
     </>
   )
-}
+})

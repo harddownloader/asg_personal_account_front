@@ -30,6 +30,9 @@ import { mapUserDataFromApi } from "@/entities/User"
 import { JwtAuthGuard } from "@/pages/api/_middleware/jwt-auth.guard"
 import { getUserByCustomToken } from '../_lib/getUserByCustomToken'
 import { endpointCatchHandler } from "@/pages/api/_core/endpoint-catch-handler"
+import { DEFAULT_REGION } from "@/entities/Region"
+import {DecodedIdToken} from "firebase-admin/lib/auth/token-verifier";
+import {isTokenExpire} from "@/shared/lib/token";
 
 // @Controller('users')
 export class UserControllerForAdmins {
@@ -227,9 +230,11 @@ export class UserService {
 
   async getMe(country: string, token: string): Promise<IUserOfDB | null> {
     try {
-      const auth = await getAuth()
+      const defaultFbInstance = await getFirestoreAdmin(DEFAULT_REGION)
+      const auth = defaultFbInstance.auth()
       if (!auth) throw new InternalServerErrorException('Something wrong with auth')
-      const currentFirebaseUser: User = await getUserByCustomToken(auth, token)
+      const currentFirebaseUser = await getUserByCustomToken(token)
+      if (isTokenExpire(currentFirebaseUser)) throw new InternalServerErrorException('Your token expired!')
 
       const db = await getFirestoreAdmin(country).firestore()
       const usersRef = await db.collection(USERS_DB_COLLECTION_NAME)
@@ -266,10 +271,12 @@ export class UserService {
     response: Response
   ) {
     try {
-      const auth = await getAuth()
+      const defaultFbInstance = await getFirestoreAdmin(DEFAULT_REGION)
+      const auth = defaultFbInstance.auth()
 
       if (!auth) throw new InternalServerErrorException('Something wrong with auth')
-      const currentFirebaseUser: User = await getUserByCustomToken(auth, token)
+      const currentFirebaseUser = await getUserByCustomToken(token)
+      if (isTokenExpire(currentFirebaseUser)) throw new InternalServerErrorException('Your token expired!')
 
       const firebaseInstance = await getFirestoreAdmin(country)
       const db = await firebaseInstance.firestore()
@@ -299,8 +306,7 @@ export class UserService {
       if (updateUserDto.phone) updateFireUser.phoneNumber = updateUserDto.phone
       if (updateUserDto.password) updateFireUser.password = updateUserDto.password
 
-      // @ts-ignore
-      const userRecord = await firebaseAdmin.auth(firebaseInstance)
+      const userRecord = await auth
         .updateUser(userDB.id, updateFireUser)
         .then((userRecord) => {
           console.log('Successfully updated users', userRecord.toJSON())

@@ -49,11 +49,6 @@ export const AddCargoDialog = observer(
         clientId
       })
 
-      console.log('AddCargoDialog getCurrentNewTmpSpaces', {
-        currentSpacesTmp,
-        notLoadedSpaces
-      })
-
       return currentSpacesTmp
     }
 

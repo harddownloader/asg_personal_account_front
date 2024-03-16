@@ -1,6 +1,7 @@
 import { makeAutoObservable } from "mobx"
+import { makePersistable } from 'mobx-persist-store'
 import * as Sentry from "@sentry/nextjs"
-import { IRegion, IRegionStore } from "@/entities/Region/types/regions"
+import { IRegion, IRegionStore, TRegionLoading } from "@/entities/Region/types/regions"
 import { REGIONS } from "./../const"
 
 
@@ -9,11 +10,17 @@ export class _RegionsStore {
     items: [...REGIONS.map(region => ({
       name: region
     }))],
-    currentItem: null
+    currentItem: null,
+    isLoading: false
   }
 
   constructor() {
     makeAutoObservable(this)
+    makePersistable(this, {
+      name: 'RegionsStore',
+      storage: typeof window !== "undefined" ? window.localStorage : undefined,
+      properties: ['regions']
+    })
   }
 
   setList = (list: Array<IRegion>) => {
@@ -29,5 +36,13 @@ export class _RegionsStore {
       ...this.regions.items,
       region
     ]
+  }
+
+  setLoading = (status: TRegionLoading) => {
+    this.regions.isLoading = status
+  }
+
+  setCurrentItem = (region: IRegion) => {
+    this.regions.currentItem = region
   }
 }

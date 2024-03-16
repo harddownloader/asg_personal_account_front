@@ -1,6 +1,7 @@
-import React, { ReactElement,  useState } from "react"
+import React, { ReactElement, useEffect, useState } from "react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
+import { observer } from "mobx-react-lite"
 import * as Sentry from "@sentry/nextjs"
 import { useForm } from "react-hook-form"
 // flags select
@@ -21,6 +22,7 @@ import { PhoneFieldComponent } from "@/widgets/Registration/PhoneInput"
 // shared
 import { useDetectUserLocation } from "@/shared/lib/hooks/useDetectUserLocation"
 import { pagesPath } from "@/shared/lib/$path"
+import { useAuthLoaderController } from "@/shared/lib/hooks/useAuthLoaderController"
 
 // store
 import { UserStore } from "@/entities/User"
@@ -46,8 +48,10 @@ const REPEAT_PASSWORD_FIELD_NAME = 'repeatPassword'
 
 export type TCountryState = null | CountryCode
 
-export const Registration = () => {
+export const Registration = observer(() => {
   const router = useRouter()
+  useAuthLoaderController()
+
   const {
     register: registerForm,
     handleSubmit: handleSubmitForm,
@@ -240,4 +244,4 @@ export const Registration = () => {
       </div>
     </>
   )
-}
+})

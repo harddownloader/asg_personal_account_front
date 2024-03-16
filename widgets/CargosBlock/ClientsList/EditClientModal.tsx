@@ -1,5 +1,6 @@
 import { useEffect } from "react"
 import { useForm } from "react-hook-form"
+import { observer } from "mobx-react-lite"
 
 // project components
 import { EditForm } from "@/widgets/ClientProfileForm"
@@ -116,5 +117,3 @@ export const EditClientModal = ({
     </>
   )
 }
-
-export default EditClientModal

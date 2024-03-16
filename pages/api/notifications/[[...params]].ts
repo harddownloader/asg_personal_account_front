@@ -10,14 +10,15 @@ import {
   ValidationPipe
 } from "next-api-decorators"
 import { v4 as uuidv4 } from "uuid"
-import { getAuth, User } from "firebase/auth"
 import { UpdateNotificationDto } from "@/pages/api/notifications/dto/update-notification.dto"
 import { CreateNotificationDto } from "@/pages/api/notifications/dto/create-notification.dto"
-import { firebaseAdmin, getFirestoreAdmin } from "@/shared/lib/firebase/firebaseAdmin"
+import { getFirestoreAdmin } from "@/shared/lib/firebase/firebaseAdmin"
 import { NOTIFICATION_DB_COLLECTION_NAME } from '@/entities/Notification'
 import type { INotification, TNotificationId } from "@/entities/Notification"
 import { TFixMeInTheFuture } from "@/shared/types/types"
 import { getUserByCustomToken } from "@/pages/api/_lib/getUserByCustomToken"
+import { DEFAULT_REGION } from "@/entities/Region"
+import { isTokenExpire } from "@/shared/lib/token"
 
 export class NotificationsRepository {
 
@@ -92,9 +93,11 @@ export class NotificationsService {
   /* new endpoint */
   async findByCurrentUserToken(country: string, token: string) {
     try {
-      const auth = await getAuth()
+      const defaultFbInstance = await getFirestoreAdmin(DEFAULT_REGION)
+      const auth = defaultFbInstance.auth()
       if (!auth) throw new InternalServerErrorException('Something wrong with auth')
-      const currentFirebaseUser: User = await getUserByCustomToken(auth, token)
+      const currentFirebaseUser = await getUserByCustomToken(token)
+      if (isTokenExpire(currentFirebaseUser)) throw new InternalServerErrorException('Your token expired!')
 
       const db = await getFirestoreAdmin(country).firestore()
       const notificationsRef = await db.collection(NOTIFICATION_DB_COLLECTION_NAME)

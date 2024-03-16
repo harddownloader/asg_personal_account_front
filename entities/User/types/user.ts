@@ -29,9 +29,11 @@ export interface IUserOfDB extends IUser {
   role: TUserRole
 }
 
+export type TIsLoading = boolean
+
 export interface IUserStore {
   currentUser: IUserOfDB
-  isLoading: boolean
+  isLoading: TIsLoading
 }
 
 // responses structures

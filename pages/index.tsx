@@ -1,8 +1,10 @@
 /* eslint react-hooks/exhaustive-deps: 0 */
-import { ReactElement, useEffect } from "react"
+import React, { ReactElement, useEffect } from "react"
 import { InferGetServerSidePropsType, GetServerSidePropsContext } from "next"
+import Router from "next/router"
 import nookies from "nookies"
 import * as Sentry from '@sentry/nextjs'
+import { observer } from "mobx-react-lite"
 
 // widgets
 import { AccountLayout } from "@/widgets/Layout"
@@ -12,22 +14,59 @@ import { CargosBlock } from "@/widgets/CargosBlock/CargosBlock"
 import { ACCESS_TOKEN_KEY } from "@/shared/lib/providers/auth"
 import { pagesPath } from "@/shared/lib/$path"
 import { isTokenExpire, parseJwtOnServer } from "@/shared/lib/token"
-
-// store
-import { CargosStore } from "@/entities/Cargo"
-import { UserStore } from "@/entities/User"
-import { USER_ROLE } from '@/entities/User'
-import type { IUserOfDB, TDecodedAccessToken } from '@/entities/User'
-import { ClientsStore } from "@/entities/User"
-import { NotificationsStore } from "@/entities/Notification"
+import { Preloader } from "@/shared/ui/Preloader"
 
 // entities
-import { getAllClients, mapUserDataFromApi } from "@/entities/User"
-import { getAllByUserId } from "@/entities/Notification"
-import { getMe } from "@/entities/User"
-import { getAllCargos, getCargosByUserId } from "@/entities/Cargo"
-import {getTones, getTonesByUserCargos, ToneStore} from "@/entities/Tone"
-import {getTonesByUserId} from "@/entities/Tone/api/getTonesByUserId";
+import {
+  // const
+  USER_ROLE,
+
+  // types
+  IUserOfDB,
+  TDecodedAccessToken,
+
+  // api
+  getAllClients,
+  getMe,
+
+  // api mappers
+  mapUserDataFromApi,
+
+  // stores
+  UserStore,
+  ClientsStore,
+} from "@/entities/User"
+import {
+  // api
+  getAllByUserId,
+
+  // store
+  NotificationsStore,
+} from "@/entities/Notification"
+import {
+  // api
+  getAllCargos,
+  getCargosByUserId,
+
+  // store
+  CargosListView,
+  CargosStore,
+} from "@/entities/Cargo"
+import {
+  // api
+  getTones,
+  getTonesByUserId,
+
+  // store
+  ToneStore
+} from "@/entities/Tone"
+import {
+  // const
+  REGION_KEY,
+
+  // store
+  RegionsStore
+} from "@/entities/Region"
 
 export const getServerSideProps = async (ctx: GetServerSidePropsContext) => {
   const redirectToLoginPage = {
@@ -46,6 +85,8 @@ export const getServerSideProps = async (ctx: GetServerSidePropsContext) => {
     // if the users is authenticated
     const cookies = nookies.get(ctx)
     const accessToken = cookies[ACCESS_TOKEN_KEY]
+    const region = cookies[REGION_KEY]
+    console.log({ cookies, region })
 
     if (!accessToken) {
       console.log('accessToken not found, redirecting to login page...')
@@ -84,6 +125,9 @@ export const getServerSideProps = async (ctx: GetServerSidePropsContext) => {
     const country = currentUser.country
     const userId = currentUser.id
     const isUserEmployee = currentUser.role > USER_ROLE.CLIENT
+    const isAdmin = currentUser.role === USER_ROLE.ADMIN
+
+    const getRegion = () => isAdmin ? region : country
 
     console.time('home_page_all_requests_benchmark')
 
@@ -92,19 +136,19 @@ export const getServerSideProps = async (ctx: GetServerSidePropsContext) => {
     const notificationsPromiseIndex = 0
     promises[notificationsPromiseIndex] = async () => await getAllByUserId({
       userId,
-      country,
+      country: getRegion(),
       token: accessToken,
     })
 
     const clientsPromiseIndex = 1
     promises[clientsPromiseIndex] = async () => isUserEmployee
-      ? await getAllClients({ country, token: accessToken })
+      ? await getAllClients({ country: getRegion(), token: accessToken })
       : await emptyPromise()
 
     const cargosPromiseIndex = 2
     promises[cargosPromiseIndex] = async () => isUserEmployee
       ? await getAllCargos({
-        country,
+        country: getRegion(),
         token: accessToken,
       })
       : currentUser?.userCodeId
@@ -118,11 +162,11 @@ export const getServerSideProps = async (ctx: GetServerSidePropsContext) => {
     const tonesPromiseIndex = 3
     promises[tonesPromiseIndex] = async () => isUserEmployee
       ? await getTones({
-          country,
+          country: getRegion(),
           token: accessToken,
         })
       : await getTonesByUserId({
-        country,
+        country: getRegion(),
         token: accessToken,
         userId
       })
@@ -145,6 +189,7 @@ export const getServerSideProps = async (ctx: GetServerSidePropsContext) => {
         tones: outcomes[tonesPromiseIndex].status === "fulfilled"
           ? outcomes[tonesPromiseIndex].value
           : [],
+        currentTime: new Date().toString()
       },
     }
   } catch (err) {
@@ -166,8 +211,17 @@ function Home ({
                  clients,
                  notifications,
                  tones,
+                 currentTime, // region change marker
                }: InferGetServerSidePropsType<typeof getServerSideProps>) {
   useEffect(() => {
+    initStores()
+  }, [])
+
+  useEffect(() => {
+    initStores()
+  }, [currentTime])
+
+  const initStores = () => {
     if (cargos?.length) CargosStore.setList(cargos)
 
     if (!UserStore.user.currentUser.id) UserStore.saveUserToStore(mapUserDataFromApi({...currentUser}))
@@ -178,11 +232,21 @@ function Home ({
     if (notifications?.length) NotificationsStore.setList(notifications)
 
     if (tones?.length) ToneStore.setList(tones)
-  }, [])
+
+    // set view cargos list
+    CargosListView.archiveItemsToggle(false)
+  }
+
+  // set a loader when we change regions
+  Router.events.on("routeChangeStart", () => RegionsStore.setLoading(true))
+  Router.events.on("routeChangeComplete", () => RegionsStore.setLoading(false))
+  Router.events.on("routeChangeError", () => () => RegionsStore.setLoading(false))
+  const isLoading = RegionsStore.regions.isLoading
 
   return (
     <>
-      <CargosBlock />
+      {isLoading ? <Preloader /> : <CargosBlock />}
+      {/*<p>content</p>*/}
     </>
   )
 }
@@ -191,4 +255,8 @@ Home.getLayout = function getLayout(page: ReactElement) {
   return <AccountLayout>{page}</AccountLayout>
 }
 
-export default Home
+
+const HomePage = observer(Home)
+
+HomePage.displayName = 'Home'
+export default HomePage

@@ -31,7 +31,7 @@ import { ACCESS_TOKEN_KEY } from '@/shared/lib/providers/auth'
 
 // entities
 import { checkAddTone } from '@/entities/Tone/model/helpers/validation'
-import { ClientsStore, USER_ROLE } from '@/entities/User'
+import {ClientsStore, USER_ROLE, UserStore} from '@/entities/User'
 import {
   // const
   CARGO_FIELD_NAMES,
@@ -43,6 +43,7 @@ import {
   // types
   TSetCurrentItemsListByStatusArgs,
 } from '@/entities/Cargo'
+import {getRegionCookie} from "@/entities/Region/lib";
 
 type TToneStore = {
   items: ITone[]
@@ -112,8 +113,11 @@ export class _ToneStore {
 
     this.tones.isLoading = true
     const newUpdatedAndCreatedAt = new Date().toISOString()
+    const currentUser = UserStore.user.currentUser
     await addTone({
-      country: userOfCargo.country,
+      country: (currentUser && currentUser.role === USER_ROLE.ADMIN)
+        ? getRegionCookie()
+        : userOfCargo.country,
       token,
       body: {
         label: toneName,
@@ -176,5 +180,11 @@ export class _ToneStore {
     CargosStore.setCurrentItemsListByStatus(cargosListArgs)
 
     ClientsStore.restoreCurrentList()
+  }
+
+  clearAll() {
+    this.tones.items = []
+    this.tones.isLoading = false
+    this.tones.currentToneId = CURRENT_TONE_ID_DEFAULT
   }
 }

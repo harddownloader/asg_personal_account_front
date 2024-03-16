@@ -29,7 +29,17 @@ import {
 } from "@/entities/User/model/userStore/helpers/validation"
 
 // types
-import type {
+import type { ILoginFormData } from "@/widgets/LoginSection"
+import type { TFixMeInTheFuture } from "@/shared/types/types"
+
+// entities
+import {
+  // const
+  USERS_DB_COLLECTION_NAME,
+  USER_ROLE,
+  USER_DEFAULT_VALUES,
+
+  // types
   TLoginResponse,
   TRegisterResponse,
   IRegisterUserData,
@@ -39,27 +49,28 @@ import type {
   IUserStore,
   TUserSavingResponse,
   TUserOfAnExistingRegion,
-} from "@/entities/User"
-import type { ILoginFormData } from "@/widgets/LoginSection"
-import type { TFixMeInTheFuture } from "@/shared/types/types"
-import { ISaveContactUserDataArgs } from "@/entities/User"
+  ISaveContactUserDataArgs,
 
-// entity
-import { getUpdateUserErrorMsg, registerUser, updateUserData } from "@/entities/User"
+  // lib
+  getUpdateUserErrorMsg,
+
+  // api
+  registerUser,
+  updateUserData,
+
+  // store
+  ClientsStore,
+} from "@/entities/User"
 
 // const
-import {
-  USERS_DB_COLLECTION_NAME,
-  USER_ROLE,
-  USER_DEFAULT_VALUES,
-} from "@/entities/User"
 import { ACCESS_TOKEN_KEY, AUTHORIZATION_HEADER_KEY } from "@/shared/lib/providers/auth"
 
 // stores
 import { CargosStore } from "@/entities/Cargo"
 import { NotificationsStore } from "@/entities/Notification"
-import { checkTokenExpireErrorMsg } from "@/shared/lib/exceptions/isFetchWasFailedByTokenExpire"
-import { pagesPath } from "@/shared/lib/$path"
+import { clearRegionCookie, setRegionCookie } from "@/entities/Region/lib"
+import { ToneStore } from "@/entities/Tone"
+import {TIsLoading} from "@/entities/User/types/user";
 
 let socket: TFixMeInTheFuture
 
@@ -71,6 +82,10 @@ export class _UserStore {
 
   constructor() {
     makeAutoObservable(this)
+  }
+
+  setIsLoading = (status: TIsLoading) => {
+    this.user.isLoading = status
   }
 
   saveUserToStore = ({
@@ -233,7 +248,6 @@ export class _UserStore {
       method: 'POST',
       headers: new Headers({
         'Content-Type': 'application/json',
-        // [`${AUTHORIZATION_HEADER_KEY}`]: `Bearer ${token}`
       }),
       body: JSON.stringify({
         email,
@@ -262,6 +276,10 @@ export class _UserStore {
           // Signed in
           const user = userCredential.user
 
+          // set current region into a cookie (needs for admins to switch between regions)
+          if (resp?.region) setRegionCookie(resp.region)
+          else console.error('userStore login error "resp.region" not found', { resp })
+
           return user
         })
         .catch((error) => {
@@ -272,7 +290,7 @@ export class _UserStore {
         });
 
     } else {
-      console.error('assessToken not found')
+      console.error('accessToken not found')
       Sentry.captureMessage(
         `something wrong with getting token in UserStore.login(), assessToken:${resp?.accessToken}`
       )
@@ -358,7 +376,7 @@ export class _UserStore {
           message: 'Что-то пошло не так, попробуйте позже.'
         })
       }
-    }).finally(() => {
+
       this.user.isLoading = false
     })
 
@@ -371,11 +389,20 @@ export class _UserStore {
       this.user.currentUser = {
         ...USER_DEFAULT_VALUES
       }
+      // clear clients
+      ClientsStore.clearAll()
+
       // clear cargos
       CargosStore.clearAll()
 
+      // clear tones
+      ToneStore.clearAll()
+
       // clear notifications
       NotificationsStore.clearAll()
+
+      // clear region cookies (used by the admin profile)
+      clearRegionCookie()
 
       return true
     })

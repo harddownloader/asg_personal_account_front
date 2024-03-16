@@ -50,6 +50,7 @@ import { TFixMeInTheFuture } from "@/shared/types/types"
 import { getLogger } from "@/shared/lib/logger/log-util"
 import {firebaseAdmin, fApp, getFirestoreAdmin, sApp, tApp} from "@/shared/lib/firebase/firebaseAdmin"
 import { firebaseAuth } from "@/shared/lib/firebase"
+import {DecodedIdToken} from "firebase-admin/lib/auth/token-verifier";
 
 const getUserInRegion = async (regionName: string, userId: string): Promise<IUserOfDB | null> => {
    try {
@@ -231,10 +232,12 @@ class AuthService {
   }
 
   async refreshToken(token: string, country: string) {
+    console.log('refreshToken', { token, country })
     try {
-      const auth = await getAuth()
+      const defaultFbInstance = await getFirestoreAdmin(DEFAULT_REGION)
+      const auth = defaultFbInstance.auth()
       if (!auth) throw new InternalServerErrorException('Something wrong with auth')
-      const currentFirebaseUser: User = await getUserByCustomToken(auth, token)
+      const currentFirebaseUser = await getUserByCustomToken(token)
 
       const userId = currentFirebaseUser.uid
 
@@ -245,14 +248,13 @@ class AuthService {
       const { id, ...notSensitiveData } = userInDB
 
       if (!notSensitiveData?.country) throw new NotFoundException(`'country' of User not found in user data`)
-      const dbInstance = await getFirestoreAdmin(notSensitiveData.country)
 
       const developerClaims: IUserOfDB = {
         //... add other custom claims as need be
         id: userId,
         ...notSensitiveData
       }
-      const accessToken = await firebaseAdmin.auth(dbInstance).createCustomToken(userId, developerClaims)
+      const accessToken = await auth.createCustomToken(userId, developerClaims)
 
       return {
         accessToken: accessToken,

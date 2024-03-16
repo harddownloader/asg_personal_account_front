@@ -14,7 +14,6 @@ import {
   FIRST_FIREBASE_STORAGE_BUCKET,
   FIRST_FIREBASE_MESSAGING_SENDER_ID,
   FIRST_FIREBASE_APP_ID,
-  FIRST_FIREBASE_MEASUREMENT_ID,
 
   SECOND_FIREBASE_API_KEY,
   SECOND_FIREBASE_AUTH_DOMAIN,
@@ -22,7 +21,6 @@ import {
   SECOND_FIREBASE_STORAGE_BUCKET,
   SECOND_FIREBASE_MESSAGING_SENDER_ID,
   SECOND_FIREBASE_APP_ID,
-  SECOND_FIREBASE_MEASUREMENT_ID,
 
   THIRD_FIREBASE_API_KEY,
   THIRD_FIREBASE_AUTH_DOMAIN,
@@ -30,7 +28,6 @@ import {
   THIRD_FIREBASE_STORAGE_BUCKET,
   THIRD_FIREBASE_MESSAGING_SENDER_ID,
   THIRD_FIREBASE_APP_ID,
-  THIRD_FIREBASE_MEASUREMENT_ID,
 } from "@/shared/lib/firebase/const"
 import {
   DEFAULT_REGION,
@@ -47,7 +44,6 @@ const firstFirebaseClientConfig: FirebaseOptions = {
   storageBucket: FIRST_FIREBASE_STORAGE_BUCKET,
   messagingSenderId: FIRST_FIREBASE_MESSAGING_SENDER_ID,
   appId: FIRST_FIREBASE_APP_ID,
-  measurementId: FIRST_FIREBASE_MEASUREMENT_ID
 }
 
 const secondFirebaseClientConfig: FirebaseOptions = {
@@ -57,7 +53,6 @@ const secondFirebaseClientConfig: FirebaseOptions = {
   storageBucket: SECOND_FIREBASE_STORAGE_BUCKET,
   messagingSenderId: SECOND_FIREBASE_MESSAGING_SENDER_ID,
   appId: SECOND_FIREBASE_APP_ID,
-  measurementId: SECOND_FIREBASE_MEASUREMENT_ID
 }
 
 const thirdFirebaseClientConfig: FirebaseOptions = {
@@ -67,7 +62,6 @@ const thirdFirebaseClientConfig: FirebaseOptions = {
   storageBucket: THIRD_FIREBASE_STORAGE_BUCKET,
   messagingSenderId: THIRD_FIREBASE_MESSAGING_SENDER_ID,
   appId: THIRD_FIREBASE_APP_ID,
-  measurementId: THIRD_FIREBASE_MEASUREMENT_ID
 }
 
 function createFirebaseApp(config: FirebaseOptions) {

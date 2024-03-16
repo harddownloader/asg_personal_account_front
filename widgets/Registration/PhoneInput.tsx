@@ -19,6 +19,9 @@ import classes from "./PhoneField.module.scss"
 // const
 import { PHONE_FIELD_NAME, COUNTRY_FIELD_NAME, IRegisterUserDataFull, TCountryState } from './Registration'
 
+// entities
+import { getCountryFlagImage } from "@/entities/Region/lib"
+
 const containsText = (text: string, searchText: string) => {
   return text.toLowerCase().indexOf(searchText.toLowerCase()) > -1
 }
@@ -112,7 +115,7 @@ export const PhoneFieldComponent = ({
             value={value}
             ref={ref}
             id={PHONE_FIELD_NAME}
-            placeholder={placeholder} // Ваш телефон
+            placeholder={placeholder} // 'Your phone'
             className={`${classes.phoneNumberTextField} ${className}`}
             margin="normal"
             required
@@ -150,12 +153,11 @@ export const PhoneFieldComponent = ({
                         name={name}
                         className={classes.countryFlagSelect}
                         renderValue={(selected) => {
-                          return <Image
-                            width={50}
-                            height={30}
-                            alt={'flag'}
-                            src={`https://purecatamphetamine.github.io/country-flag-icons/3x2/${selected}.svg`}
-                          />
+                          return getCountryFlagImage({
+                            countryShortname: selected,
+                            width: 50,
+                            height: 30
+                          })
                         }}
                       >
                         <ListSubheader>

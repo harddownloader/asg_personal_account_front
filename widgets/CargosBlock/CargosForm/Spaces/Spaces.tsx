@@ -90,7 +90,7 @@ export const Spaces = observer(({
   const areFilesLoading = Boolean(CargosStore.cargos.notLoadedSpaces.numberOfPhotosCurrentlyBeingUploaded)
   const filterCallback = (space: TSpaceItem) => (
     space.clientId === clientId &&
-    (() => isItEditForm ? space.cargoId === currentCargo?.cargoId : true)()
+    (() => isItEditForm ? space.cargoId === currentCargo?.id : true)()
   )
   const reduceCallback = (accumulator: Array<TUploadImage>, space: TSpaceItem) => accumulator.concat(space.photos)
   CargosStore.cargos.notLoadedSpaces.list.filter(filterCallback).reduce(reduceCallback, [])
@@ -170,7 +170,7 @@ export const Spaces = observer(({
       clientId: clientId
     }
     if (isItEditForm) {
-      if (!currentCargo?.cargoId) {
+      if (!currentCargo?.id) {
         console.warn('cargoId not found')
         return
       }
@@ -226,7 +226,7 @@ export const Spaces = observer(({
       isItEditForm,
     }
     if (isItEditForm) {
-      if (!currentCargo?.cargoId) {
+      if (!currentCargo?.id) {
         console.warn('cargoId not found')
         return
       }
