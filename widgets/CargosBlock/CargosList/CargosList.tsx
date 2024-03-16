@@ -45,8 +45,8 @@ export interface CargosListProps {
 
 const getToggleBtnClass = (isActive: boolean): string => {
   const dynamicClasses = isActive
-    ? `bg-brand hover:bg-white border-white hover:border-brand text-white hover:text-brand`
-    : `bg-white hover:bg-brand border-brand hover:border-white text-brand hover:text-white`
+    ? `bg-brand border-white text-white hover:bg-brand hover:border-white hover:text-white`
+    : `bg-white border-brand text-brand hover:bg-white hover:border-brand hover:text-brand`
   const staticClasses = `border-solid border font-bold rounded h-14 mt-4`
   return `${dynamicClasses} ${staticClasses}`
 }
