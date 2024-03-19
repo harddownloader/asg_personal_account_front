@@ -222,16 +222,16 @@ function Home ({
   }, [currentTime])
 
   const initStores = () => {
-    if (cargos?.length) CargosStore.setList(cargos)
+    CargosStore.setList(cargos?.length ? cargos : [])
 
     if (!UserStore.user.currentUser.id) UserStore.saveUserToStore(mapUserDataFromApi({...currentUser}))
 
     if (clients === null) ClientsStore.setCurrentItem({...currentUser})
-    else if (clients?.length) ClientsStore.initClientsLists(clients)
+    else ClientsStore.initClientsLists(clients?.length ? clients : [])
 
-    if (notifications?.length) NotificationsStore.setList(notifications)
+    NotificationsStore.setList(notifications?.length ? notifications : [])
 
-    if (tones?.length) ToneStore.setList(tones)
+    ToneStore.setList(tones?.length ? tones : [])
 
     // set view cargos list
     CargosListView.archiveItemsToggle(false)
@@ -245,8 +245,7 @@ function Home ({
 
   return (
     <>
-      {isLoading ? <Preloader /> : <CargosBlock />}
-      {/*<p>content</p>*/}
+      { isLoading ? <Preloader /> : <CargosBlock /> }
     </>
   )
 }
