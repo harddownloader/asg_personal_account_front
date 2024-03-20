@@ -34,7 +34,7 @@ import {
 
   // stores
   UserStore,
-  ClientsStore,
+  ClientsStore, TUserCountry,
 } from "@/entities/User"
 import {
   // api
@@ -128,6 +128,7 @@ export const getServerSideProps = async (ctx: GetServerSidePropsContext) => {
     const isAdmin = currentUser.role === USER_ROLE.ADMIN
 
     const getRegion = () => isAdmin ? region : country
+    const currentRegion = getRegion()
 
     console.time('home_page_all_requests_benchmark')
 
@@ -136,19 +137,19 @@ export const getServerSideProps = async (ctx: GetServerSidePropsContext) => {
     const notificationsPromiseIndex = 0
     promises[notificationsPromiseIndex] = async () => await getAllByUserId({
       userId,
-      country: getRegion(),
+      country: currentRegion,
       token: accessToken,
     })
 
     const clientsPromiseIndex = 1
     promises[clientsPromiseIndex] = async () => isUserEmployee
-      ? await getAllClients({ country: getRegion(), token: accessToken })
+      ? await getAllClients({ country: currentRegion, token: accessToken })
       : await emptyPromise()
 
     const cargosPromiseIndex = 2
     promises[cargosPromiseIndex] = async () => isUserEmployee
       ? await getAllCargos({
-        country: getRegion(),
+        country: currentRegion,
         token: accessToken,
       })
       : currentUser?.userCodeId
@@ -162,11 +163,11 @@ export const getServerSideProps = async (ctx: GetServerSidePropsContext) => {
     const tonesPromiseIndex = 3
     promises[tonesPromiseIndex] = async () => isUserEmployee
       ? await getTones({
-          country: getRegion(),
+          country: currentRegion,
           token: accessToken,
         })
       : await getTonesByUserId({
-        country: getRegion(),
+        country: currentRegion,
         token: accessToken,
         userId
       })
@@ -189,7 +190,8 @@ export const getServerSideProps = async (ctx: GetServerSidePropsContext) => {
         tones: outcomes[tonesPromiseIndex].status === "fulfilled"
           ? outcomes[tonesPromiseIndex].value
           : [],
-        currentTime: new Date().toString()
+        region: currentRegion,
+        currentTime: new Date().toString() // region change marker
       },
     }
   } catch (err) {
@@ -211,6 +213,7 @@ function Home ({
                  clients,
                  notifications,
                  tones,
+                 region,
                  currentTime, // region change marker
                }: InferGetServerSidePropsType<typeof getServerSideProps>) {
   useEffect(() => {
@@ -222,6 +225,8 @@ function Home ({
   }, [currentTime])
 
   const initStores = () => {
+    if (region) RegionsStore.setCurrentItem({ name: region })
+
     CargosStore.setList(cargos?.length ? cargos : [])
 
     if (!UserStore.user.currentUser.id) UserStore.saveUserToStore(mapUserDataFromApi({...currentUser}))
