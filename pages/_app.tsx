@@ -15,7 +15,6 @@ import { AudioProvider } from "@/shared/lib/audio"
 // providers
 import { AuthProvider } from '@/shared/lib/providers/auth'
 import { NotificationProvider } from '@/entities/Notification'
-import { RegionProvider } from '@/shared/lib/providers/region'
 
 // assets
 import '@/shared/styles/globals.scss'
@@ -38,15 +37,13 @@ export default function App({ Component, pageProps }: AppPropsWithLayout) {
   return (
     <StyledEngineProvider injectFirst>
       <ThemeProvider theme={theme(customization)}>
-        {/*<RegionProvider>*/}
-          <AuthProvider>
-            <AudioProvider>
-              <NotificationProvider>
-                {getLayout(<Component {...pageProps} />)}
-              </NotificationProvider>
-            </AudioProvider>
-          </AuthProvider>
-        {/*</RegionProvider>*/}
+        <AuthProvider>
+          <AudioProvider>
+            <NotificationProvider>
+              {getLayout(<Component {...pageProps} />)}
+            </NotificationProvider>
+          </AudioProvider>
+        </AuthProvider>
       </ThemeProvider>
     </StyledEngineProvider>
   )
