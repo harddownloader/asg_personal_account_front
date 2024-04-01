@@ -14,12 +14,17 @@ import { isTokenExpire, parseJwtOnServer } from "@/shared/lib/token"
 import { pagesPath } from "@/shared/lib/$path"
 import { destroyAccessToken } from "@/shared/lib/cookies"
 
-// store
-import { UserStore } from "@/entities/User"
-import type { IUserOfDB } from '@/entities/User'
-
 // entities
-import { getMe } from "@/entities/User"
+import {
+  // store
+  UserStore,
+
+  // types
+  IUserOfDB,
+
+  // api
+  getMe,
+} from "@/entities/User"
 
 export const getServerSideProps = async (ctx: GetServerSidePropsContext) => {
   try {
