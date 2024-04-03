@@ -3,6 +3,7 @@ import { REGION_KEY } from "@/entities/Region"
 
 
 export const setRegionCookie = (regionName: string) => {
+  console.log('setRegionCookie', regionName)
   destroyCookie(null, REGION_KEY)
   setCookie(null, REGION_KEY, regionName, {
     maxAge: 30 * 24 * 60 * 60,

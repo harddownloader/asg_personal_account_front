@@ -8,6 +8,10 @@ export class CreateNotificationDto {
 
   @IsNotEmpty()
   @IsString()
+  readonly title!: string;
+
+  @IsNotEmpty()
+  @IsString()
   readonly content!: string;
 
   @IsNotEmpty()

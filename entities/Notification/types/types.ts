@@ -1,6 +1,7 @@
 import { TUserId } from "@/entities/User"
 
-export type TContentType = string
+export type TNotificationContent = string
+export type TNotificationTitle = string
 
 export type TNotificationId = string
 export type TNotificationStatus = boolean
@@ -8,7 +9,8 @@ export type TNotificationStatus = boolean
 export interface INotification {
   id: TNotificationId
   userId: TUserId
-  content: TContentType
+  title: TNotificationTitle
+  content: TNotificationContent
   isViewed: TNotificationStatus
 }
 

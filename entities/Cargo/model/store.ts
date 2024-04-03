@@ -10,7 +10,7 @@ import {
 import * as Sentry from '@sentry/nextjs'
 
 // shared
-import { firebaseFirestore, firebaseStorage } from '@/shared/lib/firebase'
+import { getSortedCurrentItemsListByDate } from '@/shared/lib/arrays/sorting'
 import { compress } from '@/shared/lib/images'
 import { prepareSpaces } from '@/widgets/CargosBlock/helpers/prepareBody'
 import { getCookies } from '@/shared/lib/cookies'
@@ -32,7 +32,8 @@ import {
   SORTING_BY_DATE,
   CargosStore
 } from '@/entities/Cargo'
-import { getSortedCurrentItemsListByDate } from '@/shared/lib/arrays/sorting'
+import { firebaseStorage } from '@/entities/Region'
+
 
 import type {
   IFiltersOfList,

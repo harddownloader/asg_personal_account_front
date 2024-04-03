@@ -10,16 +10,26 @@ import {
   ValidationPipe,
 } from "next-api-decorators"
 import { v4 as uuidv4 } from "uuid"
-import { getAuth, User } from "firebase/auth"
+
+// dto
 import { CreateCargoDto, SpacesDto } from "./dto/create-cargo.dto"
 import { UpdateCargoDto } from "./dto/update-cargo.dto"
+
+// entities
+import { getFirestoreAdmin } from '@/entities/Region/lib/firebase/firebaseAdmin'
+import {
+  // types
+  ICargoFull,
+
+  // api - mappers
+  mapCargoDataFromApi,
+  CARGOS_DB_COLLECTION_NAME,
+} from "@/entities/Cargo"
+import { getAllTonesSSR } from "@/entities/Tone"
+import { ICargoFullMap } from "@/entities/Cargo/api/mappers/mapCargoDataFromApi"
+
+// shared
 import { TFixMeInTheFuture } from "@/shared/types/types"
-import { getFirestoreAdmin } from "@/shared/lib/firebase/firebaseAdmin"
-import { getUserByCustomToken } from "../_lib/getUserByCustomToken"
-import { mapCargoDataFromApi, CARGOS_DB_COLLECTION_NAME } from "@/entities/Cargo"
-import type { ICargoFull } from "@/entities/Cargo"
-import { getAllTonesSSR, ITone, mapToneDataFromApi, TONES_DB_COLLECTION_NAME } from "@/entities/Tone"
-import { ICargoFullMap } from "@/entities/Cargo/api/mappers/mapCargoDataFromApi";
 
 export class CargosService {
   async create(country: string, createCargoDto: CreateCargoDto) {

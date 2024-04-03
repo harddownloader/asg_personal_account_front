@@ -1,6 +1,12 @@
 import { EmailAuthProvider, reauthenticateWithCredential } from "firebase/auth"
+import * as Sentry from "@sentry/nextjs"
+
+// shared
 import { validateEmail } from "@/shared/lib/validation/email"
 import { TResponseFieldErrorsArray } from "@/shared/types/types"
+import { AUTHORIZATION_HEADER_KEY } from "@/shared/lib/providers/auth"
+
+// entities
 import {
   TUserEmail,
   TUserName,
@@ -9,7 +15,8 @@ import {
   TUserCity,
   TUserId,
   TUserCountry,
-  IUserOfDB
+  IUserOfDB,
+  TAccessToken,
 } from "@/entities/User"
 import type {
   TCargoClientCode,
@@ -21,10 +28,7 @@ import type {
   TCargoTariff,
   TCargoStatus,
 } from "@/entities/Cargo"
-import { firebaseAuth } from "@/shared/lib/firebase"
-import * as Sentry from "@sentry/nextjs"
-import { TAccessToken } from "@/entities/User"
-import { AUTHORIZATION_HEADER_KEY } from "@/shared/lib/providers/auth"
+import { firebaseAuth } from "@/entities/Region"
 
 // export const getNameCondition = (name: string) => !name || name.length < 2
 //

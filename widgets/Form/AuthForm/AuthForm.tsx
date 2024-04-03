@@ -3,10 +3,11 @@ import { observer } from "mobx-react-lite"
 import Image from 'next/image'
 
 // mui
-import CssBaseline from "@mui/material/CssBaseline"
-import Box from "@mui/material/Box"
-import Button from "@mui/material/Button"
-import Container from "@mui/material/Container"
+import {
+  CssBaseline,
+  Box,
+  Container,
+} from "@mui/material"
 
 // shared
 import { SubmitButton } from "@/shared/ui/SubmitButton/SubmitButton"

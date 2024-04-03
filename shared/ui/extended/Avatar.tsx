@@ -1,16 +1,17 @@
-// @ts-nocheck
-// import PropTypes from 'prop-types'
-
 // mui
 import { useTheme } from '@mui/material/styles'
 import MuiAvatar from '@mui/material/Avatar'
 
 // shared
-import {ICustomTheme} from "@/shared/lib/themes/theme"
+import { ICustomTheme } from "@/shared/lib/themes/theme"
 
 // ==============================|| AVATAR ||============================== //
+export interface IAvatarProps extends React.ComponentProps<typeof MuiAvatar> {
+  size: 'badge' | 'xs' | 'sm' | 'lg' | 'xl' | 'md'
+  outline: boolean
+}
 
-const Avatar = ({ color, outline, size, sx, ...others }) => {
+const Avatar = ({ color, outline, size, sx, ...others }: IAvatarProps) => {
     const theme = useTheme<ICustomTheme>()
 
     const colorSX = color && !outline && { color: theme.palette.background.paper, bgcolor: `${color}.main` }
@@ -20,7 +21,9 @@ const Avatar = ({ color, outline, size, sx, ...others }) => {
         border: '2px solid',
         borderColor: color ? `${color}.main` : `primary.main`
     }
+
     let sizeSX = {}
+
     switch (size) {
         case 'badge':
             sizeSX = {
@@ -64,13 +67,5 @@ const Avatar = ({ color, outline, size, sx, ...others }) => {
 
     return <MuiAvatar sx={{ ...colorSX, ...outlineSX, ...sizeSX, ...sx }} {...others} />
 }
-
-// Avatar.propTypes = {
-//     className: PropTypes.string,
-//     color: PropTypes.string,
-//     outline: PropTypes.bool,
-//     size: PropTypes.string,
-//     sx: PropTypes.object
-// }
 
 export default Avatar

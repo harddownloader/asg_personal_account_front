@@ -16,41 +16,7 @@ export { getUpdateUserErrorMsg } from './lib/validation/getUpdateUserErrorMsg'
 export { updateAndSet } from './lib/accessToken/updateAndSet'
 
 // types
-export type {
-  // editClient
-  ISaveClientProfile,
-
-  // auth
-  TLoginResponse,
-  IRegisterUserData,
-  TRegisterResponse,
-  TAccessToken,
-  TDecodedAccessToken,
-
-  // profile
-  IUserSecurityDataForSaving,
-  TUserPasswordSavingResponse,
-  IProfileContacts,
-
-  // user
-  TUserName,
-  TUserEmail,
-  TUserPhone,
-  TUserId,
-  TUserCodeId,
-  TUserCity,
-  TUserPassword,
-  TUserRole,
-  IUser,
-  IUserOfDB,
-  IUserStore,
-  TUserSavingResponse,
-  TUserOfARegionThatDoesNotYetExist,
-  TUserOfAnExistingRegion,
-  TUserCountry,
-  ISaveContactUserDataArgs,
-  IProfileSecurityFields,
-} from './types'
+export * from './types'
 
 // const
 export {

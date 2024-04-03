@@ -1,24 +1,20 @@
 // api requests
-export { getAllByUserId } from './api/getAllByUserId'
-export { createNotification } from './api/createNotification'
+export * from './api'
 
 // api mappers
 
 
 // lib
-export { NotificationProvider } from './components/provider/notification'
+export { NotificationProvider } from './lib/providers/notification'
 
 // const
-export { NOTIFICATION_DB_COLLECTION_NAME } from './consts'
+export * from './consts'
 
 // types
-export type {
-  TContentType,
-  TNotificationId,
-  TNotificationStatus,
-  INotification,
-  INotifications,
-} from './types'
+export * from './types'
 
 // model
 export { NotificationsStore, NotificationsListPooling } from './model'
+
+// ui
+export * from './ui'

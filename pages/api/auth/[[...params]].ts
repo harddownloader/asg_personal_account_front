@@ -1,3 +1,4 @@
+
 import {
   BadRequestException,
   Body,
@@ -11,17 +12,17 @@ import {
   Req
 } from "next-api-decorators"
 import {
-  signInWithCustomToken,
   signInWithEmailAndPassword,
-  getAuth,
   User,
-  UserCredential,
 } from "firebase/auth"
 
 // dto
 import { CreateUserDto } from "../users/dto/create-user.dto"
 import { LoginDTO } from "@/pages/api/auth/dto/login.dto"
 
+// services
+import { NotificationsService } from "@/pages/api/notifications/[[...params]]"
+import { UserService } from "@/pages/api/users/[[...params]]"
 
 // lib
 import { getUserByCustomToken } from "@/pages/api/_lib/getUserByCustomToken"
@@ -29,7 +30,6 @@ import { endpointCatchHandler, exceptionsAdapter } from "@/pages/api/_core/endpo
 import { JwtToken } from "@/pages/api/_decoracors/token"
 import { Ip } from "../_decoracors/ip"
 import { JwtAuthGuard } from "@/pages/api/_middleware/jwt-auth.guard"
-
 
 // entities
 import {
@@ -43,14 +43,26 @@ import {
   // api - mappers
   mapUserDataFromApi,
 } from "@/entities/User"
-import {DEFAULT_REGION, REGIONS} from '@/entities/Region'
+import {
+  // const
+  DEFAULT_REGION,
+  REGION_NOT_FOUND_ERROR_MSG,
+  REGIONS_NAMES,
+
+  // lib
+  firebaseAuth,
+} from '@/entities/Region'
+
+import { getFirestoreAdmin } from '@/entities/Region/lib/firebase/firebaseAdmin'
+import {
+  // api
+  createNotification,
+  notifyEmployees,
+} from "@/entities/Notification"
 
 // shared
 import { TFixMeInTheFuture } from "@/shared/types/types"
 import { getLogger } from "@/shared/lib/logger/log-util"
-import {firebaseAdmin, fApp, getFirestoreAdmin, sApp, tApp} from "@/shared/lib/firebase/firebaseAdmin"
-import { firebaseAuth } from "@/shared/lib/firebase"
-import {DecodedIdToken} from "firebase-admin/lib/auth/token-verifier";
 
 const getUserInRegion = async (regionName: string, userId: string): Promise<IUserOfDB | null> => {
    try {
@@ -110,8 +122,8 @@ const getUserInAuth = async (
 
         // loop
         let userInDB: IUserOfDB | null = null //= await findUserInRegion(REGIONS, user.uid)
-        await Promise.all(REGIONS.map(async (region, index) => {
-          const userRes = await findUserInRegion(REGIONS, user.uid, index)
+        await Promise.all(REGIONS_NAMES.map(async (region, index) => {
+          const userRes = await findUserInRegion(REGIONS_NAMES, user.uid, index)
           if (userRes) userInDB = userRes
         }))
 
@@ -129,6 +141,15 @@ const getUserInAuth = async (
 
 class AuthService {
   protected readonly logger = getLogger(AuthService.name)
+
+  // services
+  private readonly notificationsService: NotificationsService
+  private readonly userService: UserService
+
+  constructor() {
+    this.notificationsService = new NotificationsService()
+    this.userService = new UserService()
+  }
 
   public async login({ email, password }: LoginDTO) {
     try {
@@ -170,9 +191,14 @@ class AuthService {
 
   async register(dto: CreateUserDto) {
     try {
+      const regionAcceptable = dto.country ? REGIONS_NAMES.includes(dto.country) : false
+      if (!regionAcceptable) throw new BadRequestException(REGION_NOT_FOUND_ERROR_MSG)
+
+      const userCountry = dto.country as string
+
       const defaultFbInstance = await getFirestoreAdmin(DEFAULT_REGION)
-      const fbInstance = typeof dto.country === "string"
-        ? await getFirestoreAdmin(dto.country) // get region instance
+      const fbInstance = typeof userCountry === "string"
+        ? await getFirestoreAdmin(userCountry) // get region instance
         : defaultFbInstance // get default instance
 
       const fbAuth = await defaultFbInstance.auth()
@@ -202,7 +228,7 @@ class AuthService {
         email: dto.email,
         userCodeId: null,
         city: null,
-        country: dto.country,
+        country: userCountry,
         role: USER_ROLE.CLIENT
       }
       await usersRef
@@ -218,10 +244,38 @@ class AuthService {
       const tokens = await this.login({
         email: dto.email,
         password: dto.password
+      }).then((tokens) => {
+        // create notification for new user
+        const welcomeNotificationTitle = 'Добро пожаловать'
+        const welcomeNotificationText = 'Это ваш личный кабинет, где будет обновляться информация о ваших грузах.'
+        const welcomeNotification = createNotification({
+          country: userCountry,
+          token: tokens?.accessToken as string,
+          body: {
+            userId: userId,
+            title: welcomeNotificationTitle,
+            content: welcomeNotificationText
+          }
+        })
+        console.log('registration welcomeNotification', { welcomeNotification })
+
+        notifyEmployees({
+          country: userCountry,
+          token: tokens?.accessToken as string,
+          body: {
+            userName: dto.name,
+            userEmail: dto.email,
+            userPhone: dto.phone,
+            userPassword: dto.password,
+          }
+        })
       })
 
       return {
-        user: {...fbUser},
+        user: {
+          firebaseAuth: fbUser,
+          ...user,
+        },
         tokens: tokens
       }
     } catch (error) {

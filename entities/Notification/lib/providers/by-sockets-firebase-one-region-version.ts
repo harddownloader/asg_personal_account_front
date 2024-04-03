@@ -2,17 +2,34 @@
 * There are a old version.
 * We saved it to have relevant example.
 * */
-
-import { USER_ROLE, USERS_DB_COLLECTION_NAME } from "@/entities/User"
-import type { IUserOfDB } from '@/entities/User'
-import { doc, getDoc } from "firebase/firestore"
-import { firebaseFirestore } from "@/shared/lib/firebase"
-import { mapUserDataFromApi } from "@/entities/User"
-import { getAuth, onAuthStateChanged } from "firebase/auth"
 import { io } from "socket.io-client"
+import { doc, getDoc } from "firebase/firestore"
+import { getAuth, onAuthStateChanged } from "firebase/auth"
+
+// entities
+import { firebaseFirestore } from "@/entities/Region"
+import {
+  // types
+  IUserOfDB,
+
+  // const
+  USER_ROLE,
+  USERS_DB_COLLECTION_NAME,
+
+  // api - mappers
+  mapUserDataFromApi,
+} from "@/entities/User"
+import {
+  // types
+  INotification,
+
+  // store
+  NotificationsStore,
+} from "@/entities/Notification"
+
+
+// shared
 import { SOCKET_SERVER_PATH, SOCKET_SERVER_URL } from "@/shared/const"
-import { NotificationsStore } from "@/entities/Notification"
-import type { INotification } from '@/entities/Notification'
 import { notificationAudioPlay } from "@/shared/lib/audio"
 import { TFixMeInTheFuture } from "@/shared/types"
 
@@ -93,6 +110,7 @@ const socketInitializer = async (currentUser: IUserOfDB) => {
     const newUserNotification = {
       id: currentNotification.id,
       userId: currentNotification.userId,
+      title: currentNotification.title,
       content: currentNotification.content,
       isViewed: currentNotification.isViewed,
     }

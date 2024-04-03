@@ -1,4 +1,4 @@
-import { useEffect, Fragment, useMemo } from "react"
+import { Fragment } from "react"
 import { observer } from "mobx-react-lite"
 
 // mui
@@ -23,8 +23,6 @@ import {
 // project components
 import { NotificationItem } from './NotificationItem'
 
-// store
-import { NotificationsStore } from "@/entities/Notification"
 
 // entities
 import type { INotification } from '@/entities/Notification'
@@ -36,7 +34,7 @@ export interface NotificationListProps {
   notifications: Array<INotification>
 }
 
-const NotificationList = observer(({ notifications }: NotificationListProps) => {
+export const NotificationList = observer(({ notifications }: NotificationListProps) => {
   const theme = useTheme<ICustomTheme>()
 
   const chipSX = {
@@ -45,8 +43,8 @@ const NotificationList = observer(({ notifications }: NotificationListProps) => 
   }
 
   const chipErrorSX = {
-        ...chipSX, // @ts-ignore
-        color: theme.palette.orange.dark, // @ts-ignore
+        ...chipSX,
+        color: theme.palette.orange.dark,
         backgroundColor: theme.palette.orange.light,
         marginRight: '5px'
     }
@@ -91,7 +89,7 @@ const NotificationList = observer(({ notifications }: NotificationListProps) => 
                 <Fragment key={index}>
                   <NotificationItem
                     id={notification.id}
-                    title={"Новый пользователь"}
+                    title={notification.title}
                     message={notification.content}
                     isViewed={notification.isViewed}
                   />
@@ -103,4 +101,4 @@ const NotificationList = observer(({ notifications }: NotificationListProps) => 
     )
 })
 
-export default NotificationList
+NotificationList.displayName = 'NotificationList'

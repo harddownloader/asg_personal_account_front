@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { useState, useRef, useEffect, useMemo, memo } from 'react'
 
 // mui
@@ -21,13 +20,10 @@ import {
   useMediaQuery
 } from '@mui/material'
 
-// third-party
-// import PerfectScrollbar from 'react-perfect-scrollbar'
-
 // project components
-import {MainCard} from '@/shared/ui/cards/MainCard'
-import {Transitions} from '@/shared/ui/extended/Transitions'
-import NotificationList from './NotificationList'
+import { MainCard } from '@/shared/ui/cards/MainCard'
+import { Transitions } from '@/shared/ui/extended/Transitions'
+import { NotificationList } from './NotificationList'
 import { StyledBadge } from '@/shared/ui/StyledBadge'
 
 // assets
@@ -35,7 +31,7 @@ import classes from './NotificationSection.module.scss'
 import { IconBell } from '@tabler/icons-react'
 
 // store
-import { NotificationsStore } from "@/entities/Notification"
+import {type INotification, NotificationsStore} from "@/entities/Notification"
 import { observer } from "mobx-react-lite"
 
 // shared
@@ -72,28 +68,29 @@ export const NotificationSection = observer(() => {
   /**
    * anchorRef is used on different components and specifying one type leads to other components throwing an error
    * */
-  const anchorRef = useRef(null)
+  const anchorRef = useRef<HTMLDivElement | null>(null)
 
   const handleToggle = () => {
     setIsOpen((prevOpen) => !prevOpen)
   }
 
-  const handleClose = (event) => {
+  const handleClose = (event: MouseEvent | TouchEvent) => {
+    // @ts-ignore
     if (anchorRef.current && anchorRef.current.contains(event.target)) {
       return
     }
     setIsOpen(false)
   }
 
-  const prevOpen = useRef(isOpen)
+  const prevOpen = useRef<boolean>(isOpen)
   useEffect(() => {
     if (prevOpen.current === true && isOpen === false) {
-      anchorRef.current.focus()
+      anchorRef?.current?.focus()
     }
     prevOpen.current = isOpen
   }, [isOpen])
 
-  const handleChange = (event) => {
+  const handleChange = (event: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>) => {
     if (event?.target.value) setValue(event?.target.value)
   }
 
@@ -103,7 +100,7 @@ export const NotificationSection = observer(() => {
     () => JSON.parse(notificationsItemsStr),
     [notificationsItemsStr]
   )
-  const AreThereAnyUnreadNotifications = notifications.some((notification) => notification.isViewed === false)
+  const AreThereAnyUnreadNotifications = notifications.some((notification: INotification) => notification.isViewed === false)
 
   return (
     <>
@@ -247,3 +244,5 @@ export const NotificationSection = observer(() => {
     </>
   )
 })
+
+NotificationSection.displayName = 'NotificationSection'
