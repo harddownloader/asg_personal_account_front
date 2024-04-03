@@ -100,7 +100,7 @@ export const ToneField = observer(function ToneField({
   return (
     <Box className={`${classes.dropdown}`}>
       <FormControl fullWidth id={CARGO_FIELD_NAMES.TONE.value} required>
-        <InputLabel id={labelId}>{CARGO_FIELD_NAMES.TONE.label}</InputLabel>
+        <InputLabel id={labelId}>Дата вылета</InputLabel>
         <Controller
           name={CARGO_FIELD_NAMES.TONE.value}
           control={control}

@@ -98,7 +98,7 @@ export const CargosForm = ({
     </>
   )
 
-  const CargoIdField: ReactElement = (
+  const ToneFieldComp: ReactElement = (
     <>
       <ToneField
         isDisabled={isDisabled}
@@ -331,7 +331,7 @@ export const CargosForm = ({
               <Grid item xs={12} className={'mb-6'}>
                 <Grid container spacing={GRID_SPACING}>
                   <Grid item lg={lgColValue} md={6} sm={6} xs={12}>
-                    {CargoIdField}
+                    {ToneFieldComp}
                   </Grid>
                   <Grid item lg={lgColValue} md={6} sm={6} xs={12}>
                     {ClientCodeField}
