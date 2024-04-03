@@ -97,7 +97,8 @@ export class _ClientsStore {
                                city,
                                userCodeId,
                                id,
-                               country
+                               country,
+                               role
                              }: ISaveClientProfile): Promise<TUserSavingResponse> => {
     const token = await getCookies(ACCESS_TOKEN_KEY)
     const response: TUserSavingResponse = {
@@ -135,7 +136,8 @@ export class _ClientsStore {
             email,
             city,
             userCodeId,
-            id
+            id,
+            role,
           })
         })
           .then((response) => response.json())
