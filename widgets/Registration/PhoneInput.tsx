@@ -1,12 +1,18 @@
 import React, { useEffect, useMemo, useState } from "react"
-import Image from "next/image"
 import { Control, Controller, FieldErrors } from "react-hook-form"
-import { FormControl, InputAdornment, ListSubheader, MenuItem, TextField } from "@mui/material";
 import { CountryCode, Examples, getExampleNumber } from "libphonenumber-js/min"
 import ru from "react-phone-number-input/locale/ru.json"
 import { getCountries, getCountryCallingCode } from "react-phone-number-input/input"
 
-import Select from "@mui/material/Select"
+// mui
+import {
+  FormControl,
+  InputAdornment,
+  ListSubheader,
+  MenuItem,
+  TextField,
+  Select
+} from "@mui/material"
 import { SelectChangeEvent } from "@mui/material/Select/SelectInput"
 import SearchIcon from "@mui/icons-material/Search"
 
@@ -16,8 +22,15 @@ import { TSearchText } from "@/widgets/CargosBlock/CargosForm/ToneField/ToneFiel
 // assets
 import classes from "./PhoneField.module.scss"
 
-// const
-import { PHONE_FIELD_NAME, COUNTRY_FIELD_NAME, IRegisterUserDataFull, TCountryState } from './Registration'
+import {
+  // const
+  PHONE_FIELD_NAME,
+  COUNTRY_FIELD_NAME,
+
+  // types
+  IRegisterUserDataFull,
+  TCountryState
+} from './Registration'
 
 // entities
 import { getCountryFlagImage } from "@/entities/Region/lib"

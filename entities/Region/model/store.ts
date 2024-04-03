@@ -2,12 +2,12 @@ import { makeAutoObservable } from "mobx"
 import { makePersistable } from 'mobx-persist-store'
 import * as Sentry from "@sentry/nextjs"
 import { IRegion, IRegionStore, TRegionLoading } from "@/entities/Region/types/regions"
-import { REGIONS } from "./../const"
+import { REGIONS_NAMES } from "./../const"
 
 
 export class _RegionsStore {
   regions: IRegionStore = {
-    items: [...REGIONS.map(region => ({
+    items: [...REGIONS_NAMES.map(region => ({
       name: region
     }))],
     currentItem: null,

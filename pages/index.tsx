@@ -88,8 +88,11 @@ export const getServerSideProps = async (ctx: GetServerSidePropsContext) => {
     const region = cookies[REGION_KEY]
     console.log({ cookies, region })
 
-    if (!accessToken) {
-      console.log('accessToken not found, redirecting to login page...')
+    if (!accessToken) { // || !region
+      console.log('accessToken or region not found, redirecting to login page...', {
+        accessToken, region
+      })
+
       return {
         redirect: {
           permanent: false,

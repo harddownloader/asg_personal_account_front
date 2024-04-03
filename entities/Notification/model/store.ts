@@ -1,14 +1,35 @@
 import { action, makeAutoObservable, makeObservable } from 'mobx'
-import { ACCESS_TOKEN_KEY, AUTHORIZATION_HEADER_KEY } from "@/shared/lib/providers/auth"
-import { getCookies } from "@/shared/lib/cookies"
-import type { TUserCountry } from "@/entities/User"
-import type {
+import * as Sentry from "@sentry/nextjs"
+
+// entities
+import {
+  TDecodedAccessToken,
+  TUserCountry,
+  UserStore
+} from "@/entities/User"
+import {
+  // types
   INotifications,
   INotification,
   TNotificationId,
   TNotificationStatus,
+  TGetUnreadNotificationsArgs,
+
+  // api
+  getUnreadNotifications,
+
+  // store
+  NotificationsStore,
 } from '@/entities/Notification'
-import * as Sentry from "@sentry/nextjs"
+import { RegionsStore } from "@/entities/Region"
+
+// shared
+import {
+  ACCESS_TOKEN_KEY,
+  AUTHORIZATION_HEADER_KEY,
+} from "@/shared/lib/providers/auth"
+import { getCookies } from "@/shared/lib/cookies"
+import { parseJwtOnServer } from "@/shared/lib/token"
 
 export class _NotificationsStore {
   notifications: INotifications = {
@@ -78,7 +99,38 @@ export class _NotificationsListPooling {
     })
   }
 
-  poolingNewCargosForUser = () => {
+  poolingNewCargosForUser = async () => {
+    const token = await getCookies(ACCESS_TOKEN_KEY)
+    if (!token) {
+      console.warn(`_NotificationsListPooling poolingNewCargosForUser: token('${token}') not found`)
+      return null
+    }
 
+    const decodedJwt: TDecodedAccessToken = await parseJwtOnServer(token)
+    const countryByToken = decodedJwt.claims.country
+    const userIdByToken = decodedJwt.claims.id
+
+    const requestData: TGetUnreadNotificationsArgs = {
+      userId: userIdByToken,
+      country: countryByToken,
+      token,
+      lastNotificationId: null
+    }
+
+    const notifications = NotificationsStore.notifications.items
+    const notificationsIds = notifications.map(notification => notification.id)
+    if (notifications.length) {
+      const lastNotification = notifications[0]
+      requestData.lastNotificationId = lastNotification.id
+    }
+
+    const newNotifications = await getUnreadNotifications(requestData)
+
+    if (Array.isArray(newNotifications) && newNotifications.length)
+      newNotifications.forEach((notification) => {
+        if (!notificationsIds.includes(notification.id)) NotificationsStore.add(notification)
+      })
+
+    return newNotifications
   }
 }

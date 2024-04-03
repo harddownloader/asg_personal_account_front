@@ -1,13 +1,15 @@
-import { PartialType } from '@/pages/api/_core/partial-type'
-import { CreateNotificationDto } from './create-notification.dto'
-import {IsBoolean, IsNotEmpty, IsOptional, IsString} from "class-validator";
-import {Transform} from "class-transformer";
+import { IsBoolean, IsNotEmpty, IsOptional, IsString } from "class-validator"
+import { Transform } from "class-transformer"
 
 export class UpdateNotificationDto {
   @IsOptional()
   @IsNotEmpty()
   @IsString()
   readonly userId?: string;
+
+  @IsNotEmpty()
+  @IsString()
+  readonly title!: string;
 
   @IsOptional()
   @IsNotEmpty()

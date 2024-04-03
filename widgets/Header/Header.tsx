@@ -8,11 +8,11 @@ import { Avatar, Box, ButtonBase, Tooltip } from '@mui/material'
 // project components
 import { SearchSection } from './SearchSection'
 import { ProfileSection } from './ProfileSection'
-import { NotificationSection } from './NotificationSection'
 
 // entities
 import { RegionSection } from "@/entities/Region"
 import { USER_ROLE, UserStore } from "@/entities/User"
+import { NotificationSection } from '@/entities/Notification'
 
 // widgets
 import { LogoSection } from "@/widgets/LogoSection"

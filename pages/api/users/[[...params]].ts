@@ -13,26 +13,45 @@ import {
   InternalServerErrorException,
   Res,
 } from 'next-api-decorators'
-import { firebaseAdmin, getFirestoreAdmin } from "@/shared/lib/firebase/firebaseAdmin"
-import { User } from "@firebase/auth"
-import { getAuth, signInWithCustomToken } from "firebase/auth"
-import { USERS_DB_COLLECTION_NAME, USER_ROLE } from '@/entities/User'
-import type { IUserOfDB } from "@/entities/User"
-import { Ip } from "../_decoracors/ip"
+
+// dto
 import { CreateUserDto } from "./dto/create-user.dto"
 import { ChangeUserRegionDto } from "./dto/change-user-region.dto"
 import { UpdateUserDto } from "@/pages/api/users/dto/update-user.dto"
-import type { TCountryArg, TIdArg } from "@/pages/api/users/types"
-import { JwtToken } from "../_decoracors/token"
-import { TFixMeInTheFuture } from "@/shared/types/types"
-import { mapUserDataFromApi } from "@/entities/User"
 
-import { JwtAuthGuard } from "@/pages/api/_middleware/jwt-auth.guard"
+// lib
+import { JwtToken } from "../_decoracors/token"
 import { getUserByCustomToken } from '../_lib/getUserByCustomToken'
+import { JwtAuthGuard } from "@/pages/api/_middleware/jwt-auth.guard"
 import { endpointCatchHandler } from "@/pages/api/_core/endpoint-catch-handler"
-import { DEFAULT_REGION } from "@/entities/Region"
-import {DecodedIdToken} from "firebase-admin/lib/auth/token-verifier";
-import {isTokenExpire} from "@/shared/lib/token";
+
+// types
+import type { TCountryArg, TIdArg } from "@/pages/api/users/types"
+
+// entities
+import {
+  // const
+  DEFAULT_REGION,
+} from "@/entities/Region"
+import {
+  getFirestoreAdmin
+} from '@/entities/Region/lib/firebase/firebaseAdmin' // ssr only import
+
+import {
+  // const
+  USERS_DB_COLLECTION_NAME,
+  USER_ROLE,
+
+  // types
+  IUserOfDB,
+
+  // api - mappers
+  mapUserDataFromApi,
+} from "@/entities/User"
+
+// shared
+import { isTokenExpire } from "@/shared/lib/token"
+import { TFixMeInTheFuture } from "@/shared/types/types"
 
 // @Controller('users')
 export class UserControllerForAdmins {
@@ -199,7 +218,26 @@ export class UserService {
     }
   }
 
-  async getAllAdminsOfRegion(country: string) {}
+  async getAllAdminsOfRegion(country: string) {
+    try {
+      const db = await getFirestoreAdmin(country).firestore()
+      const usersRef = await db.collection(USERS_DB_COLLECTION_NAME)
+
+      return await usersRef
+        .where("role", "==", USER_ROLE.ADMIN)
+        .get()
+        .then((users: TFixMeInTheFuture) => {
+          return users.docs.map((client: TFixMeInTheFuture) => {
+            const userDecode = {...client.data()}
+
+            return userDecode?.id ? mapUserDataFromApi(userDecode) : null
+          })
+        })
+    } catch (error) {
+      console.error(`getAllManagersOfRegion error: ${error}`)
+      return null
+    }
+  }
 
   async findOne(country: string, id: string) {
     try {

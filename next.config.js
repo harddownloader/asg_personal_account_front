@@ -19,7 +19,11 @@ const imageConversionFormats = process.env.NEXT_PUBLIC_IMAGE_CONVERSION_FORMATS
 const nextConfig = {
   reactStrictMode: true,
   images: {
-    domains: [apiURL.hostname, ...allowedImageDomains],
+    remotePatterns: [apiURL.hostname, ...allowedImageDomains].map((domain) => ({
+      protocol: 'https',
+      hostname: domain,
+      pathname: '**',
+    })),
     formats: imageConversionFormats,
     deviceSizes: [640, 750, 828, 1080, 1200, 1920, 2048, 3840],
     contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;",
@@ -36,9 +40,13 @@ const nextConfig = {
     })
 
     if (!isServer) {
-      // don't resolve 'fs' module on the client to prevent this error on build --> Error: Can't resolve 'fs'
       config.resolve.fallback = {
-        fs: false
+        fs: false, // don't resolve 'fs' module on the client to prevent this error on build --> Error: Can't resolve 'fs'
+
+        //
+        // net: false,
+        // tls: false,
+        // child_process: false,
       }
     }
 

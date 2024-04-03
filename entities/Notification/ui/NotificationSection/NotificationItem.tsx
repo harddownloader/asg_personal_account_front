@@ -16,15 +16,17 @@ import { StyledBadge } from "@/shared/ui/StyledBadge/StyledBadge"
 // assets
 import { IconMailbox } from "@tabler/icons-react"
 
-// store
-import { NotificationsStore } from "@/entities/Notification"
-import { UserStore } from "@/entities/User"
-
 // entities
-import type {
+import { UserStore } from "@/entities/User"
+import {
+  // types
   TNotificationId,
-  TContentType,
-  TNotificationStatus
+  TNotificationContent,
+  TNotificationStatus,
+  TNotificationTitle,
+
+  // store
+  NotificationsStore,
 } from '@/entities/Notification'
 
 // shared
@@ -45,8 +47,8 @@ const ListItemWrapper = styled('div')(({ theme }) => ({
 
 export interface NotificationItem {
   id: TNotificationId
-  title: string
-  message: TContentType
+  title: TNotificationTitle
+  message: TNotificationContent
   isViewed: TNotificationStatus
 }
 
@@ -90,7 +92,7 @@ export const NotificationItem = ({
               </Avatar>
             </StyledBadge>
           </ListItemAvatar>
-          <ListItemText primary={<Typography variant="subtitle1">{title}</Typography>} />
+          <ListItemText primary={<Typography variant="subtitle1">Новый пользователь{title}</Typography>} />
           <ListItemSecondaryAction>
             <Grid container justifyContent="flex-end">
               <Grid item>

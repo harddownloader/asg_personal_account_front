@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation"
 import { observer } from "mobx-react-lite"
 import * as Sentry from "@sentry/nextjs"
 import { useForm } from "react-hook-form"
+import { FieldErrors } from "react-hook-form/dist/types/errors"
 // flags select
 import 'react-phone-number-input/style.css'
 import { CountryCode } from "libphonenumber-js/min"
@@ -16,23 +17,26 @@ import {
 
 // project components
 import { AuthForm } from "@/widgets/Form/AuthForm/AuthForm"
-import { PasswordField as PasswordFieldComponent } from '@/shared/ui/fields/PasswordField'
 import { PhoneFieldComponent } from "@/widgets/Registration/PhoneInput"
 
 // shared
+import { PasswordField as PasswordFieldComponent } from '@/shared/ui/fields/PasswordField'
 import { useDetectUserLocation } from "@/shared/lib/hooks/useDetectUserLocation"
 import { pagesPath } from "@/shared/lib/$path"
 import { useAuthLoaderController } from "@/shared/lib/hooks/useAuthLoaderController"
 
-// store
+// entities
 import { UserStore } from "@/entities/User"
-import type {
+import {
+  // types
   IRegisterUserData,
   TRegisterResponse,
 } from '@/entities/User'
+import { SERVER_ERROR_TYPE } from "@/entities/Region"
 
 // assets
 import classes from './Registration.module.scss'
+
 
 export interface IRegisterUserDataFull extends IRegisterUserData {
   repeatPassword: string,
@@ -57,10 +61,12 @@ export const Registration = observer(() => {
     handleSubmit: handleSubmitForm,
     formState: { errors: errorsForm },
     setError: setErrorForm,
+    clearErrors: clearFormErrors,
     control: controlForm,
     reset: resetForm,
-    getValues
   } = useForm<IRegisterUserDataFull>({
+    mode: 'onBlur',
+    reValidateMode: 'onChange',
     defaultValues: {
       [`${NAME_FIELD_NAME}`]: '',
       [`${PHONE_FIELD_NAME}`]: '',
@@ -80,7 +86,7 @@ export const Registration = observer(() => {
     setCountry(country_code)
   }, console.log)
 
-  const handleRegister = handleSubmitForm(async (formData: IRegisterUserData): Promise<void> => {
+  const onSubmitCallback = async (formData: IRegisterUserData): Promise<void> => {
     const { data }: TRegisterResponse = await UserStore.register({
       name: formData.name,
       phone: formData.phone,
@@ -116,7 +122,13 @@ export const Registration = observer(() => {
     await router.push(pagesPath.home.$url().pathname)
 
     return
-  })
+  }
+
+  const onSubmitInvalid = (errors: FieldErrors) => {
+    console.warn('onSubmitInvalid', errors)
+  }
+
+  const handleRegister = handleSubmitForm(onSubmitCallback, onSubmitInvalid)
 
   const NameField: ReactElement = (
     <>
@@ -138,11 +150,16 @@ export const Registration = observer(() => {
     </>
   )
 
+  const setCountryHandler = (newValue: TCountryState) => {
+    setCountry(newValue)
+    clearFormErrors(SERVER_ERROR_TYPE)
+  }
+
   const PhoneField: ReactElement = <PhoneFieldComponent
     controlForm={controlForm}
     errorsForm={errorsForm}
     country={country}
-    setCountryHandler={(newValue) => setCountry(newValue)}
+    setCountryHandler={setCountryHandler}
     className={classes.text_field}
   />
 

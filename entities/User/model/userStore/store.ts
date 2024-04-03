@@ -1,15 +1,10 @@
 import { makeAutoObservable } from "mobx"
-import { firebaseAuth, firebaseFirestore } from "@/shared/lib/firebase"
 import {
-  createUserWithEmailAndPassword,
   getAuth,
   signInWithCustomToken,
-  signInWithEmailAndPassword,
   signOut,
-  updateProfile,
 } from "firebase/auth"
 import nookies from "nookies"
-import { doc, setDoc } from "firebase/firestore"
 import { io } from "socket.io-client"
 import * as Sentry from '@sentry/nextjs'
 
@@ -50,6 +45,7 @@ import {
   TUserSavingResponse,
   TUserOfAnExistingRegion,
   ISaveContactUserDataArgs,
+  TIsLoading,
 
   // lib
   getUpdateUserErrorMsg,
@@ -61,6 +57,16 @@ import {
   // store
   ClientsStore,
 } from "@/entities/User"
+import {
+  // const
+  REGION_NOT_FOUND_ERROR_MSG,
+  SERVER_ERROR_TYPE,
+
+  // lib
+  clearRegionCookie,
+  setRegionCookie,
+  firebaseAuth,
+} from "@/entities/Region"
 
 // const
 import { ACCESS_TOKEN_KEY, AUTHORIZATION_HEADER_KEY } from "@/shared/lib/providers/auth"
@@ -68,9 +74,7 @@ import { ACCESS_TOKEN_KEY, AUTHORIZATION_HEADER_KEY } from "@/shared/lib/provide
 // stores
 import { CargosStore } from "@/entities/Cargo"
 import { NotificationsStore } from "@/entities/Notification"
-import { clearRegionCookie, setRegionCookie } from "@/entities/Region/lib"
 import { ToneStore } from "@/entities/Tone"
-import {TIsLoading} from "@/entities/User/types/user";
 
 let socket: TFixMeInTheFuture
 
@@ -264,25 +268,46 @@ export class _UserStore {
       })
 
     if (resp?.accessToken) {
+
       await nookies.destroy(null, ACCESS_TOKEN_KEY)
       await nookies.set(null, ACCESS_TOKEN_KEY, resp.accessToken, cookiesOptions.accessToken)
       /*
       * sing in with custom token on the frontend
       * https://firebase.google.com/docs/auth/admin/create-custom-tokens?hl=ru#sign_in_using_custom_tokens_on_clients
       * */
-      const auth = await getAuth()
+      // const auth = await getAuth()
+      const auth = firebaseAuth
+      console.log('login resp?.accessToken', {
+        resp,
+        auth,
+      })
+
       await signInWithCustomToken(auth, resp.accessToken)
         .then((userCredential) => {
           // Signed in
           const user = userCredential.user
+          console.log('login signInWithCustomToken user', user)
 
           // set current region into a cookie (needs for admins to switch between regions)
           if (resp?.region) setRegionCookie(resp.region)
-          else console.error('userStore login error "resp.region" not found', { resp })
+          else {
+            console.error('userStore login error "resp.region" not found', { resp })
+            response.data.tokenCreate.errors.push({
+              field: 'server',
+              message: `Something went wrong with user auth`
+            })
+          }
 
           return user
         })
         .catch((error) => {
+          console.warn('Something went wrong with user data in auth and db')
+          response.data.tokenCreate.errors.push({
+            field: 'server',
+            message: `Something went wrong with user auth`
+          })
+          this.user.isLoading = false
+
           const errorCode = error.code
           const errorMessage = error.message
 
@@ -340,6 +365,9 @@ export class _UserStore {
         nookies.destroy(null, ACCESS_TOKEN_KEY)
         nookies.set(null, ACCESS_TOKEN_KEY, regUser.tokens.accessToken, cookiesOptions.accessToken)
 
+        // set current region into a cookie (needs for admins to switch between regions)
+        if (regUser?.user.country) setRegionCookie(regUser.user.country)
+
         // socket.on('connect', () => {
         //   console.log('socket connected from register method')
         //   socket.emit('newUser', `${name}, ${email}`)
@@ -347,7 +375,11 @@ export class _UserStore {
       } else Sentry.captureMessage('we cant get access token after registration of new user')
 
     }).catch((error) => {
-      console.log({error, 'error.message': error.message})
+      console.log('userStore register', {
+        error,
+        'error.message': error.message
+      })
+
       if (error.message === 'TOO_LONG') response.data.accountRegister.errors.push({
         field: 'phone',
         message: `Не валидный номер телефона - слишком длинный`
@@ -369,10 +401,16 @@ export class _UserStore {
         })
       }
 
+      if (error.message === REGION_NOT_FOUND_ERROR_MSG)
+        response.data.accountRegister.errors.push({
+          field: SERVER_ERROR_TYPE,
+          message: `Эта страна('${country.toUpperCase()}') пока не поддерживается. Пожалуйста выберите другую(возле поля с телефоном), или напишите нам, вместе мы решим этот вопрос.`
+        })
+
       // default
       if (!response.data.accountRegister.errors.length) {
         response.data.accountRegister.errors.push({
-          field: "serverError",
+          field: SERVER_ERROR_TYPE,
           message: 'Что-то пошло не так, попробуйте позже.'
         })
       }

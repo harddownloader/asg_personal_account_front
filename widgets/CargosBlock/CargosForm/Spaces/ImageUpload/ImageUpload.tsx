@@ -1,32 +1,29 @@
-import { useMemo, useState, Fragment } from 'react'
-import NextImage from 'next/image'
+import { Fragment } from 'react'
 import { useDropzone } from 'react-dropzone'
-import { ref, uploadBytesResumable, getDownloadURL, uploadBytes } from "firebase/storage"
-import Compressor from 'compressorjs'
 import { observer } from "mobx-react-lite"
 
 // mui
-import { Grid } from "@mui/material"
-import { useTheme } from "@mui/material/styles"
 import Typography from "@mui/material/Typography"
 
-// project components
-import { UploadDropZone } from '@/shared/ui/UploadDropZone'
-import { CircularProgressWithLabel } from "@/shared/ui/CircularProgressWithLabel"
-
-// shared
-import { firebaseStorage } from "@/shared/lib/firebase"
-import { GRID_SPACING } from "@/shared/const"
-import {TFixMeInTheFuture} from "@/shared/types/types"
-
-// assets
+// mui - assets
 import CheckIcon from '@mui/icons-material/Check'
 import CloseIcon from '@mui/icons-material/Close'
 
-// store
-import { CargosStore } from '@/entities/Cargo'
-import { UPLOAD_IMAGE_STATUS } from '@/entities/Cargo'
-import type { TUploadImage } from '@/entities/Cargo'
+// shared
+import { UploadDropZone } from '@/shared/ui/UploadDropZone'
+import { CircularProgressWithLabel } from "@/shared/ui/CircularProgressWithLabel"
+
+// entities
+import {
+  // const
+  UPLOAD_IMAGE_STATUS,
+
+  // type
+  TUploadImage,
+
+  // store
+  CargosStore
+} from '@/entities/Cargo'
 
 export interface ImageInputProps {
   addPhotoHandler: ((fileInfo: {

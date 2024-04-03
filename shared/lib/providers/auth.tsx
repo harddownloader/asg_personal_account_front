@@ -1,21 +1,33 @@
+'use client'
+
 import {
   useState,
   useEffect,
   useContext,
-  createContext, ReactNode,
+  createContext,
+  ReactNode,
 } from "react"
 import nookies from "nookies"
 import {
   onIdTokenChanged,
   User as FirebaseUser
 } from "firebase/auth"
-import { firebaseAuth } from "@/shared/lib/firebase"
+
+// entities
+import { firebaseAuth } from "@/entities/Region"
+import {
+  // types
+  TDecodedAccessToken,
+
+  // lib
+  refreshAccessToken,
+  updateAndSet
+} from "@/entities/User"
+
+// shared
 import { API_URI } from "@/shared/const"
 import { getCookies, cookiesOptions, destroyAccessToken } from "@/shared/lib/cookies"
 import { parseJwtOnBrowser } from "@/shared/lib/token"
-
-import type { TDecodedAccessToken } from "@/entities/User"
-import { refreshAccessToken, updateAndSet } from "@/entities/User"
 
 export const ACCESS_TOKEN_KEY: string = "access_token" as const
 export const REFRESH_TOKEN_KEY: string = "refresh_token" as const

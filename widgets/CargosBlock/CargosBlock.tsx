@@ -18,15 +18,21 @@ import { ClientsListProps } from "@/widgets/CargosBlock/ClientsList/ClientsList"
 // shared
 import { GRID_SPACING } from '@/shared/const'
 
-// store
-import { ClientsStore } from "@/entities/User"
-import { UserStore } from "@/entities/User"
-import { USER_ROLE } from '@/entities/User'
-import type {
+// entities
+import {
+  // const
+  USER_ROLE,
+
+  // types
   IUserOfDB,
   TDecodedAccessToken,
-} from '@/entities/User'
+
+  // store
+  ClientsStore,
+  UserStore,
+} from "@/entities/User"
 import {
+  // store
   CargosStore,
   CargosListView,
   CargosListPooling
@@ -48,21 +54,6 @@ export const CargosBlock = observer(() => {
   const ClientsListWithConfirm: FunctionComponent<ClientsListProps> = ConfirmToLeave(ClientsList)
   // @ts-ignore
   const CargosListWithConfirm: FunctionComponent<CargosListProps> = ConfirmToLeave(CargosList)
-
-  // /* init cargos list */
-  // useEffect(() => {
-  //   initCargoList()
-  // }, [])
-  //
-  // const initCargoList = () => {
-  //   if (
-  //     !isUserEmployee &&
-  //     !isCurrentClientHasClientCode &&
-  //     !CargosStore.cargos.currentItemsList.length
-  //   ) {
-  //     CargosListView.archiveItemsToggle(false)
-  //   }
-  // }
 
   /*
   * pooling new cargos, if were found, set them to store

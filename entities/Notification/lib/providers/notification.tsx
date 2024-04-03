@@ -4,18 +4,8 @@ import {
 } from "react"
 import * as Sentry from '@sentry/nextjs'
 
-
-// shared
-import { SOCKET_SERVER_PATH, SOCKET_SERVER_URL } from "@/shared/const"
-import { firebaseFirestore } from "@/shared/lib/firebase"
-import { notificationAudioPlay } from "@/shared/lib/audio"
-import { TFixMeInTheFuture } from "@/shared/types/types"
-
-// stores
-import { USER_ROLE, IUserOfDB, USERS_DB_COLLECTION_NAME } from "@/entities/User"
-import { NotificationsListPooling } from "@/entities/Notification/model"
-import type { INotification } from '@/entities/Notification'
-import { mapUserDataFromApi } from "@/entities/User"
+// entities
+import { NotificationsListPooling } from "@/entities/Notification"
 
 /*
 * there is an example for one region through firebase
@@ -48,7 +38,7 @@ const useEffectCallbackForPolling = () => {
   const TTL_DELAY_TO_START_POOLING_NOTIFICATIONS_MS = 5000 as const
   const TTL_POOLING_NOTIFICATIONS_MS = 10000 as const
 
-  let intervalId: any = null
+  let intervalId: NodeJS.Timeout | null = null
   const timeoutId = setTimeout(() => {
     intervalId = setInterval(async () => {
       NotificationsListPooling.poolingNewCargosForUser()
@@ -66,7 +56,7 @@ const useEffectCallback = isSocketsEnable
   : useEffectCallbackForPolling
 
 export function NotificationProvider({ children }: NotificationProps) {
-  useEffect(useEffectCallback, [])
+  // useEffect(useEffectCallback, [])
 
   return (
     <>{children}</>
