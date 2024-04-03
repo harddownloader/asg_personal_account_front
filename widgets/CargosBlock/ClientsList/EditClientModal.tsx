@@ -7,10 +7,17 @@ import { EditForm } from "@/widgets/ClientProfileForm"
 import { DialogHOC } from "@/widgets/Dialog/Modal/DialogHOC"
 
 // store
-import type {
+import {
+  // types
   ISaveClientProfile,
   IUserOfDB,
   TUserSavingResponse,
+
+  // const
+  USER_ROLE,
+
+  // store
+  UserStore,
 } from "@/entities/User"
 import { ClientsStore } from '@/entities/User'
 
@@ -44,6 +51,7 @@ export const EditClientModal = ({
         email: client.email,
         city: client?.city ? client.city : '',
         userCodeId: client?.userCodeId ? client.userCodeId : '',
+        role: client?.role,
       })
     }
   }, [client?.id])
@@ -54,6 +62,7 @@ export const EditClientModal = ({
                                                      email,
                                                      city,
                                                      userCodeId,
+                                                     role,
                                                }: ISaveClientProfile): Promise<void> => {
     if (!client?.id) return
 
@@ -64,7 +73,8 @@ export const EditClientModal = ({
       city,
       userCodeId,
       id: client.id,
-      country: client.country
+      country: client.country,
+      role,
     })
 
     if (data?.accountSaving?.errors.length) {
@@ -106,6 +116,7 @@ export const EditClientModal = ({
       >
         <EditForm
           title={'Редактирование клиента'}
+          isAdmin={UserStore.user.currentUser?.role === USER_ROLE.ADMIN}
           handleSubmit={handleEditClient}
           formControl={{
             registerForm,

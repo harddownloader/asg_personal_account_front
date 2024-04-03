@@ -92,7 +92,7 @@ export const NotificationItem = ({
               </Avatar>
             </StyledBadge>
           </ListItemAvatar>
-          <ListItemText primary={<Typography variant="subtitle1">Новый пользователь{title}</Typography>} />
+          <ListItemText primary={<Typography variant="subtitle1">{title}</Typography>} />
           <ListItemSecondaryAction>
             <Grid container justifyContent="flex-end">
               <Grid item>

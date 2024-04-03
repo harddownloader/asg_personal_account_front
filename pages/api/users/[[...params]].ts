@@ -309,6 +309,7 @@ export class UserService {
     response: Response
   ) {
     try {
+      console.log({ updateUserDto })
       const defaultFbInstance = await getFirestoreAdmin(DEFAULT_REGION)
       const auth = defaultFbInstance.auth()
 

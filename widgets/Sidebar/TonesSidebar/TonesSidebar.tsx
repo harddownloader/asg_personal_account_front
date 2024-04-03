@@ -43,7 +43,7 @@ export const TonesSidebar = observer(() => {
           variant="caption"
           sx={{ ...theme.typography.menuCaption, paddingBottom: 0 }}
           display="block"
-        >Список тонн</Typography>}
+        >Дата вылета</Typography>}
       >
         {isLoading ? <Preloader /> : jsxList}
       </ScrollableBlock>

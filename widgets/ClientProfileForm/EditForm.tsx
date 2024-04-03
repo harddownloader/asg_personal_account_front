@@ -12,7 +12,7 @@ import { GRID_SPACING } from "@/shared/const"
 import { TFixMeInTheFuture } from "@/shared/types/types"
 
 // store
-import { ClientsStore } from '@/entities/User'
+import {ClientsStore, USER_ROLE} from '@/entities/User'
 
 export interface IEditFormControl {
   registerForm: TFixMeInTheFuture,
@@ -22,12 +22,14 @@ export interface IEditFormControl {
 
 export interface IEditFormProps {
   title: string,
+  isAdmin: boolean
   handleSubmit: () => void,
   formControl: IEditFormControl,
 }
 
 export const EditForm = observer(({
                            title,
+                           isAdmin,
                            handleSubmit,
                            formControl: {
                              registerForm,
@@ -138,6 +140,31 @@ export const EditForm = observer(({
     </>
   )
 
+  const UserRoleField: ReactElement = (
+    <>
+      <TextField
+        margin="normal"
+        fullWidth
+        id="userRole"
+        label="Роль"
+        placeholder={USER_ROLE.CLIENT}
+        className={"bg-white rounded"}
+        type="number"
+        inputProps={{
+          min: USER_ROLE.CLIENT,
+          max: USER_ROLE.ADMIN,
+          step: 1
+        }}
+        {...registerForm("role", {
+          required: false,
+        })}
+      />
+      {!!errorsForm.role && (
+        <p className="text-sm text-red-500 pt-2">{errorsForm.role?.message}</p>
+      )}
+    </>
+  )
+
   return (
     <>
       <Box
@@ -162,6 +189,9 @@ export const EditForm = observer(({
               <Grid item lg={6} md={6} sm={6} xs={12}>
                 {UserCodeIdField}
               </Grid>
+              {isAdmin && <Grid item lg={6} md={6} sm={6} xs={12}>
+                {UserRoleField}
+              </Grid>}
             </Grid>
           </Grid>
           <Grid item xs={12}>
