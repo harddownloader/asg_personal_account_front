@@ -54,7 +54,7 @@ export const CargosListItem = observer(({
               <Grid container alignItems="center" justifyContent="space-between">
                 <Grid item>
                   <Typography variant="subtitle1" color="inherit">
-                    Стоимость: { item.cost }$
+                    Стоимость: { item.costOfDelivery }$
                   </Typography>
                 </Grid>
               </Grid>
