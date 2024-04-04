@@ -5,7 +5,7 @@ import { getRegionServerConfig } from "@/entities/Region/const/regions/configSer
 const config = getRegionServerConfig()
 
 if (!firebaseAdmin.apps.length) {
-  config.list.forEach((region) => {
+  config && config.list.forEach((region) => {
     firebaseAdmin.initializeApp(
       region.config,
       region.name
@@ -16,15 +16,21 @@ if (!firebaseAdmin.apps.length) {
 export { firebaseAdmin }
 
 export const getFirestoreAdmin = (country: string): app.App => {
-  const config = getRegionServerConfig()
+  try {
+    const config = getRegionServerConfig()
 
-  const regionIndex = config.namesList.findIndex((regionName) => regionName === config.default)
-  // @ts-ignore
-  if (regionIndex != -1) return firebaseAdmin.apps.find((app) => app.name === country)
+    const regionIndex = config && config.namesList.findIndex((regionName) => regionName === config.default)
+    // @ts-ignore
+    if (regionIndex != -1) return firebaseAdmin.apps.find((app) => app.name === country)
 
-  console.error('getFirestoreAdmin error: Country not found!!! Its return first of all.')
-  // @ts-ignore
-  return null // config.list[config.default].config // fApp
+    console.error('getFirestoreAdmin error: Country not found!!! Its return first of all.')
+    // @ts-ignore
+    return null // config.list[config.default].config // fApp
+  } catch (error) {
+    console.warn('getFirestoreAdmin catch error: Something went wrong with getting firebaseAdmin app', error)
+    // @ts-ignore
+    return null
+  }
 }
 
 
