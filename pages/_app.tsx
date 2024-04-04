@@ -1,6 +1,7 @@
 import { ReactElement, ReactNode } from "react"
 import { NextPage } from "next"
 import type { AppProps } from 'next/app'
+import Head from 'next/head'
 
 // mui
 import {
@@ -35,16 +36,21 @@ export default function App({ Component, pageProps }: AppPropsWithLayout) {
   * https://github.com/vercel/next.js/discussions/32565
   * */
   return (
-    <StyledEngineProvider injectFirst>
-      <ThemeProvider theme={theme(customization)}>
-        <AuthProvider>
-          <AudioProvider>
-            <NotificationProvider>
-              {getLayout(<Component {...pageProps} />)}
-            </NotificationProvider>
-          </AudioProvider>
-        </AuthProvider>
-      </ThemeProvider>
-    </StyledEngineProvider>
+    <>
+      <Head>
+        <title>ASG</title>
+      </Head>
+      <StyledEngineProvider injectFirst>
+        <ThemeProvider theme={theme(customization)}>
+          <AuthProvider>
+            <AudioProvider>
+              <NotificationProvider>
+                {getLayout(<Component {...pageProps} />)}
+              </NotificationProvider>
+            </AudioProvider>
+          </AuthProvider>
+        </ThemeProvider>
+      </StyledEngineProvider>
+    </>
   )
 }
